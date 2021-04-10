@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.2.0
+ * @version 0.2.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -37,8 +37,11 @@ class _Entity {
         return this;
     }
     
-    scale(xScale, yStale, xOrigin = this.x, yOrigin = this.y) {
-        // abstract
+    scale(scale, xOrigin = this.x, yOrigin = this.y) {
+        const dx = this.x - xOrigin;
+        const dy = this.y - yOrigin;
+        this.x += dx * scale;
+        this.y += dy * scale;
         return this;
     }
 
@@ -49,6 +52,11 @@ class _Entity {
 
     _getDrawn(canvasHandler) {
         // abstract
+    }
+
+    isMouseOver(xMouse, yMouse) {
+        // abstract
+        return false;
     }
 
 
@@ -102,9 +110,9 @@ const Mx = {
             return this;
         }
         
-        scale(xScale, yStale, xOrigin = this.x, yOrigin = this.y) {
-            super.scale(xScale, yStale, xOrigin, yOrigin);
-            this.forChild(c => c.scale(xScale, yStale, xOrigin, yOrigin));
+        scale(scale, xOrigin = this.x, yOrigin = this.y) {
+            super.scale(scale, xOrigin, yOrigin);
+            this.forChild(c => c.scale(scale, xOrigin, yOrigin));
             return this;
         }
     
@@ -320,10 +328,10 @@ const Mx = {
             }
 
             start() {
-                this._interval = setInterval(() => {
-                    this.tickCount++;
-                    this.callback(this);
-                });
+                this._interval = setInterval(loop => {
+                    loop.tickCount++;
+                    loop._callback(loop);
+                }, 1000/this.tps, this);
                 return this;
             }
 
@@ -345,12 +353,28 @@ const Mx = {
         Vertex: class extends _Entity {
 
             toCircle(radius) {
-                // TODO
+                return Mx.Geo.Circle(x, y, radius);
             }
 
             _getDrawn(canvasHandler) {
                 // TODO
             }
+
+        },
+
+        Circle: class extends _Entity {
+
+            constructor(x, y, radius) {
+                super(x, y);
+                this.radius = radius;
+            }
+
+            scale(scale, xOrigin = this.x, yOrigin = this.y) {
+                super.scale(scale, xOrigin, yOrigin);
+                this.radius *- scale;
+                return this;
+            }
+
 
         }
 
