@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.1.0
+ * @version 0.1.1
  */
  const Mx = {
 
@@ -100,8 +100,8 @@
 
         /**
          * Generates a random float between min (incl.) and max (excl.)
-         * @param {*} min - min value
-         * @param {*} max - max value
+         * @param {number} min - min value
+         * @param {number} max - max value
          * @returns a float between min and max
          */
         float(min, max) {
@@ -110,8 +110,8 @@
 
         /**
          * Generates a random int between min (incl.) and max (excl.)
-         * @param {*} min - min value
-         * @param {*} max - max value
+         * @param {number} min - min value
+         * @param {number} max - max value
          * @returns an int between min and max
          */
         int(min, max) {
@@ -120,11 +120,31 @@
 
         /**
          * Returns a random entry from a given array
-         * @param {Array<K>} array - possible values to choose from
+         * @param {Array<K>} options - possible values to choose from
          * @returns {K} - the seleted entry
          */
-        choice(array) {
-            return array[this.int(0, array.length)];
+        choice(options) {
+            return options[this.int(0, options.length)];
+        }
+
+        /**
+         * Returns a random entry from a given array while using the weights array 
+         * @param {Array<K>} options - possible values to choose from
+         * @param {Array<number>} weights - array of weights for each of the options
+         * @returns {K} - the seleted entry
+         */
+        weightedPick(options, weights = []) {
+            if(options.length !== weights.length) {
+                throw new Error('Options and weights arrays lengths\' missmatch!')
+            }
+            const totalWeight = weights.reduce((acc, curr) => acc + curr, 0);
+            let pick = this.float(0, totalWeight);
+            for(let i = 0; i < weights.length; i++) {
+                pick -= weights[i];
+                if(pick < 0) {
+                    return options[i];
+                }
+            }
         }
 
         /**
@@ -146,7 +166,29 @@
             return shuffled;
         }
 
-    }
+    },
+
+    /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
+     * Data Structures and Tools
+     */
+    Ds: {
+
+        /**
+         * TODO
+         * @param {number} min 
+         * @param {number} max 
+         * @param {number} step 
+         * @returns {Array<number>}
+         */
+        range(min, max, step = 1) {
+            const arr = [];
+            for(let i = min; i < max; i += step) {
+                arr.push(i);
+            }
+            return arr;
+        }
+
+    },
 
 }
 
