@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.2.1
+ * @version 0.2.2
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -46,7 +46,7 @@ class _Entity {
     }
 
     rotate(phi, xOrigin = this.x, yOrigin = this.y) {
-        // abstract
+        // TODO
         return this;
     }
 
@@ -117,7 +117,7 @@ const Mx = {
         }
     
         rotate(phi, xOrigin = this.x, yOrigin = this.y) {
-            // abstracta
+            // TODO
             return this;
         }
     
@@ -182,6 +182,10 @@ const Mx = {
             this._transformedSeed = Mx.Rng._transformSeed(this.seed);
             this._numbers = '0192837465'.split('');
             this._initRandomGeneratorIndices();
+        }
+        
+        static init(seed, args = {}) {
+            return new Mx.Rng(seed, args);
         }
 
         /**
@@ -270,6 +274,44 @@ const Mx = {
             return shuffled;
         }
 
+        rgb() {
+            return Mx.Draw.Color.rgb(
+                this.int(0, 255),
+                this.int(0, 255),
+                this.int(0, 255),
+            );
+        }
+
+        rgba() {
+            return Mx.Draw.Color.rgba(
+                this.int(0, 255),
+                this.int(0, 255),
+                this.int(0, 255),
+                this.fract()
+            );
+        }
+
+    },
+
+    /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
+     * Math util
+     */
+    Math: {
+
+        clamp(value, min, max) {
+            if(value < min) {
+                return min;
+            } else if (value > max) {
+                return max;
+            } else {
+                return value;
+            }
+        },
+
+        between(value, min, max) {
+            return value >= min && value <= max;
+        },
+
     },
 
     /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
@@ -350,23 +392,47 @@ const Mx = {
      */
     Geo: {
 
+        Distance: {
+
+            simple(x1, y1, x2, y2) {
+                return Math.sqrt((x1 - x2)**2 + (y1 - y2)**2);
+            },
+
+            vertexVsVertex(v1, v2) {
+                return this.simple(v1.x, v1.y, v2.x, v2.y);
+            },
+
+            vertexVsCircle(v, c) {
+                return this.simple(v.x, v.y, c.x, c.y) - c.radius;
+            },
+
+            circleVsCircle(c1, c2) {
+                return this.simple(c1.x, c1.y, c2.x, c2.y) - c1.radius - c2.radius;
+            }
+
+        },
+
         Vertex: class extends _Entity {
 
             toCircle(radius) {
                 return Mx.Geo.Circle(x, y, radius);
             }
 
-            _getDrawn(canvasHandler) {
-                // TODO
-            }
+        },
+
+        Polyline: class extends _Entity {
 
         },
 
-        Circle: class extends _Entity {
+        Rectangle: class extends _Entity {
 
-            constructor(x, y, radius) {
+            constructor(x, y, width, height, backgroundColor, borderColor, borderWidth) {
                 super(x, y);
-                this.radius = radius;
+                this.width = width;
+                this.height = height;
+                this.backgroundColor = backgroundColor;
+                this.borderColor = borderColor;
+                this.borderWidth = borderWidth;
             }
 
             scale(scale, xOrigin = this.x, yOrigin = this.y) {
@@ -375,8 +441,43 @@ const Mx = {
                 return this;
             }
 
+            _getDrawn(canvasHandler) {
+                canvasHandler.drawRect(this.x, this.y, this.width, this.height, this.backgroundColor, this.borderColor, this.borderWidth);
+            }
 
-        }
+            isMouseOver(xMouse, yMouse) {
+                return (
+                    Mx.Math.between(xMouse, this.x, this.x + this.width) &&
+                    Mx.Math.between(yMouse, this.y, this.y + this.height)
+                );
+            }
+        },
+
+        Circle: class extends _Entity {
+
+            constructor(x, y, radius, backgroundColor, borderColor, borderWidth) {
+                super(x, y);
+                this.radius = radius;
+                this.backgroundColor = backgroundColor;
+                this.borderColor = borderColor;
+                this.borderWidth = borderWidth;
+            }
+
+            scale(scale, xOrigin = this.x, yOrigin = this.y) {
+                super.scale(scale, xOrigin, yOrigin);
+                this.radius *- scale;
+                return this;
+            }
+
+            _getDrawn(canvasHandler) {
+                canvasHandler.drawCircle(this.x, this.y, this.radius, this.backgroundColor, this.borderColor, this.borderWidth);
+            }
+
+            isMouseOver(xMouse, yMouse) {
+                return Mx.Geo.Distance.simple(this.x, this.y, xMouse, yMouse) < this.radius;
+            }
+
+        },
 
     },
 
@@ -385,17 +486,185 @@ const Mx = {
      */
     Draw: {
 
+        Color: {
+
+            rgb(r, g, b) {
+                return `rgb(${r}, ${g}, ${b})`;
+            },
+
+            rgba(r, g, b, a = 1) {
+                return `rgba(${r}, ${g}, ${b}, ${a})`;
+            },
+
+        },
+
         CanvasHandler: class {
 
-            static init(homeId) {
-
+            static init(parentId) {
+                const handler = new Mx.Draw.CanvasHandler(parentId);
+                handler.init();
+                handler.refit();
+                return handler;
             }
 
+            static create() {
+                document.body.innerHTML = '';
+                const home = document.createElement('div');
+                home.id = 'canvas-home';
+                home.style.width = '100vw';
+                home.style.height = '100vh';
+                console.log(home, document, document.body, document.querySelector('body'));
+                document.body.appendChild(home);
+                document.body.style.margin = 0;
+                return Mx.Draw.CanvasHandler.init('canvas-home');
+            }
+
+            constructor(parentId) {
+                this.canvas = null;
+                this.context = null;
+                this.parentId = parentId;
+                this.parent = null;
+                this._onResize = () => {};
+            }
+
+            _fillStyle(color = 'black') {
+                this.context.fillStyle = color;
+                return this;
+            }
+
+            _strokeStyle(color = 'black', lineWidth = 1) {
+                this.context.strokeStyle = color;
+                this.context.lineWidth = lineWidth;
+                return this;
+            }
+
+            init() {
+                this.canvas = document.createElement('canvas');
+                this.canvas.classList.add(`${this.parentId}-canvas`);
+                this.context = this.canvas.getContext('2d');
+                this.parent = document.getElementById(this.parentId);
+                this.parent.appendChild(this.canvas);
+                window.addEventListener('resize', event => this.refit()._onResize(), this);
+                return this;
+            }
+
+            refit() {
+                this.canvas.width = this.parent.clientWidth;
+                this.canvas.height = this.parent.clientHeight;
+                return this;
+            }
+
+            onResize(callback) {
+                this._onResize = callback;
+                callback();
+                return this;
+            }
+
+            clear() {
+                this.context.clearRect(0, 0 , this.canvas.width, this.canvas.height);
+                return this;
+            }
+    
+            fill(color) {
+                this.context.fillStyle = color;
+                this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                return this;
+            }
+
+            // Mx.Entity
+            draw(entity) {
+                entity._getDrawn(this);
+                return this
+            }
+
+            draws(...entities) {
+                for(let e of entities) {
+                    this.draw(e);
+                }
+                return this;
+            }
+
+            // Rectangle
+            fillRect(x, y, width, height, color = 'black') {
+                this._fillStyle(color);
+                this.context.fillRect(x, y, width, height);
+                return this;
+            } 
+    
+            strokeRect(x, y, width, height, color = 'black', thickness = 1) {
+                this._strokeStyle(color, thickness);
+                this.context.strokeRect(x, y, width, height);
+                return this;
+            }
+    
+            drawRect(x, y, width, height, fillColor, strokeColor, thickness) {
+                if(fillColor) {
+                    this.fillRect(x, y, width, height, fillColor);
+                }
+                if(strokeColor) {
+                    this.strokeRect(x, y, width, height, strokeColor, thickness);
+                }
+                return this;
+            }
+
+            // Circle
+            fillCircle(x, y, radius, color = 'black') {
+                this._fillStyle(color);
+                this.context.beginPath();
+                this.context.arc(x, y, radius, 0, Math.PI * 2);
+                this.context.fill();
+                return this;
+            }
+
+            strokeCircle(x, y, radius, color = 'black', thickness = 1) {
+                this._strokeStyle(color, thickness);
+                this.context.beginPath();
+                this.context.arc(x, y, radius, 0, Math.PI * 2);
+                this.context.stroke();
+                return this;
+            }
+
+            drawCircle(x, y, radius, fillColor, strokeColor, thickness = 1) {
+                this._fillStyle(fillColor);
+                this._strokeStyle(strokeColor, thickness);
+                this.context.beginPath();
+                this.context.arc(x, y, radius, 0, Math.PI * 2);
+                if(fillColor) {
+                    this.context.fill();
+                }
+                if(strokeColor) {
+                    this.context.stroke();
+                }
+                return this;
+            }
+
+            // Line
+            drawLine(x1, y1, x2, y2, color = 'black', thickness = 1) {
+                this._strokeStyle(color, thickness);
+                this.context.beginPath();
+                this.context.moveTo(x1, y1);
+                this.context.lineTo(x2, y2);
+                this.context.stroke();
+                return this;
+            }
+
+            drawPolyline(vertices, color = 'black', thickness = 1) {
+                this._strokeStyle(color, thickness);
+                this.context.beginPath();
+                const startVertex = vertices[0];
+                this.context.moveTo(...startVertex);
+                for(let vertex of vertices.slice(1)) {
+                    this.context.lineTo(...vertex);
+                }
+                this.context.stroke();
+                return this;
+            }
         }
     },
 
 }
 
+// enabling node.js imports
 if (typeof module === "object" && typeof module.exports === "object") {
     module.exports = Mx;
 }
