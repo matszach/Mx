@@ -3,15 +3,26 @@
 <script>
     const handler = Mx.Draw.CanvasHandler.create();
     const input = Mx.Input.init();
+
     const circle = new Mx.Geo.Circle(200, 200, 100, 'blue');
     circle.onMouseOver = () => circle.backgroundColor = 'red';
     circle.onMouseOut = () => circle.backgroundColor = 'blue';
     circle.onMouseDown = () => circle.backgroundColor = 'green';
     circle.onMouseUp = () => circle.backgroundColor = 'red';
     circle.onMouseDrag = mouse => circle.place(mouse.x, mouse.y);
+
+    const rect = new Mx.Geo.Rectangle(400, 300, 50, 100, 'blue');
+    rect.onMouseOver = () => rect.backgroundColor = 'red';
+    rect.onMouseOut = () => rect.backgroundColor = 'blue';
+    rect.onMouseDown = () => rect.backgroundColor = 'green';
+    rect.onMouseUp = () => rect.backgroundColor = 'red';
+    rect.onMouseDrag = mouse => rect.place(mouse.x - rect.width/2, mouse.y - rect.height/2);
+
+
     const loop = Mx.It.Loop.start(60, loop => {
         handler.fill('black');
         circle.listen();
-        handler.draw(circle);
+        rect.listen();
+        handler.draws(circle, rect);
     });
 </script>
