@@ -1,0 +1,17 @@
+<body></body>
+<script src='./../mx.js'></script>
+<script>
+    const handler = Mx.Draw.CanvasHandler.create();
+    const input = Mx.Input.init();
+    const circle = new Mx.Geo.Circle(200, 200, 100, 'blue');
+    circle.onMouseOver = () => circle.backgroundColor = 'red';
+    circle.onMouseOut = () => circle.backgroundColor = 'blue';
+    circle.onMouseDown = () => circle.backgroundColor = 'green';
+    circle.onMouseUp = () => circle.backgroundColor = 'red';
+    circle.onMouseDrag = mouse => circle.place(mouse.x, mouse.y);
+    const loop = Mx.It.Loop.start(60, loop => {
+        handler.fill('black');
+        circle.listen();
+        handler.draw(circle);
+    });
+</script>

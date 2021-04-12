@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.2.2
+ * @version 0.3.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -18,6 +18,13 @@ class _Entity {
     constructor(x = 0, y = 0) {
         this.x = x;
         this.y = y;
+        this.isMouseOver = false;
+        this.isMouseDown = false;
+        this.onMouseOver = () => {};
+        this.onMouseOut = () => {};
+        this.onMouseDown = () => {};
+        this.onMouseUp = () => {};
+        this.onMouseDrag = () => {};
     }
 
     place(x, y) {
@@ -33,15 +40,13 @@ class _Entity {
     }
 
     movePolar(phi, r) {
-        // TODO
-        return this;
+        const {x, y} = Mx.Geo.toCartesian(phi, r);
+        return this.move(x, y);
     }
     
     scale(scale, xOrigin = this.x, yOrigin = this.y) {
-        const dx = this.x - xOrigin;
-        const dy = this.y - yOrigin;
-        this.x += dx * scale;
-        this.y += dy * scale;
+        this.x = scale * (this.x - xOrigin) + xOrigin;
+        this.y = scale * (this.y - yOrigin) + yOrigin;
         return this;
     }
 
@@ -54,11 +59,43 @@ class _Entity {
         // abstract
     }
 
-    isMouseOver(xMouse, yMouse) {
+    isPointOver(x, y) {
         // abstract
         return false;
     }
 
+    listen() {
+        // setup
+        const mouse = Mx.Input.mouse();
+        const isNowMouseOver = this.isPointOver(mouse.x, mouse.y);
+        const isNowMouseDown = mouse.left;
+        // checking
+        if(isNowMouseOver) {
+            if(!this.isMouseOver) {
+                this.onMouseOver(mouse);
+            } else if(isNowMouseDown) {
+                this.onMouseDrag(mouse);
+            }
+            this.isMouseOver = true;
+            if(isNowMouseDown) {
+                if(!this.isMouseDown) {
+                    this.onMouseDown(mouse);
+                }
+                this.isMouseDown = true;
+            } else {
+                if(this.isMouseDown) {
+                    this.onMouseUp(mouse);
+                }
+                this.isMouseDown = false;
+            }
+        } else if (this.isMouseOver) {
+            this.onMouseOut(mouse);
+            this.isMouseDown = false;
+            this.isMouseOver = false;
+        }
+        // fin
+        return this;
+    }
 
 }
 
@@ -101,12 +138,6 @@ const Mx = {
         move(x, y) {
             super.move(x, y);
             this.forChild(c => c.move(x, y));
-            return this;
-        }
-    
-        movePolar(phi, r) {
-            super.movePolar(phi, r);
-            this.forChild(c => c.movePolar(phi, r));
             return this;
         }
         
@@ -392,6 +423,29 @@ const Mx = {
      */
     Geo: {
 
+        toPolar(x, y) {
+            let phi; 
+            if(x === 0) {
+                phi = y > 0 ? Math.PI/2 : Math.PI/2 * 3
+            } else {
+                phi = Math.atan(y/x);
+                if (x < 0) {
+                    phi += Math.PI;
+                }
+            }
+            return {
+                r: Mx.Geo.Distance.simple(0, 0, x, y),
+                phi: phi
+            };
+        },
+
+        toCartesian(phi, r) {
+            return {
+                x: r * Math.cos(phi),
+                y: r * Math.sin(phi)
+            };
+        },
+
         Distance: {
 
             simple(x1, y1, x2, y2) {
@@ -414,67 +468,204 @@ const Mx = {
 
         Vertex: class extends _Entity {
 
-            toCircle(radius) {
-                return Mx.Geo.Circle(x, y, radius);
+            toCircle(radius, backgroundColor, borderColor, borderThickness) {
+                return new Mx.Geo.Circle(this.x, this.y, radius, backgroundColor, borderColor, borderThickness);
+            }
+
+        },
+
+        Line: class extends _Entity {
+
+            constructor(x1, y1, x2, y2, color, thickness) {
+                super(-1, -1);
+                this.x1 = x1;
+                this.y1 = y1;
+                this.x2 = x2;
+                this.y2 = y2;
+                this.color = color;
+                this.thickness = thickness;
+            }
+
+            place(x, y) {
+                const dx = x - this.x1;
+                const dy = y - this.y1;
+                this.x1 = x;
+                this.y1 = y;
+                this.x2 += dx;
+                this.y2 += dy;
+                return this;       
+            }
+        
+            move(x, y) {
+                this.x1 += x;
+                this.y1 += y;
+                this.x2 += x;
+                this.y2 += y;
+                return this;
+            }
+            
+            scale(scale, xOrigin = this.x1, yOrigin = this.y1) {
+                this.x1 = scale * (this.x1 - xOrigin) + xOrigin;
+                this.y1 = scale * (this.y1 - yOrigin) + yOrigin;
+                this.x2 = scale * (this.x2 - xOrigin) + xOrigin;
+                this.y2 = scale * (this.y2 - yOrigin) + yOrigin;
+                return this;
+            }
+        
+            rotate(phi, xOrigin = this.x, yOrigin = this.y) {
+                // TODO
+                return this;
+            }
+        
+            _getDrawn(canvasHandler) {
+                canvasHandler.drawLine(this.x1, this.y1, this.x2, this.y2, this.color, this.thickness);
+            }
+
+            getCenter() {
+                return new Mx.Geo.Vertex(
+                    (this.x1 + this.x2)/2
+                    (this.y1 + this.y2)/2
+                );
             }
 
         },
 
         Polyline: class extends _Entity {
 
+            constructor(verticesInfo, color, thickness) {
+                super(-1, -1);
+                this.verticesInfo = verticesInfo;
+                this.color = color;
+                this.thickness = thickness;
+            }
+
+            place(x, y) {
+                const [ix, iy] = this.verticesInfo[0];
+                const dx = x - ix;
+                const dy = y - iy;
+                this.verticesInfo[0] = [x, y];
+                for(let i = 1; i < this.verticesInfo.length; i++) {
+                    const [cx, cy] = this.verticesInfo[i];
+                    this.verticesInfo[i] = [cx + dx, cy + dy]; 
+                }
+                return this;
+            }
+
+            move(x, y) {
+                for(let v of this.verticesInfo) {
+                    v[0] += x;
+                    v[1] += y;
+                }
+                return this;
+            }
+
+            _getDrawn(canvasHandler) {
+                canvasHandler.drawPolyline(this.verticesInfo, this.color, this.thickness);
+            }
+
+            getCenter() {
+                let x = 0;
+                let y = 0;
+                for(let v of this.verticesInfo) {
+                    x += v[0];
+                    y += v[1];
+                }
+                x /= this.verticesInfo.length;
+                y /= this.verticesInfo.length;
+                return Mx.Geo.Vertex(x, y);
+            }
+
+            add(x, y) {
+                this.verticesInfo.push([x, y]);
+            }
+
+            pop() {
+                const [x, y] = this.verticesInfo.pop();
+                return new Mx.Geo.Vertex(x, y);
+            }
+
+            toLines(color = this.color, thickness = this.thickness) {
+                const lines = [];
+                for(let i = 0; i < this.verticesInfo.length - 1; i++) {
+                    const [x1, y1] = this.verticesInfo[i];
+                    const [x2, y2] = this.verticesInfo[i + 1];
+                    const line = new Mx.Geo.Line(x1, y1, x2, y2, color, thickness);
+                    lines.push(line);
+                }
+                return lines;
+            }
+
+            toVertices() {
+                return this.verticesInfo.map(v => {
+                    const [x, y] = v;
+                    return new Mx.Geo.Vertex(x, y);
+                });
+            }
         },
 
         Rectangle: class extends _Entity {
 
-            constructor(x, y, width, height, backgroundColor, borderColor, borderWidth) {
+            constructor(x, y, width, height, backgroundColor, borderColor, borderThickness) {
                 super(x, y);
                 this.width = width;
                 this.height = height;
                 this.backgroundColor = backgroundColor;
                 this.borderColor = borderColor;
-                this.borderWidth = borderWidth;
+                this.borderThickness = borderThickness;
             }
 
             scale(scale, xOrigin = this.x, yOrigin = this.y) {
                 super.scale(scale, xOrigin, yOrigin);
-                this.radius *- scale;
+                this.width *= scale;
+                this.height *= scale;
                 return this;
             }
 
             _getDrawn(canvasHandler) {
-                canvasHandler.drawRect(this.x, this.y, this.width, this.height, this.backgroundColor, this.borderColor, this.borderWidth);
+                canvasHandler.drawRect(this.x, this.y, this.width, this.height, this.backgroundColor, this.borderColor, this.borderThickness);
             }
 
-            isMouseOver(xMouse, yMouse) {
+            isPointOver(x, y) {
                 return (
-                    Mx.Math.between(xMouse, this.x, this.x + this.width) &&
-                    Mx.Math.between(yMouse, this.y, this.y + this.height)
+                    Mx.Math.between(x, this.x, this.x + this.width) &&
+                    Mx.Math.between(y, this.y, this.y + this.height)
+                );
+            }
+
+            getCenter() {
+                return new Mx.Geo.Vertex(
+                    this.x + this.width/2,
+                    this.y + this.height/2
                 );
             }
         },
 
         Circle: class extends _Entity {
 
-            constructor(x, y, radius, backgroundColor, borderColor, borderWidth) {
+            constructor(x, y, radius, backgroundColor, borderColor, borderThickness) {
                 super(x, y);
                 this.radius = radius;
                 this.backgroundColor = backgroundColor;
                 this.borderColor = borderColor;
-                this.borderWidth = borderWidth;
+                this.borderThickness = borderThickness;
             }
 
             scale(scale, xOrigin = this.x, yOrigin = this.y) {
                 super.scale(scale, xOrigin, yOrigin);
-                this.radius *- scale;
+                this.radius *= scale;
                 return this;
             }
 
             _getDrawn(canvasHandler) {
-                canvasHandler.drawCircle(this.x, this.y, this.radius, this.backgroundColor, this.borderColor, this.borderWidth);
+                canvasHandler.drawCircle(this.x, this.y, this.radius, this.backgroundColor, this.borderColor, this.borderThickness);
             }
 
-            isMouseOver(xMouse, yMouse) {
-                return Mx.Geo.Distance.simple(this.x, this.y, xMouse, yMouse) < this.radius;
+            isPointOver(x, y) {
+                return Mx.Geo.Distance.simple(this.x, this.y, x, y) < this.radius;
+            }
+
+            getCenter() {
+                return new Mx.Geo.Vertex(this.x, this.y);
             }
 
         },
@@ -508,12 +699,11 @@ const Mx = {
             }
 
             static create() {
-                document.body.innerHTML = '';
                 const home = document.createElement('div');
                 home.id = 'canvas-home';
                 home.style.width = '100vw';
                 home.style.height = '100vh';
-                console.log(home, document, document.body, document.querySelector('body'));
+                document.body.innerHTML = '';
                 document.body.appendChild(home);
                 document.body.style.margin = 0;
                 return Mx.Draw.CanvasHandler.init('canvas-home');
@@ -568,6 +758,16 @@ const Mx = {
             fill(color) {
                 this.context.fillStyle = color;
                 this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                return this;
+            }
+
+            grid(xSpacing, ySpacing, color = 'gray', thickness = 0.5) {
+                for(let x = 0; x < this.canvas.width; x += xSpacing) {
+                    this.drawLine(x, 0, x, this.canvas.height, color, thickness);
+                }
+                for(let y = 0; y < this.canvas.height; y += ySpacing) {
+                    this.drawLine(0, y, this.canvas.width, y, color, thickness);
+                }
                 return this;
             }
 
@@ -660,6 +860,74 @@ const Mx = {
                 return this;
             }
         }
+    },
+
+    /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
+     * User input
+     */
+    Input: {
+        
+        _keys: {},
+
+        _mouse: {
+           x: 0,
+           y: 0,
+           moveX: 0,
+           moveY: 0,
+           left: false,
+           middle: false,
+           right: false,
+        },
+
+        init() {
+            
+            // mouse listeners
+            document.onmousemove = e => {
+                Mx.Input._mouse.x = e.x;
+                Mx.Input._mouse.moveX = e.movementX;
+                Mx.Input._mouse.y = e.y;
+                Mx.Input._mouse.moveY = e.movementY;
+            };
+
+            document.onmousedown = e => {
+                switch(e.button) {
+                    case 0: Mx.Input._mouse.left = true; break;
+                    case 1: Mx.Input._mouse.middle = true; break;
+                    case 2: Mx.Input._mouse.right = true; break;
+					default: break;
+                }
+            };
+
+            document.onmouseup = e => {
+                switch(e.button) {
+                    case 0: Mx.Input._mouse.left = false; break;
+                    case 1: Mx.Input._mouse.middle = false; break;
+                    case 2: Mx.Input._mouse.right = false; break;
+					default: break;
+                }
+            };
+
+            // key listeners
+            document.onkeydown = (e) => {
+                Mx.Input._keys[e.code] = true;
+            };
+            document.onkeyup = (e) => {
+                Mx.Input._keys[e.code] = false;
+            };
+
+            // disable context menu on right click
+            document.oncontextmenu = () => false;
+            return this;
+        },
+
+        keys() {
+           return this._keys;
+        },
+
+        mouse() {
+            return this._mouse;
+        },
+
     },
 
 }

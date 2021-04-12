@@ -8,12 +8,19 @@
         handler.fill(rng.rgb());
         handler.drawRect(100, 100, 300, 200, rng.rgba(), rng.rgba(), 5);
         handler.drawCircle(300, 200, 50, rng.rgba(), rng.rgba(), 5);
-        const rect = new Mx.Geo.Rectangle(120, 120, 300, 200, rng.rgba(), rng.rgba(), 5);
-        const circle = new Mx.Geo.Circle(320, 220, 50, rng.rgba(), rng.rgba(), 5);
-        handler.draws(rect, circle);
         handler.drawLine(0, 0, 400, 400, rng.rgba(), 10);
         const verticesInfo = Mx.Ds.range(0, 17).map(i => [i * 50, i % 2 === 0 ? i * 20 : 600 - i * 20]);
         handler.drawPolyline(verticesInfo, rng.rgba(), 8);
+        const rect = new Mx.Geo.Rectangle(120, 120, 300, 200, rng.rgba(), rng.rgba(), 5);
+        rect.scale(1.2)
+        const circle = new Mx.Geo.Circle(320, 220, 50, rng.rgba(), rng.rgba(), 5);
+        circle.scale(3)
+        const line = new Mx.Geo.Line(200, 500, 800, 400, rng.rgba(), 5);
+        line.scale(0.1);
+        const pline = new Mx.Geo.Polyline([[400, 600], [500, 0], [600, 600]], rng.rgba(), 10);
+        pline.move(100, 100);
+        handler.draws(rect, circle, line, pline);
+
     });
 
 </script>
