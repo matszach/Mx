@@ -1,0 +1,16 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+    const container = Mx.Container.create();
+    const circle1 = Mx.Geo.Circle.create(100, 100, 40, 'red').enableDrag();
+    const circle2 = Mx.Geo.Circle.create(100, 200, 40, 'blue').enableDrag();
+    const circle3 = Mx.Geo.Circle.create(200, 100, 40, 'green').enableDrag();
+    const circle4 = Mx.Geo.Circle.create(200, 200, 40, 'yellow').enableDrag();
+    container.adds(circle1, circle2, circle3, circle4);
+    Mx.simpleInit((handler, rng, input, loop) => {
+        container.move(0.1, 0.1);
+        container.listen();
+        handler.fill();
+        handler.draw(container);
+    });
+</script>

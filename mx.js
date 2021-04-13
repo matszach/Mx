@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.4.4
+ * @version 0.4.5
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -14,6 +14,10 @@
  * Base entity class, extended by geometry classes and by image draw classes
  */
 class _Entity {
+
+    static create(...args) {
+        return new this(...args);
+    }
 
     constructor(x = 0, y = 0) {
         this.x = x;
@@ -125,6 +129,17 @@ class _Entity {
  */
 const Mx = {
 
+    /**
+     * Initializes a simplified app
+     * @param {*} update 
+     */
+    simpleInit(update) {
+        const handler = Mx.Draw.CanvasHandler.create();
+        const input = Mx.Input.init();
+        const rng = Mx.Rng.init();
+        Mx.It.Loop.start(60, loop => update(handler, rng, input, loop));
+    },
+
     /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
      * Assigned here for public access
      */
@@ -135,13 +150,20 @@ const Mx = {
      */
     Container: class extends _Entity {
 
-        constructor(x, y) {
+        constructor(x = 0, y = 0) {
             super(x, y);
             this.children = [];
         }
 
         add(entity) {
             this.children.push(entity);
+        }
+
+        adds(...entities) {
+            for(let e of entities) {
+                this.add(e);
+            }
+            return this;
         }
 
         forChild(callback) {
@@ -174,7 +196,7 @@ const Mx = {
         }
     
         _getDrawn(canvasHandler) {
-            this.forChild(c => this._getDrawn(canvasHandler))
+            this.forChild(c => c._getDrawn(canvasHandler))
         }
 
         listen() {
@@ -1036,7 +1058,7 @@ const Mx = {
                 return this;
             }
     
-            fill(color) {
+            fill(color = 'black') {
                 this.context.fillStyle = color;
                 this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
                 return this;
