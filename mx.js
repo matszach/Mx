@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.4.1
+ * @version 0.4.2
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -99,6 +99,18 @@ class _Entity {
             }
         }
         // fin
+        return this;
+    }
+
+    on(event, callback = () => {}) {
+        switch(event) {
+            case 'over': this.onMouseOver = callback; break;
+            case 'out': this.onMouseOut = callback; break;
+            case 'down': this.onMouseDown = callback; break;
+            case 'up': this.onMouseUp = callback; break;
+            case 'drag': this.onMouseDrag = callback; break;
+            default: break;
+        }
         return this;
     }
 
@@ -300,6 +312,15 @@ const Mx = {
                 this.spriteWidth, this.spriteHeight, this.drawnWidth, this.drawnHeight,
                 this.rotation, this.alpha
             );
+        }
+
+        isPointOver(x, y) {
+            // TODO probably move this elipsis equation to Math or Geo
+            const a = this.drawnWidth/2;
+            const b = this.drawnHeight/2;
+            const dx = this.x - x;
+            const dy = this.y - y;
+            return dx**2 / a**2 + dy**2 / b**2 < 1;
         }
 
     },
