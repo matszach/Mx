@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.3.4
+ * @version 0.4.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -45,9 +45,9 @@ class _Entity {
         return this.move(x, y);
     }
     
-    scale(scale, xOrigin = this.x, yOrigin = this.y) {
-        this.x = scale * (this.x - xOrigin) + xOrigin;
-        this.y = scale * (this.y - yOrigin) + yOrigin;
+    scale(scaleX = 1, scaleY = scaleX, xOrigin = this.x, yOrigin = this.y) {
+        this.x = scaleX * (this.x - xOrigin) + xOrigin;
+        this.y = scaleY * (this.y - yOrigin) + yOrigin;
         return this;
     }
 
@@ -146,9 +146,9 @@ const Mx = {
             return this;
         }
         
-        scale(scale, xOrigin = this.x, yOrigin = this.y) {
-            super.scale(scale, xOrigin, yOrigin);
-            this.forChild(c => c.scale(scale, xOrigin, yOrigin));
+        scale(scaleX = 1, scaleY = scaleX, xOrigin = this.x, yOrigin = this.y) {
+            super.scale(scaleX, scaleY, xOrigin, yOrigin);
+            this.forChild(c => c.scale(scaleX, scaleY, xOrigin, yOrigin));
             return this;
         }
     
@@ -186,12 +186,6 @@ const Mx = {
             this.characterHeightRatio = 0.85;
         }
 
-        scale(scale, xOrigin = this.x, yOrigin = this.y) {
-            super.scale(scale, xOrigin, yOrigin);
-            this.fontSize *= scale;
-            return this;
-        }
-
         _getDrawn(canvasHandler) {
             canvasHandler.write(
                 this.x, this.y, this.content, this.color, 
@@ -213,6 +207,99 @@ const Mx = {
             const width = Math.abs(x1 - x2);
             const height = Math.abs(y1 - y2);
             return new Mx.Geo.Rectangle(x, y, width, height, backgroundColor, borderColor, borderThickness);
+        }
+
+    },
+
+    /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
+     * Sprite sheet (~Sprite entity factory) / Spirte 
+     */
+    SpriteSheet: class {
+
+        static create(src, spriteSizeX, spriteSizeY, borderThickness) {
+            return new Mx.SpriteSheet(src, spriteSizeX, spriteSizeY, borderThickness);
+        }
+
+        constructor(src, spriteSizeX = 32, spriteSizeY = 32, borderThickness = 0) {
+            this.img = new Image();
+            this.img.src = src;
+            this.spriteWidth = spriteSizeX;
+            this.spriteHeight = spriteSizeY;
+            this.borderThickness = borderThickness;
+        }
+
+        get(x, y) {
+            return new Mx.Sprite(
+                0, 0, this.img,
+                this.spriteWidth, this.spriteHeight, this.borderThickness,
+                x, y
+            );
+        }
+    },
+
+    Sprite: class extends _Entity {
+
+        constructor(
+            x, y, image, spriteWidth = 32, spriteHeight = 32, borderThickness = 0, 
+            frameX = 0, frameY = 0, drawnWidth = spriteWidth, drawnHeight = spriteHeight,
+            rotation = 0, alpha = 1
+        ) {
+            super(x, y);
+            this.image = image;
+            this.spriteWidth = spriteWidth;
+            this.spriteHeight = spriteHeight;
+            this.borderThickness = borderThickness;
+            this.frameX = frameX;
+            this.frameY = frameY;
+            this.drawnWidth = drawnWidth;
+            this.drawHeight = drawnHeight;
+            this.rotation = rotation;
+            this.alpha = alpha;
+        }
+
+        scale(scaleX = 1, scaleY = scaleX, xOrigin = this.x, yOrigin = this.y) {
+            super.scale(scaleX, scaleY, xOrigin, yOrigin);
+            this.drawnWidth *= scaleX;
+            this.drawHeight *= scaleY;
+            return this;
+        }
+
+        setDrawnSize(width, height = width) {
+            this.drawnWidth = width;
+            this.drawnHeight = height;
+            return this;
+        }
+
+        setFrame(x, y) {
+            this.frameX = x;
+            this.frameY = y;
+            return this;
+        }
+
+        setAlpha(alpha) {
+            this.alpha = alpha;
+            return this;
+        }
+
+        setRotation(rotation) {
+            this.rotation = rotation;
+            return this;
+        }
+
+        rotate(phi, xOrigin = this.x, yOrigin = this.y) {
+            super.rotate(phi, xOrigin, yOrigin);
+            this.rotation += phi;
+            return this;
+        }
+
+        _getDrawn(canvasHandler) {
+            canvasHandler.drawSprite(
+                this.x, this.y, this.image, 
+                this.frameX * (this.spriteWidth + this.borderThickness),
+                this.frameY * (this.spriteHeight + this.borderThickness),
+                this.spriteWidth, this.spriteHeight, this.drawnWidth, this.drawHeight,
+                this.rotation, this.alpha
+            );
         }
 
     },
@@ -570,11 +657,11 @@ const Mx = {
                 return this;
             }
             
-            scale(scale, xOrigin = this.x1, yOrigin = this.y1) {
-                this.x1 = scale * (this.x1 - xOrigin) + xOrigin;
-                this.y1 = scale * (this.y1 - yOrigin) + yOrigin;
-                this.x2 = scale * (this.x2 - xOrigin) + xOrigin;
-                this.y2 = scale * (this.y2 - yOrigin) + yOrigin;
+            scale(scaleX = 1, scaleY = scaleX, xOrigin = this.x1, yOrigin = this.y1) {
+                this.x1 = scaleX * (this.x1 - xOrigin) + xOrigin;
+                this.y1 = scaleY * (this.y1 - yOrigin) + yOrigin;
+                this.x2 = scaleX * (this.x2 - xOrigin) + xOrigin;
+                this.y2 = scaleY * (this.y2 - yOrigin) + yOrigin;
                 return this;
             }
         
@@ -680,10 +767,10 @@ const Mx = {
                 this.borderThickness = borderThickness;
             }
 
-            scale(scale, xOrigin = this.x, yOrigin = this.y) {
-                super.scale(scale, xOrigin, yOrigin);
-                this.width *= scale;
-                this.height *= scale;
+            scale(scaleX = 1, scaleY = scaleX, xOrigin = this.x, yOrigin = this.y) {
+                super.scale(scaleX, scaleY, xOrigin, yOrigin);
+                this.width *= scaleX;
+                this.height *= scaleY;
                 return this;
             }
 
@@ -717,9 +804,9 @@ const Mx = {
                 this.borderThickness = borderThickness;
             }
 
-            scale(scale, xOrigin = this.x, yOrigin = this.y) {
-                super.scale(scale, xOrigin, yOrigin);
-                this.radius *= scale;
+            scale(scaleX, scaleY, xOrigin = this.x, yOrigin = this.y) {
+                super.scale(scaleX, scaleY, xOrigin, yOrigin);
+                this.radius *= scaleX;
                 return this;
             }
 
@@ -939,6 +1026,24 @@ const Mx = {
                 this.context.restore();
                 return this;
             }
+
+            // Images
+            drawSprite(
+                x, y, image, spriteX, spriteY, spriteWidth, spriteHeight, 
+                drawnWidth = spriteWidth, drawnHeight = spriteHeight, rotation = 0, alpha = 1
+            ) {
+                this.context.save();
+                this.context.globalAlpha = alpha;
+                this.context.translate(x, y);
+                this.context.rotate(rotation);
+                this.context.drawImage(
+                    image, spriteX, spriteY, spriteWidth, spriteHeight,
+                    -drawnWidth/2, -drawnHeight/2, drawnWidth, drawnHeight
+                );
+                this.context.restore();
+                return this;
+            }
+
         }
     },
 
