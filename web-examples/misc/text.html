@@ -11,8 +11,8 @@
     const text6 = new Mx.Text(400, 150, 'Hello a', 'white', 30, undefined, Math.PI/3);
 
     [text1, text2, text3, text4, text5, text6].forEach(t => {
-        t.on('over', () => t.color = 'teal').on('out', () => t.color = 'white')
-    })
+        t.on('over', () => t.color = 'teal').on('out', () => t.color = 'white').enableDrag();
+    });
 
     const loop = Mx.It.Loop.start(60, loop => {
         handler.fill('black');

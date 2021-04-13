@@ -18,6 +18,8 @@ class _Entity {
     constructor(x = 0, y = 0) {
         this.x = x;
         this.y = y;
+        this._dragAnchorX = x;
+        this._dragAnchorY = y;
         this.isMouseOver = false;
         this.isMouseDown = false;
         this.isMouseDrag = false;
@@ -73,28 +75,32 @@ class _Entity {
         // mouse over
         if(isNowMouseOver) {
             if(!this.isMouseOver) {
-                this.onMouseOver(mouse);
+                this.onMouseOver(mouse, this);
             }
             this.isMouseOver = true;
         } else {
             if(this.isMouseOver) {
-                this.onMouseOut(mouse);
+                this.onMouseOut(mouse, this);
                 this.isMouseOver = false;
             }
         } 
         // mouse down 
         if(isNowMouseDown) {
             if(!this.isMouseDown) {
+                this._dragAnchorX = mouse.x;
+                this._dragAnchorY = mouse.y;
                 if(isNowMouseOver) {
-                    this.onMouseDown(mouse);
+                    this.onMouseDown(mouse, this);
                     this.isMouseDown = true;
                 }
             } else {
-                this.onMouseDrag(mouse);
+                this.onMouseDrag(mouse, this);
             }
         } else {
+            this._dragAnchorX = this.x;
+            this._dragAnchorY = this.y;
             if(this.isMouseDown) {
-                this.onMouseUp(mouse);
+                this.onMouseUp(mouse, this);
                 this.isMouseDown = false;
             }
         }
@@ -112,6 +118,10 @@ class _Entity {
             default: break;
         }
         return this;
+    }
+
+    enableDrag() {
+        return this.on('drag', (mouse, e) => e.place(mouse.x, mouse.y));
     }
 
 }
