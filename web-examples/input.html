@@ -18,11 +18,11 @@
     rect.onMouseUp = () => rect.backgroundColor = 'red';
     rect.onMouseDrag = mouse => rect.place(mouse.x - rect.width/2, mouse.y - rect.height/2);
 
-
     const loop = Mx.It.Loop.start(60, loop => {
         handler.fill('black');
         circle.listen();
         rect.listen();
         handler.draws(circle, rect);
     });
+    
 </script>

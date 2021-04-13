@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.3.2
+ * @version 0.3.3
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -20,6 +20,7 @@ class _Entity {
         this.y = y;
         this.isMouseOver = false;
         this.isMouseDown = false;
+        this.isMouseDrag = false;
         this.onMouseOver = () => {};
         this.onMouseOut = () => {};
         this.onMouseDown = () => {};
@@ -69,29 +70,33 @@ class _Entity {
         const mouse = Mx.Input.mouse();
         const isNowMouseOver = this.isPointOver(mouse.x, mouse.y);
         const isNowMouseDown = mouse.left;
-        // checking
+        // mouse over
         if(isNowMouseOver) {
             if(!this.isMouseOver) {
                 this.onMouseOver(mouse);
-            } else if(isNowMouseDown) {
-                this.onMouseDrag(mouse);
             }
             this.isMouseOver = true;
-            if(isNowMouseDown) {
-                if(!this.isMouseDown) {
+        } else {
+            if(this.isMouseOver) {
+                this.onMouseOut(mouse);
+                this.isMouseOver = false;
+            }
+        } 
+        // mouse down 
+        if(isNowMouseDown) {
+            if(!this.isMouseDown) {
+                if(isNowMouseOver) {
                     this.onMouseDown(mouse);
+                    this.isMouseDown = true;
                 }
-                this.isMouseDown = true;
             } else {
-                if(this.isMouseDown) {
-                    this.onMouseUp(mouse);
-                }
+                this.onMouseDrag(mouse);
+            }
+        } else {
+            if(this.isMouseDown) {
+                this.onMouseUp(mouse);
                 this.isMouseDown = false;
             }
-        } else if (this.isMouseOver) {
-            this.onMouseOut(mouse);
-            this.isMouseDown = false;
-            this.isMouseOver = false;
         }
         // fin
         return this;
@@ -154,6 +159,12 @@ const Mx = {
     
         _getDrawn(canvasHandler) {
             this.forChild(c => this._getDrawn(canvasHandler))
+        }
+
+        listen() {
+            super.listen();
+            this.forChild(c => c.listen());
+            return this;
         }
     
     },
