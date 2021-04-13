@@ -221,6 +221,10 @@ const Mx = {
             return new Mx.Geo.Rectangle(x, y, width, height, backgroundColor, borderColor, borderThickness);
         }
 
+        isPointOver(x, y) {
+            return this.getBoundingRectangle().isPointOver(x, y);
+        }
+
     },
 
     /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
