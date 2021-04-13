@@ -178,7 +178,6 @@ const Mx = {
         }
 
         listen() {
-            super.listen();
             this.forChild(c => c.listen());
             return this;
         }
