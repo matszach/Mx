@@ -18,8 +18,6 @@ class _Entity {
     constructor(x = 0, y = 0) {
         this.x = x;
         this.y = y;
-        this._dragAnchorX = x;
-        this._dragAnchorY = y;
         this.isMouseOver = false;
         this.isMouseDown = false;
         this.isMouseDrag = false;
@@ -87,8 +85,6 @@ class _Entity {
         // mouse down 
         if(isNowMouseDown) {
             if(!this.isMouseDown) {
-                this._dragAnchorX = mouse.x;
-                this._dragAnchorY = mouse.y;
                 if(isNowMouseOver) {
                     this.onMouseDown(mouse, this);
                     this.isMouseDown = true;
@@ -97,8 +93,6 @@ class _Entity {
                 this.onMouseDrag(mouse, this);
             }
         } else {
-            this._dragAnchorX = this.x;
-            this._dragAnchorY = this.y;
             if(this.isMouseDown) {
                 this.onMouseUp(mouse, this);
                 this.isMouseDown = false;
