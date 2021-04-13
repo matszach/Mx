@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.3.3
+ * @version 0.3.4
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -170,6 +170,54 @@ const Mx = {
     },
 
     /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
+     * Text entity
+     */
+    Text: class extends _Entity {
+
+        constructor(x, y, content = 'Text', color = 'black', fontSize = '12', fontFamily = 'Arial monospaced', rotation = 0, alpha = 1) {
+            super(x, y);
+            this.content = content;
+            this.color = color;
+            this.fontSize = fontSize;
+            this.fontFamily = fontFamily;
+            this.rotation = rotation;
+            this.alpha = alpha;
+            this.characterWidthRatio = 0.44;
+            this.characterHeightRatio = 0.85;
+        }
+
+        scale(scale, xOrigin = this.x, yOrigin = this.y) {
+            super.scale(scale, xOrigin, yOrigin);
+            this.fontSize *= scale;
+            return this;
+        }
+
+        _getDrawn(canvasHandler) {
+            canvasHandler.write(
+                this.x, this.y, this.content, this.color, 
+                this.fontSize, this.fontFamily, this.rotation, this.alpha
+            );
+        }
+
+        // FIXME not perfect but somewhat works for now
+        getBoundingRectangle(backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+            const rotationOffset = Math.sin(this.rotation) * this.fontSize * 0.5;
+            const x1 = this.x;
+            const y1 = this.y - this.fontSize * this.characterHeightRatio + rotationOffset;
+            const r = this.fontSize * this.characterWidthRatio * this.content.length;
+            const {x: dx, y: dy} = Mx.Geo.toCartesian(this.rotation, r);
+            const x2 = x1 + dx + rotationOffset;
+            const y2 = y1 + dy + this.fontSize - rotationOffset;
+            const x = x1 < x2 ? x1 : x2;
+            const y = y1 < y2 ? y1 : y2;
+            const width = Math.abs(x1 - x2);
+            const height = Math.abs(y1 - y2);
+            return new Mx.Geo.Rectangle(x, y, width, height, backgroundColor, borderColor, borderThickness);
+        }
+
+    },
+
+    /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
      * Random number generator
      */
     Rng: class {
@@ -331,6 +379,13 @@ const Mx = {
                 this.int(0, 255),
                 this.fract()
             );
+        }
+
+        dice(dieSize = 6, diceNumber = 1) {
+            if(diceNumber === 1) {
+                return this.int(1, dieSize + 1);
+            } 
+            return Mx.Ds.range(0, diceNumber).map(i => this.int(1, dieSize + 1));
         }
 
     },
@@ -649,6 +704,7 @@ const Mx = {
                     this.y + this.height/2
                 );
             }
+
         },
 
         Circle: class extends _Entity {
@@ -868,6 +924,19 @@ const Mx = {
                     this.context.lineTo(...vertex);
                 }
                 this.context.stroke();
+                return this;
+            }
+
+            // Text
+            write(x, y, content, color = 'black', size = 12, font = 'Arial monospaced', rotation = 0, alpha = 1) {
+                this.context.save();
+                this.context.globalAlpha = alpha;
+                this.context.translate(x, y); 
+                this.context.rotate(rotation);
+                this._fillStyle(color);
+                this.context.font = `${parseInt(size)}px ${font}`;
+                this.context.fillText(content, 0, 0);
+                this.context.restore();
                 return this;
             }
         }
