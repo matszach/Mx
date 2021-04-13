@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.4.0
+ * @version 0.4.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -252,7 +252,7 @@ const Mx = {
             this.frameX = frameX;
             this.frameY = frameY;
             this.drawnWidth = drawnWidth;
-            this.drawHeight = drawnHeight;
+            this.drawnHeight = drawnHeight;
             this.rotation = rotation;
             this.alpha = alpha;
         }
@@ -260,7 +260,7 @@ const Mx = {
         scale(scaleX = 1, scaleY = scaleX, xOrigin = this.x, yOrigin = this.y) {
             super.scale(scaleX, scaleY, xOrigin, yOrigin);
             this.drawnWidth *= scaleX;
-            this.drawHeight *= scaleY;
+            this.drawnHeight *= scaleY;
             return this;
         }
 
@@ -297,7 +297,7 @@ const Mx = {
                 this.x, this.y, this.image, 
                 this.frameX * (this.spriteWidth + this.borderThickness),
                 this.frameY * (this.spriteHeight + this.borderThickness),
-                this.spriteWidth, this.spriteHeight, this.drawnWidth, this.drawHeight,
+                this.spriteWidth, this.spriteHeight, this.drawnWidth, this.drawnHeight,
                 this.rotation, this.alpha
             );
         }
@@ -524,6 +524,105 @@ const Mx = {
      * Iteration tools
      */
     It: {
+
+        /**
+         * Ring array
+         */
+        Ring: class {
+
+            constructor(baseArray = [], initialIndex = 0) {
+                this.values = baseArray;
+                this.i = initialIndex;
+            }
+    
+            add(item) {
+                this.values.push(item);
+                return this;
+            }
+    
+            replace(item) {
+                this.values[this.i] = item;
+                return this;
+            }
+            
+            reset() {
+                this.i = 0;
+                return this;
+            }
+    
+            get() {
+                return this.values[this.i];
+            }
+    
+            next(step = 1) {
+                this.i += step;
+                this.i = this.i < this.values.length ? this.i : (this.i - this.values.length);
+                return this.get();
+            }
+    
+            prev(step = 1) {
+                this.i -= step;
+                this.i = this.i >= 0 ? this.i : (this.values.length + this.i);
+                return this.get();
+            }
+        
+        },
+
+        BackAndForth: class {
+
+            constructor(baseArray = [], initialIndex = 0, initialForward = true) {
+                this.values = baseArray;
+                this.i = initialIndex;
+                this.directionForward = initialForward;
+            }
+
+            add(item) {
+                this.values.push(item);
+                return this;
+            }
+
+            replace(item) {
+                this.values[this.i] = item;
+                return this;
+            }
+            
+            reset() {
+                this.i = 0;
+                this.directionForward = true;
+                return this;
+            }
+            
+            reverse() {
+                this.directionForward = !this.directionForward;
+                return this;
+            }
+
+            get() {
+                return this.values[this.i];
+            }
+
+            next(step = 1) {
+                if(this.directionForward) {
+                    this.i += step;
+                    if(this.i >= this.values.length) {
+                        this.i = 2 * this.values.length - this.i - 1;
+                        this.directionForward = false;
+                    }
+                } else {
+                    this.i -= step;
+                    if(this.i < 0) {
+                        this.i *= -1;
+                        this.directionForward = true;
+                    }
+                }
+                return this.get();
+            }
+
+            prev(step = 1) {
+                return this.next(-step);
+            }
+
+        },
 
         /**
          * TODO

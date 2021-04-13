@@ -4,10 +4,18 @@
     const handler = Mx.Draw.CanvasHandler.create();
     const input = Mx.Input.init();
     const sheet = Mx.SpriteSheet.create('./../../sprites.png', 64, 64, 0);
-    const sprite1 = sheet.get(0, 0);
+    const path = Mx.Ds.range(0, 200, 1.5)
+        .map(i => Mx.Geo.toCartesian(Math.PI * i / 100, 100))
+        .map(pos => [pos.x + 200, pos.y + 200]);
+    const sprite1 = sheet.get(0, 0).setDrawnSize(100).setAlpha(0.7);
+    const ring1 = new Mx.It.Ring(path);
+    const sprite2 = sheet.get(2, 0).setDrawnSize(80).setAlpha(0.6);
+    const ring2 = new Mx.It.Ring(path);
+        
     const loop = Mx.It.Loop.start(60, loop => {
         handler.fill('black');
-        sprite1.move(1, 1);
-        handler.draws(sprite1);
+        sprite1.place(...ring1.next()).rotate(Math.PI/50);
+        sprite2.place(...ring2.prev()).rotate(-Math.PI/75);
+        handler.draws(sprite1, sprite2);
     });
 </script>
