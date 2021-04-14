@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.5.0
+ * @version 0.5.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -110,12 +110,18 @@ class _Entity {
                     this.isMouseDown = true;
                 }
             } else {
-                this.onMouseDrag(mouse, this);
+                if(mouse.draggedEntity === null) {
+                    mouse.draggedEntity = this;
+                }
+                if(mouse.draggedEntity === this) {
+                    this.onMouseDrag(mouse, this);
+                }
             }
         } else {
             if(this.isMouseDown) {
                 this.onMouseUp(mouse, this);
                 this.isMouseDown = false;
+                mouse.draggedEntity = null;
             }
         }
         // fin
@@ -1248,6 +1254,7 @@ const Mx = {
            left: false,
            middle: false,
            right: false,
+           draggedEntity: null
         },
 
         init(canvasHandler = null) {
@@ -1259,7 +1266,6 @@ const Mx = {
                 Mx.Input._mouse.y = e.y;
                 Mx.Input._mouse.moveY = e.movementY;
                 if(!!canvasHandler) {
-                    console.log(13);
                     Mx.Input._mouse.xInCanvas = (e.x - canvasHandler.vpX) / canvasHandler.vpScale - canvasHandler.parent.clientLeft;
                     Mx.Input._mouse.yInCanvas = (e.y - canvasHandler.vpY) / canvasHandler.vpScale - canvasHandler.parent.clientTop;
                 }
