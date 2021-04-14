@@ -60,13 +60,13 @@
     function drawGrains() {
         sand.forEach((v, x, y) => {
             if(v !== undefined) {
-                handler.fillRect(x * 2, y * 2, 2, 2, v.ticksSinceCreated < OLD_SAND_AGE ? FRESH_SAND_COLOR : OLD_SAND_COLOR);
+                handler.fillRect(x * GRAIN_SIZE, y * GRAIN_SIZE, GRAIN_SIZE, GRAIN_SIZE, v.ticksSinceCreated < OLD_SAND_AGE ? FRESH_SAND_COLOR : OLD_SAND_COLOR);
             }
         });
     }
     // loop
     const loop = Mx.It.Loop.start(60, loop => {
-        Mx.It.times(3, spawnRandomGrain)
+        Mx.It.times(3, spawnRandomGrain);
         unmarkGrains();
         moveGrains();
         handler.fill('black');
