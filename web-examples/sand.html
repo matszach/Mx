@@ -1,0 +1,76 @@
+<body></body>
+<script src='./../mx.js'></script>
+<script>
+    
+    // const
+    const X_SIZE = 400;
+    const Y_SIZE = 300;
+    const GRAIN_SIZE = 2;
+    const FRESH_SAND_COLOR = Mx.Draw.Color.rgb(100, 50, 0);
+    const OLD_SAND_COLOR = Mx.Draw.Color.rgb(50, 25, 0);
+    const OLD_SAND_AGE = 1000;
+
+    // setup
+    const handler = Mx.Draw.CanvasHandler.create();
+    const input = Mx.Input.init(handler);
+    const rng = Mx.Rng.fromMathRandom();
+    const sand = new Mx.Ds.Array2D(X_SIZE, Y_SIZE);
+
+    // definitions
+    function spawnRandomGrain() {
+        const x = rng.int(X_SIZE/3, 2 * X_SIZE/3);
+        const y = rng.int(0, Y_SIZE/3);
+        if(sand.get(x, y) === undefined) {
+            sand.put(x, y, {
+                modifiedThisTurn: false,
+                ticksSinceCreated: 0
+            });
+        }
+    }
+
+    function unmarkGrains() {
+        sand.forEach(v => {
+            if(v !== undefined) {
+                v.modifiedThisTurn = false;
+            }
+        });
+    }
+
+    function moveGrains() {
+        sand.forEach((v, x, y) => {
+            if(v !== undefined) {
+                if(!v.modifiedThisTurn) {
+                    if(!sand.safeGet(x, y + 1, true)) {
+                        sand.put(x, y, undefined);
+                        sand.put(x, y + 1, v);
+                    } else if(!sand.safeGet(x - 1, y + 1, true)) {
+                        sand.put(x, y, undefined);
+                        sand.put(x - 1, y + 1, v);
+                    } else if(!sand.safeGet(x + 1, y + 1, true)) {
+                        sand.put(x, y, undefined);
+                        sand.put(x + 1, y + 1, v);
+                    }
+                    v.ticksSinceCreated++;
+                    v.modifiedThisTurn = true;
+                }
+            }
+        }); 
+    }
+
+    function drawGrains() {
+        sand.forEach((v, x, y) => {
+            if(v !== undefined) {
+                handler.fillRect(x * 2, y * 2, 2, 2, v.ticksSinceCreated < OLD_SAND_AGE ? FRESH_SAND_COLOR : OLD_SAND_COLOR);
+            }
+        });
+    }
+    // loop
+    const loop = Mx.It.Loop.start(60, loop => {
+        Mx.It.times(3, spawnRandomGrain)
+        unmarkGrains();
+        moveGrains();
+        handler.fill('black');
+        drawGrains();
+    });
+
+</script>

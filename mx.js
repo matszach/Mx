@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.5.1
+ * @version 0.5.2
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -588,19 +588,12 @@ const Mx = {
                 arr.push(i);
             }
             return arr;
-        }
-
-    },
-
-    /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
-     * Iteration tools
-     */
-    It: {
+        },
 
         /**
-         * Ring array
+         * Ring array iterator
          */
-        Ring: class {
+         Ring: class {
 
             constructor(baseArray = [], initialIndex = 0) {
                 this.values = baseArray;
@@ -640,6 +633,9 @@ const Mx = {
         
         },
 
+        /**
+         * Back and forth array iterator
+         */
         BackAndForth: class {
 
             constructor(baseArray = [], initialIndex = 0, initialForward = true) {
@@ -695,6 +691,66 @@ const Mx = {
             }
 
         },
+
+        /**
+         * 2D simulating array wrapper
+         */
+        Array2D: class {
+
+            constructor(xSize, ySize) {
+                this.xSize = xSize;
+                this.ySize = ySize;
+                this.values = new Array(xSize * ySize);
+            }
+
+            put(x, y, v) {
+                this.values[y * this.xSize + x] = v; 
+                return this;
+            }
+
+            get(x, y) {
+                return this.values[y * this.xSize + x]
+            }
+
+            safeGet(x, y, defaultValue = null) {
+                if(this.inRange(x, y)) {
+                    return this.get(x, y);
+                }
+                return defaultValue;
+            }
+
+            forEach(callback = (v, x, y) => {}) {
+                for(let x = 0; x < this.xSize; x++) {
+                    for(let y = 0; y < this.ySize; y++) {
+                        callback(this.get(x, y), x, y);
+                    }
+                }
+                return this;
+            }
+
+            map(mapper = (v, x, y) => v) {
+                for(let x = 0; x < this.xSize; x++) {
+                    for(let y = 0; y < this.ySize; y++) {
+                        this.put(x, y, callback(this.get(x, y), x, y));
+                    }
+                }
+                return this;
+            }
+
+            inRange(x, y) {
+                return (
+                    x >= 0 && x < this.xSize &&
+                    y >= 0 && y < this.ySize 
+                );
+            }
+        }
+
+    },
+
+    /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
+     * Iteration tools
+     */
+    It: {
 
         /**
          * TODO
