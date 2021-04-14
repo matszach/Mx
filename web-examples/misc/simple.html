@@ -8,9 +8,11 @@
     const circle4 = Mx.Geo.Circle.create(200, 200, 40, 'yellow').enableDrag();
     container.adds(circle1, circle2, circle3, circle4);
     Mx.simpleInit((handler, rng, input, loop) => {
-        container.move(0.1, 0.1);
+        // container.move(0.1, 0.1);
+        handler.moveViewport(0.1, 0.1).scaleViewport(1.005);
         container.listen();
         handler.fill();
         handler.draw(container);
+        console.log(input._mouse)
     });
 </script>

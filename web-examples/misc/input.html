@@ -2,7 +2,7 @@
 <script src='./../../mx.js'></script>
 <script>
     const handler = Mx.Draw.CanvasHandler.create();
-    const input = Mx.Input.init();
+    const input = Mx.Input.init(handler);
 
     const circle = new Mx.Geo.Circle(200, 200, 100, 'blue');
     circle.onMouseOver = () => circle.backgroundColor = 'red';

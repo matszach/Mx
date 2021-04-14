@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.4.5
+ * @version 0.5.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -25,11 +25,22 @@ class _Entity {
         this.isMouseOver = false;
         this.isMouseDown = false;
         this.isMouseDrag = false;
+        this.hidden = false;
         this.onMouseOver = () => {};
         this.onMouseOut = () => {};
         this.onMouseDown = () => {};
         this.onMouseUp = () => {};
         this.onMouseDrag = () => {};
+    }
+
+    hide() {
+        this.hidden = true;
+        return this;   
+    }
+
+    show() {
+        this.hidden = false;
+        return this;
     }
 
     place(x, y) {
@@ -60,6 +71,11 @@ class _Entity {
         return this;
     }
 
+    _canBeDrawn(canvasHandler) {
+        // abstract TODO, shoulsd return false when entity out of canvas draw range
+        return true;
+    }
+
     _getDrawn(canvasHandler) {
         // abstract
     }
@@ -72,7 +88,7 @@ class _Entity {
     listen() {
         // setup
         const mouse = Mx.Input.mouse();
-        const isNowMouseOver = this.isPointOver(mouse.x, mouse.y);
+        const isNowMouseOver = this.isPointOver(mouse.xInCanvas, mouse.yInCanvas);
         const isNowMouseDown = mouse.left;
         // mouse over
         if(isNowMouseOver) {
@@ -119,7 +135,7 @@ class _Entity {
     }
 
     enableDrag() {
-        return this.on('drag', (mouse, e) => e.place(mouse.x, mouse.y));
+        return this.on('drag', (mouse, e) => e.place(mouse.xInCanvas, mouse.yInCanvas));
     }
 
 }
@@ -135,7 +151,7 @@ const Mx = {
      */
     simpleInit(update) {
         const handler = Mx.Draw.CanvasHandler.create();
-        const input = Mx.Input.init();
+        const input = Mx.Input.init(handler);
         const rng = Mx.Rng.init();
         Mx.It.Loop.start(60, loop => update(handler, rng, input, loop));
     },
@@ -1017,7 +1033,23 @@ const Mx = {
                 this.context = null;
                 this.parentId = parentId;
                 this.parent = null;
+                this.vpX = 0;
+                this.vpY = 0;
+                this.vpScale = 1;
                 this._onResize = () => {};
+            }
+
+            moveViewport(x, y) {
+                this.vpX += x;
+                this.vpY += y;
+                this.context.translate(x, y);
+                return this;
+            }
+
+            scaleViewport(scale) {
+                this.vpScale *= scale;
+                this.context.scale(scale, scale);
+                return this;
             }
 
             _fillStyle(color = 'black') {
@@ -1052,15 +1084,15 @@ const Mx = {
                 callback();
                 return this;
             }
-
-            clear() {
-                this.context.clearRect(0, 0 , this.canvas.width, this.canvas.height);
-                return this;
-            }
     
             fill(color = 'black') {
-                this.context.fillStyle = color;
-                this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                this._fillStyle(color);
+                this.context.fillRect(
+                    -this.vpX, 
+                    -this.vpY, 
+                    this.canvas.width, 
+                    this.canvas.height
+                );
                 return this;
             }
 
@@ -1076,7 +1108,9 @@ const Mx = {
 
             // Mx.Entity
             draw(entity) {
-                entity._getDrawn(this);
+                if(!entity.hidden && entity._canBeDrawn(this)) {
+                    entity._getDrawn(this);
+                }
                 return this
             }
 
@@ -1201,6 +1235,7 @@ const Mx = {
      */
     Input: {
         
+
         _keys: {},
 
         _mouse: {
@@ -1208,12 +1243,14 @@ const Mx = {
            y: 0,
            moveX: 0,
            moveY: 0,
+           xInCanvas: NaN,
+           yInCanvas: NaN,
            left: false,
            middle: false,
            right: false,
         },
 
-        init() {
+        init(canvasHandler = null) {
             
             // mouse listeners
             document.onmousemove = e => {
@@ -1221,6 +1258,11 @@ const Mx = {
                 Mx.Input._mouse.moveX = e.movementX;
                 Mx.Input._mouse.y = e.y;
                 Mx.Input._mouse.moveY = e.movementY;
+                if(!!canvasHandler) {
+                    console.log(13);
+                    Mx.Input._mouse.xInCanvas = (e.x - canvasHandler.vpX) / canvasHandler.vpScale - canvasHandler.parent.clientLeft;
+                    Mx.Input._mouse.yInCanvas = (e.y - canvasHandler.vpY) / canvasHandler.vpScale - canvasHandler.parent.clientTop;
+                }
             };
 
             document.onmousedown = e => {

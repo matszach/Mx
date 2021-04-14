@@ -1,0 +1,9 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+    const handler = Mx.Draw.CanvasHandler.create();
+    const input = Mx.Input.init(handler);
+    console.log(handler);
+    handler.moveViewport(0.2, 0.2).scaleViewport(1.002);
+    console.log(handler);    
+</script>
