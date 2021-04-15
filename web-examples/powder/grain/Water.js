@@ -1,0 +1,21 @@
+class Water extends Grain {
+
+    constructor() {
+        super('#000099', 2);
+    }
+
+    doFrame(x, y, table) {
+        if(this.tryToMoveTo(x, y, x, y + 1, table)) { 
+            return;
+        } else if(this.tryToMoveTo(x, y, x - 1, y + 1, table)) {
+            return;
+        } else if(this.tryToMoveTo(x, y, x + 1, y + 1, table)) {
+            return;
+        } else if(this.tryToMoveTo(x, y, x - 1, y, table)) {
+            return;
+        } else if(this.tryToMoveTo(x, y, x + 1, y, table)) {
+            return;
+        }
+    }
+
+}

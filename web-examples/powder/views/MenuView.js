@@ -1,0 +1,3 @@
+class MenuView extends BaseView {
+    
+}
