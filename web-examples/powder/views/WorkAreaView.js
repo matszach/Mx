@@ -24,7 +24,7 @@ class WorkAreaView extends BaseView {
             if(!v || v.updatedThisTurn) {
                 return;
             }
-            v.doFrame(x, y, this.table);
+            v.doFrame(x, y, this.table, this.rng);
             v.updatedThisTurn = true;
         });
     }
@@ -51,14 +51,26 @@ class WorkAreaView extends BaseView {
     doFrame(input, handler, loop) {
 
         // TEST
-        this.table.put(this.rng.int(100, 200), 0, new Sand());
-        this.table.put(this.rng.int(100, 200), 0, new Water());
+        if(loop.tickCount < 1000) {
+            this.table.put(this.rng.int(100, 200), 0, new Sand());
+            this.table.put(this.rng.int(100, 200), 0, new Water());
+            this.table.put(this.rng.int(100, 200), 0, new Sand());
+            this.table.put(this.rng.int(100, 200), 0, new Water());
+            this.table.put(this.rng.int(100, 200), 0, new Sand());
+            this.table.put(this.rng.int(100, 200), 0, new Water());
+            this.table.put(this.rng.int(100, 200), 0, new Sand());
+            this.table.put(this.rng.int(100, 200), 0, new Water());
+        }
         // TEST
 
-        this.drawBackground(handler);
+        // let time = Date.now();
         this.unmarkGrains();
         this.moveGrains();
+        // let logic = Date.now();
+        this.drawBackground(handler);
         this.drawGrains(handler);
+        // let draw = Date.now();
+        // console.log('draw time ', draw - logic, 'logic time ', logic - time);
     }
 
     onRefit(handler) {

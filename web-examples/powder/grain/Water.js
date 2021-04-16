@@ -4,17 +4,17 @@ class Water extends Grain {
         super('#000099', 2);
     }
 
-    doFrame(x, y, table) {
-        if(this.tryToMoveTo(x, y, x, y + 1, table)) { 
-            return;
-        } else if(this.tryToMoveTo(x, y, x - 1, y + 1, table)) {
-            return;
-        } else if(this.tryToMoveTo(x, y, x + 1, y + 1, table)) {
-            return;
-        } else if(this.tryToMoveTo(x, y, x - 1, y, table)) {
-            return;
-        } else if(this.tryToMoveTo(x, y, x + 1, y, table)) {
-            return;
+    doFrame(x, y, table, rng) {
+        if(!this.tryToMoveInDirection(x, y, 0, 1, table, 3)) {
+            if(rng.chance(0.5)) {
+                if(!this.tryToMoveInDirection(x, y, -1, 1, table, 5)) {
+                    this.tryToMoveInDirection(x, y, -1, 0, table, 6);
+                }
+            } else {
+                if(!this.tryToMoveInDirection(x, y, 1, 1, table, 5)) {
+                    this.tryToMoveInDirection(x, y, 1, 0, table, 6);
+                }
+            }
         }
     }
 
