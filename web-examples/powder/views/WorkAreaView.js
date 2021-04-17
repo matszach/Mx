@@ -50,9 +50,15 @@ class WorkAreaView extends BaseView {
         const tx = Math.round((mouse.xInCanvas - this._vpX)/this._grainSize);
         const ty = Math.round((mouse.yInCanvas - this._vpY)/this._grainSize);
         if(mouse.left) {
-            this.table.put(tx, ty, new Sand());
+            this.table.put(tx, ty, new Sand(this.rng));
+            this.table.put(tx + 1, ty, new Sand(this.rng));
+            this.table.put(tx, ty + 1, new Sand(this.rng));
+            this.table.put(tx + 1, ty + 1, new Sand(this.rng));
         } else if(mouse.right) {
-            this.table.put(tx, ty, new Water());
+            this.table.put(tx, ty, new Water(this.rng));
+            this.table.put(tx + 1, ty, new Water(this.rng));
+            this.table.put(tx, ty + 1, new Water(this.rng));
+            this.table.put(tx + 1, ty + 1, new Water(this.rng));
         }
     }
 
