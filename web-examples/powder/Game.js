@@ -1,9 +1,12 @@
 class Game {
-
+    
     static view;
+    static handler;
+    static input;
 
     static toView(key, ...args) {
         Game.view = Game._getView(key, ...args);
+        Game.view.onRefit(Game.handler);
         return Game;
     }
 

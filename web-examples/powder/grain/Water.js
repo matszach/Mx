@@ -1,7 +1,7 @@
 class Water extends Grain {
 
     constructor() {
-        super('#000099', 2);
+        super(0, 0, 120, 2);
     }
 
     doFrame(x, y, table, rng) {

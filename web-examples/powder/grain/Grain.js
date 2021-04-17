@@ -1,7 +1,9 @@
 class Grain {
 
-    constructor(color, density, pattern) {
-        this.color = color;
+    constructor(r, g, b, density, pattern) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
         this.density = density;
         this.pattern = pattern;
         this.timeExisted = 0;

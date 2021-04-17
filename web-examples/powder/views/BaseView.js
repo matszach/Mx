@@ -1,7 +1,15 @@
 class BaseView {
 
+    constructor() {
+        this.onCreate();
+    }
+
+    onCreate() {
+        // abstract
+    }
+
     drawBackground(handler) {
-        handler.fill('#333333');
+        handler.fill('#222222');
     }
 
     doFrame(input, handler, loop) {

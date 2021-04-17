@@ -9,16 +9,6 @@ class WorkAreaView extends BaseView {
         this._vpWidth = 100;
         this._vpHeight = 100;
         this._grainSize = 1;
-
-        // TEST
-        for(let i = 120; i < 180; i++) {
-            this.table.put(i, 50, new Wood());
-        }
-        for(let i = 180; i < 220; i++) {
-            this.table.put(i, -50 + i, new Wood());
-            this.table.put(i, -50 + i + 1, new Wood());
-        }
-        // TEST
     }
 
     unmarkGrains() {
@@ -40,37 +30,37 @@ class WorkAreaView extends BaseView {
     }
 
     drawGrains(handler) {
+        handler.pix.initImageData(Math.floor(this._vpWidth), Math.floor(this._vpHeight));
+        handler.pix.clear(0, 0, 0);
+        const gs = Math.ceil(this._grainSize);
         this.table.forEach((v, x, y) => {
             if(!!v) {
-                handler.fillRect(
-                    this._vpX + x * this._grainSize,
-                    this._vpY + y * this._grainSize,
-                    this._grainSize,
-                    this._grainSize,
-                    v.color
+                handler.pix.putRectangle(
+                    Math.floor(x * this._grainSize), 
+                    Math.floor(y * this._grainSize),
+                    gs, gs, v.r, v.g, v.b
                 );
             }
         });
+        handler.pix.displayImageData(Math.floor(this._vpX), Math.floor(this._vpY));
     }
 
-    drawBackground(handler) {
-        super.drawBackground(handler);
-        handler.fillRect(this._vpX, this._vpY, this._vpWidth, this._vpHeight);
+    doGrainDrop(input) {
+        const mouse = input.mouse();
+        const tx = Math.round((mouse.xInCanvas - this._vpX)/this._grainSize);
+        const ty = Math.round((mouse.yInCanvas - this._vpY)/this._grainSize);
+        if(mouse.left) {
+            this.table.put(tx, ty, new Sand());
+        } else if(mouse.right) {
+            this.table.put(tx, ty, new Water());
+        }
     }
 
     doFrame(input, handler, loop) {
-
-        // TEST
-        this.table.put(this.rng.int(100, 200), 0, new Sand());
-        this.table.put(this.rng.int(100, 200), 0, new Sand());
-        this.table.put(this.rng.int(100, 200), 0, new Water());
-        this.table.put(this.rng.int(100, 200), 0, new Water());
-        this.table.put(this.rng.int(100, 200), 0, new Oil());
-        // TEST
-
         // let time = Date.now();
         this.unmarkGrains();
         this.moveGrains();
+        this.doGrainDrop(input);
         // let logic = Date.now();
         this.drawBackground(handler);
         this.drawGrains(handler);

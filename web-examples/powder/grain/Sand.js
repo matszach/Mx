@@ -1,7 +1,7 @@
 class Sand extends Grain {
 
     constructor() {
-        super('#994400', 5);
+        super(160, 80, 0, 5);
     }
 
     doFrame(x, y, table, rng) {
