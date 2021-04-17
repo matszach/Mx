@@ -9,6 +9,16 @@ class WorkAreaView extends BaseView {
         this._vpWidth = 100;
         this._vpHeight = 100;
         this._grainSize = 1;
+
+        // TEST
+        for(let i = 120; i < 180; i++) {
+            this.table.put(i, 50, new Wood());
+        }
+        for(let i = 180; i < 220; i++) {
+            this.table.put(i, -50 + i, new Wood());
+            this.table.put(i, -50 + i + 1, new Wood());
+        }
+        // TEST
     }
 
     unmarkGrains() {
@@ -51,16 +61,11 @@ class WorkAreaView extends BaseView {
     doFrame(input, handler, loop) {
 
         // TEST
-        if(loop.tickCount < 1000) {
-            this.table.put(this.rng.int(100, 200), 0, new Sand());
-            this.table.put(this.rng.int(100, 200), 0, new Water());
-            this.table.put(this.rng.int(100, 200), 0, new Sand());
-            this.table.put(this.rng.int(100, 200), 0, new Water());
-            this.table.put(this.rng.int(100, 200), 0, new Sand());
-            this.table.put(this.rng.int(100, 200), 0, new Water());
-            this.table.put(this.rng.int(100, 200), 0, new Sand());
-            this.table.put(this.rng.int(100, 200), 0, new Water());
-        }
+        this.table.put(this.rng.int(100, 200), 0, new Sand());
+        this.table.put(this.rng.int(100, 200), 0, new Sand());
+        this.table.put(this.rng.int(100, 200), 0, new Water());
+        this.table.put(this.rng.int(100, 200), 0, new Water());
+        this.table.put(this.rng.int(100, 200), 0, new Oil());
         // TEST
 
         // let time = Date.now();

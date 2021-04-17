@@ -1,0 +1,14 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    const handler = Mx.Draw.CanvasHandler.create();
+    const rng = Mx.Rng.init('someSeed');
+    const loop = Mx.It.Loop.start(60, loop => {
+        handler.pix.initImageData();
+        handler.pix.fill(0, 0, 120);
+        handler.pix.putRectangle(30, 30, 100, 100, 255, 0, 0)
+        handler.pix.displayImageData(200, 200);
+    });
+
+</script>
