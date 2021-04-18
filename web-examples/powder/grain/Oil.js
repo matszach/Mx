@@ -1,7 +1,7 @@
 class Oil extends Grain {
 
     constructor(rng) {
-        super(255, 255, 0, 1, true);
+        super(rng.int(140, 170), rng.int(140, 170), 0, 1, true);
     }
 
     doFrame(x, y, table, rng) {

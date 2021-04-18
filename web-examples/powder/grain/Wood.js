@@ -1,7 +1,7 @@
 class Wood extends Grain {
 
     constructor(rng) {
-        super(60, 30, 0, 7, false);
+        super(rng.int(50, 70), rng.int(20, 40), 0, 7, false);
     }
 
     doFrame(x, y, table, rng) {

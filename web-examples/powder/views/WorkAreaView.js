@@ -9,6 +9,43 @@ class WorkAreaView extends BaseView {
         this._vpWidth = 100;
         this._vpHeight = 100;
         this._grainSize = 1;
+        this._selectedGrainType;
+        this._selectedBrushSize = 3;
+    }
+
+    onCreate() {
+        this.grainButtons = [];
+        this.sizeButtons = [];
+        this.tooltip = null;
+        const view = this;
+        [
+            ['Sand', Sand, '#994400', true],
+            ['Water', Water, '#0000ff'],
+            ['Wood', Wood, '#442200'],
+            ['Oil', Oil, '#999900'],
+            ['Air', undefined, '#000000']
+        ].forEach(v => {
+            const button = Mx.Geo.Rectangle.create(0, 0, 30, 30, v[2], '#ffffff', 2);
+            if(v[3]) {
+                view._selectedGrainType = v[1];
+                button.borderColor = '#ff0000';
+            }
+            button.on('over', () => {
+                document.body.style.cursor = 'pointer';
+                button.borderThickness = 3;
+                // tooltip.content = v[0];
+                // tooltip.show();
+            }).on('out', () => {
+                document.body.style.cursor = 'default';
+                button.borderThickness = 2;
+                // tooltip.hide();
+            }).on('up', () => {
+                view._selectedGrainType = v[1];
+                view.grainButtons.forEach(b => b.borderColor = '#ffffff');
+                button.borderColor = '#ff0000';
+            });
+            view.grainButtons.push(button);
+        });
     }
 
     unmarkGrains() {
@@ -45,20 +82,29 @@ class WorkAreaView extends BaseView {
         handler.pix.displayImageData(Math.floor(this._vpX), Math.floor(this._vpY));
     }
 
+    drawButtons(handler) {
+        this.grainButtons.forEach(b => {
+            handler.draw(b);
+            b.listen();
+        });
+    }
+
     doGrainDrop(input) {
         const mouse = input.mouse();
-        const tx = Math.round((mouse.xInCanvas - this._vpX)/this._grainSize);
-        const ty = Math.round((mouse.yInCanvas - this._vpY)/this._grainSize);
-        if(mouse.left) {
-            this.table.put(tx, ty, new Sand(this.rng));
-            this.table.put(tx + 1, ty, new Sand(this.rng));
-            this.table.put(tx, ty + 1, new Sand(this.rng));
-            this.table.put(tx + 1, ty + 1, new Sand(this.rng));
-        } else if(mouse.right) {
-            this.table.put(tx, ty, new Water(this.rng));
-            this.table.put(tx + 1, ty, new Water(this.rng));
-            this.table.put(tx, ty + 1, new Water(this.rng));
-            this.table.put(tx + 1, ty + 1, new Water(this.rng));
+        const tx = (mouse.xInCanvas - this._vpX)/this._grainSize;
+        const ty = (mouse.yInCanvas - this._vpY)/this._grainSize;
+        if(mouse.left || mouse.right) {
+            const sx = Math.floor(tx - this._selectedBrushSize/2);
+            const sy = Math.floor(ty - this._selectedBrushSize/2);
+            const ex = Math.floor(tx + this._selectedBrushSize/2);
+            const ey = Math.floor(ty + this._selectedBrushSize/2);
+            console.log(this._selectedGrainType);
+            for(let x = sx; x < ex; x++) {
+                for(let y = sy; y < ey; y++) {
+                    const grain = this._selectedGrainType ? new this._selectedGrainType(this.rng) : undefined;
+                    this.table.put(x, y, grain);
+                }
+            }
         }
     }
 
@@ -70,6 +116,7 @@ class WorkAreaView extends BaseView {
         // let logic = Date.now();
         this.drawBackground(handler);
         this.drawGrains(handler);
+        this.drawButtons(handler);
         // let draw = Date.now();
         // console.log('draw time ', draw - logic, 'logic time ', logic - time);
     }
@@ -91,6 +138,10 @@ class WorkAreaView extends BaseView {
             this._vpY = 10; 
         }
         this._grainSize = this._vpHeight/areaHeight;
+        this.grainButtons.forEach((b, i) => {
+            b.x = this._vpX + 15 + i * 40;
+            b.y = this._vpY + 15;
+        }, this);
     }
 
 }
