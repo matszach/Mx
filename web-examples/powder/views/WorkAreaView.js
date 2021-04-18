@@ -11,6 +11,8 @@ class WorkAreaView extends BaseView {
         this._grainSize = 1;
         this._selectedGrainType;
         this._selectedBrushSize = 3;
+        this._isMouseOverAButton = false;
+        this._tooltipContent = '';
     }
 
     onCreate() {
@@ -22,6 +24,7 @@ class WorkAreaView extends BaseView {
             ['Sand', Sand, '#994400', true],
             ['Water', Water, '#0000ff'],
             ['Wood', Wood, '#442200'],
+            ['Brick', Brick, '#660011'],
             ['Oil', Oil, '#999900'],
             ['Air', undefined, '#000000']
         ].forEach(v => {
@@ -32,13 +35,13 @@ class WorkAreaView extends BaseView {
             }
             button.on('over', () => {
                 document.body.style.cursor = 'pointer';
+                view._isMouseOverAButton = true;
                 button.borderThickness = 3;
-                // tooltip.content = v[0];
-                // tooltip.show();
+                view._tooltipContent = v[0];
             }).on('out', () => {
                 document.body.style.cursor = 'default';
+                view._isMouseOverAButton = false;
                 button.borderThickness = 2;
-                // tooltip.hide();
             }).on('up', () => {
                 view._selectedGrainType = v[1];
                 view.grainButtons.forEach(b => b.borderColor = '#ffffff');
@@ -89,7 +92,16 @@ class WorkAreaView extends BaseView {
         });
     }
 
+    drawTooltip(handler) {
+        if(this._isMouseOverAButton) {
+            handler.write(handler.canvas.width/2 - 48, this._vpY + 40, this._tooltipContent, '#ffffff', 28);
+        }
+    }
+
     doGrainDrop(input) {
+        if(this._isMouseOverAButton) {
+            return;
+        }
         const mouse = input.mouse();
         const tx = (mouse.xInCanvas - this._vpX)/this._grainSize;
         const ty = (mouse.yInCanvas - this._vpY)/this._grainSize;
@@ -98,7 +110,6 @@ class WorkAreaView extends BaseView {
             const sy = Math.floor(ty - this._selectedBrushSize/2);
             const ex = Math.floor(tx + this._selectedBrushSize/2);
             const ey = Math.floor(ty + this._selectedBrushSize/2);
-            console.log(this._selectedGrainType);
             for(let x = sx; x < ex; x++) {
                 for(let y = sy; y < ey; y++) {
                     const grain = this._selectedGrainType ? new this._selectedGrainType(this.rng) : undefined;
@@ -117,6 +128,7 @@ class WorkAreaView extends BaseView {
         this.drawBackground(handler);
         this.drawGrains(handler);
         this.drawButtons(handler);
+        this.drawTooltip(handler);
         // let draw = Date.now();
         // console.log('draw time ', draw - logic, 'logic time ', logic - time);
     }
