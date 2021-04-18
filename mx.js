@@ -697,7 +697,7 @@ const Mx = {
          * @returns 
          */
         chance(chance) {
-            return this._random() > chance;
+            return this._random() < chance;
         }
 
         /**

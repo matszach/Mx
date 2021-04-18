@@ -1,7 +1,8 @@
 class Oil extends Grain {
 
     constructor(rng) {
-        super(rng.int(140, 170), rng.int(140, 170), 0, 1, true);
+        super(rng.int(140, 170), rng.int(140, 170), 0, 1);
+        this.isLiquid = true;
     }
 
     doFrame(x, y, table, rng) {

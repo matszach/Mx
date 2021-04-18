@@ -1,11 +1,11 @@
 class Grain {
 
-    constructor(r, g, b, density, isLiquid) {
+    constructor(r, g, b, density) {
         this.r = r;
         this.g = g;
         this.b = b;
         this.density = density;
-        this.isLiquid = isLiquid;
+        this.isLiquid = false;
         this.timeExisted = 0;
         this.updatedThisTurn = false;
     }
@@ -50,6 +50,10 @@ class Grain {
             }
         }
         return moved;
+    }
+
+    replaceWith(x, y, table, grain) {
+        table.put(x, y, grain);
     }
 
 }

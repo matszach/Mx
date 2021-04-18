@@ -23,9 +23,11 @@ class WorkAreaView extends BaseView {
         [
             ['Sand', Sand, '#994400', true],
             ['Water', Water, '#0000ff'],
+            ['Snow', Snow, '#ffffff'],
             ['Wood', Wood, '#442200'],
             ['Brick', Brick, '#660011'],
             ['Oil', Oil, '#999900'],
+            ['Smoke', Smoke, '#333333'],
             ['Air', undefined, '#000000']
         ].forEach(v => {
             const button = Mx.Geo.Rectangle.create(0, 0, 30, 30, v[2], '#ffffff', 2);
@@ -48,6 +50,30 @@ class WorkAreaView extends BaseView {
                 button.borderColor = '#ff0000';
             });
             view.grainButtons.push(button);
+        });
+        [
+            ['S ', 'Small', 3, true],
+            ['M ', 'Medium', 7],
+            ['L ', 'Large', 15],
+        ].forEach(v => {
+            const button = Mx.Text.create(0, 0, v[0], '#ffffff', 28);
+            if(v[3]) {
+                view._selectedBrushSize = v[1];
+                button.color = '#ff0000';
+            }
+            button.on('over', () => {
+                document.body.style.cursor = 'pointer';
+                view._isMouseOverAButton = true;
+                view._tooltipContent = `${v[1]} brush (${v[2]}x${v[2]})`;
+            }).on('out', () => {
+                document.body.style.cursor = 'default';
+                view._isMouseOverAButton = false;
+            }).on('up', () => {
+                view._selectedBrushSize = v[2];
+                view.sizeButtons.forEach(b => b.color = '#ffffff');
+                button.color = '#ff0000';
+            });
+            view.sizeButtons.push(button);
         });
     }
 
@@ -87,6 +113,10 @@ class WorkAreaView extends BaseView {
 
     drawButtons(handler) {
         this.grainButtons.forEach(b => {
+            handler.draw(b);
+            b.listen();
+        });
+        this.sizeButtons.forEach(b => {
             handler.draw(b);
             b.listen();
         });
@@ -153,6 +183,10 @@ class WorkAreaView extends BaseView {
         this.grainButtons.forEach((b, i) => {
             b.x = this._vpX + 15 + i * 40;
             b.y = this._vpY + 15;
+        }, this);
+        this.sizeButtons.forEach((b, i) => {
+            b.x = this._vpX + this._vpWidth - 35;
+            b.y = this._vpY + 30 + i * 30;
         }, this);
     }
 

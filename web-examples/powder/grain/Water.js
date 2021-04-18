@@ -1,7 +1,8 @@
 class Water extends Grain {
 
     constructor(rng) {
-        super(0, rng.int(0, 50), rng.int(200, 255), 2, true);
+        super(0, rng.int(0, 50), rng.int(200, 255), 2);
+        this.isLiquid = true;
     }
 
     doFrame(x, y, table, rng) {
