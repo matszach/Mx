@@ -7,7 +7,11 @@ class Steam extends Grain {
 
     doFrame(x, y, table, rng) {
         if(rng.chance(0.0001)) {
-            this.replaceWith(x, y, table, new Water(rng));
+            if(rng.chance(0.2)) {
+                this.replaceWith(x, y, table, new Water(rng));
+            } else {
+                this.replaceWith(x, y, table, undefined);
+            }
             return;
         }
         if(rng.chance(0.5)) {
