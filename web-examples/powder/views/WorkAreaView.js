@@ -25,6 +25,7 @@ class WorkAreaView extends BaseView {
             ['Water', Water, '#0000ff'],
             ['Snow', Snow, '#ffffff'],
             ['Ice', Ice, '#ddddff'],
+            ['Steam', Steam, '#777799'],
             ['Wood', Wood, '#442200'],
             ['Brick', Brick, '#660011'],
             ['Oil', Oil, '#999900'],
