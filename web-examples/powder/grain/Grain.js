@@ -7,6 +7,7 @@ class Grain {
         this.density = density;
         this.isLiquid = false;
         this.timeExisted = 0;
+        this.flamability = 0;
         this.updatedThisTurn = false;
     }
 
@@ -54,6 +55,15 @@ class Grain {
 
     replaceWith(x, y, table, grain) {
         table.put(x, y, grain);
+    }
+
+    tryToSetOnFire(x, y, table, rng) {
+        const g = table.safeGet(x, y, undefined);
+        if(!!g && g.flamability > 0) {
+            if(rng.chance(g.flamability)) {
+                this.replaceWith(x, y, table, new Fire(rng));
+            }
+        }
     }
 
 }

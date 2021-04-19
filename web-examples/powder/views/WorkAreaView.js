@@ -30,9 +30,14 @@ class WorkAreaView extends BaseView {
             ['Brick', Brick, '#660011'],
             ['Oil', Oil, '#999900'],
             ['Smoke', Smoke, '#333333'],
-            ['Air', undefined, '#000000']
+            ['Air', undefined, '#000000'],
+            ['Fire', Fire, '#ff5500'],
+            ['Gunpowder', Gunpowder, '#333333'],
+            ['Fuse', Fuse, '#aaaa00'],
+            ['Rock', Rock, '#555555'],
+            ['Lava', Lava, '#992200'],
         ].forEach(v => {
-            const button = Mx.Geo.Rectangle.create(0, 0, 30, 30, v[2], '#ffffff', 2);
+            const button = Mx.Geo.Rectangle.create(0, 0, 20, 20, v[2], '#ffffff', 2);
             if(v[3]) {
                 view._selectedGrainType = v[1];
                 button.borderColor = '#ff0000';
@@ -58,7 +63,7 @@ class WorkAreaView extends BaseView {
             ['M ', 'Medium', 7],
             ['L ', 'Large', 15],
         ].forEach(v => {
-            const button = Mx.Text.create(0, 0, v[0], '#ffffff', 28);
+            const button = Mx.Text.create(0, 0, v[0], '#ffffff', 28, 'Roboto Sans-Serif');
             if(v[3]) {
                 view._selectedBrushSize = v[1];
                 button.color = '#ff0000';
@@ -183,8 +188,8 @@ class WorkAreaView extends BaseView {
         }
         this._grainSize = this._vpHeight/areaHeight;
         this.grainButtons.forEach((b, i) => {
-            b.x = this._vpX + 15 + i * 40;
-            b.y = this._vpY + 15;
+            b.x = this._vpX + 15 + (i % 10) * 25;
+            b.y = this._vpY + 15 + Math.floor(i / 10) * 25;
         }, this);
         this.sizeButtons.forEach((b, i) => {
             b.x = this._vpX + this._vpWidth - 35;
