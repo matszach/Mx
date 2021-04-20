@@ -4,6 +4,7 @@ class Oil extends Grain {
         super(rng.int(140, 170), rng.int(140, 170), 0, 1);
         this.isLiquid = true;
         this.flamability = 0.15;
+        this.burnsIntoClass = Fire;
     }
 
     doFrame(x, y, table, rng) {

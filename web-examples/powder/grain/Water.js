@@ -3,6 +3,8 @@ class Water extends Grain {
     constructor(rng) {
         super(0, rng.int(0, 50), rng.int(200, 255), 2);
         this.isLiquid = true;
+        this.meltability = 0.02;
+        this.meltsIntoClass = Steam;
     }
 
     doFrame(x, y, table, rng) {

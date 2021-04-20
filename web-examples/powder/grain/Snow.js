@@ -2,10 +2,12 @@ class Snow extends Grain {
 
     constructor(rng) {
         super(rng.int(235, 255), rng.int(235, 255), 255, 5);
+        this.meltability = 0.1;
+        this.meltsIntoClass = Water;
     }
 
     doFrame(x, y, table, rng) {
-        if(rng.chance(0.00001)) {
+        if(rng.chance(0.000006)) {
             this.replaceWith(x, y, table, new Water(rng));
             return;
         }

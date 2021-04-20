@@ -36,6 +36,7 @@ class WorkAreaView extends BaseView {
             ['Fuse', Fuse, '#aaaa00'],
             ['Rock', Rock, '#555555'],
             ['Lava', Lava, '#992200'],
+            ['Stone', Stone, '#555555'],
         ].forEach(v => {
             const button = Mx.Geo.Rectangle.create(0, 0, 20, 20, v[2], '#ffffff', 2);
             if(v[3]) {
@@ -188,8 +189,8 @@ class WorkAreaView extends BaseView {
         }
         this._grainSize = this._vpHeight/areaHeight;
         this.grainButtons.forEach((b, i) => {
-            b.x = this._vpX + 15 + (i % 10) * 25;
-            b.y = this._vpY + 15 + Math.floor(i / 10) * 25;
+            b.x = this._vpX + 15 + (i % 8) * 25;
+            b.y = this._vpY + 15 + Math.floor(i / 8) * 25;
         }, this);
         this.sizeButtons.forEach((b, i) => {
             b.x = this._vpX + this._vpWidth - 35;

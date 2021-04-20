@@ -7,8 +7,12 @@ class Grain {
         this.density = density;
         this.isLiquid = false;
         this.timeExisted = 0;
-        this.flamability = 0;
         this.updatedThisTurn = false;
+        this.flamability = 0;
+        this.burnsIntoClass = null;
+        this.meltability = 0;
+        this.meltsIntoClass = null;
+        this.putOutFireChance = 0;
     }
 
     doFrame(x, y, table, rng) {
@@ -61,9 +65,38 @@ class Grain {
         const g = table.safeGet(x, y, undefined);
         if(!!g && g.flamability > 0) {
             if(rng.chance(g.flamability)) {
-                this.replaceWith(x, y, table, new Fire(rng));
+                this.replaceWith(x, y, table, new g.burnsIntoClass(rng));
+                return true;
             }
         }
+        return false;
+    }
+
+    doSetOnFire(x, y, table, rng) {
+        const u = this.tryToSetOnFire(x, y + 1, table, rng);
+        const d = this.tryToSetOnFire(x, y - 1, table, rng);
+        const l = this.tryToSetOnFire(x + 1, y, table, rng);
+        const r = this.tryToSetOnFire(x - 1, y, table, rng);
+        return u || d || l || r;
+    }
+
+    tryToMelt(x, y, table, rng) {
+        const g = table.safeGet(x, y, undefined);
+        if(!!g && g.meltability > 0) {
+            if(rng.chance(g.meltability)) {
+                this.replaceWith(x, y, table, new g.meltsIntoClass(rng));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    doMelt(x, y, table, rng) {
+        const u = this.tryToMelt(x, y + 1, table, rng);
+        const d = this.tryToMelt(x, y - 1, table, rng);
+        const l = this.tryToMelt(x + 1, y, table, rng);
+        const r = this.tryToMelt(x - 1, y, table, rng);
+        return u || d || l || r;
     }
 
 }

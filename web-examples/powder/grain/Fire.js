@@ -10,10 +10,11 @@ class Fire extends Grain {
             this.replaceWith(x, y, table, new Smoke(rng));
             return;
         }
-        this.tryToSetOnFire(x, y + 1, table, rng);
-        this.tryToSetOnFire(x, y - 1, table, rng);
-        this.tryToSetOnFire(x + 1, y, table, rng);
-        this.tryToSetOnFire(x - 1, y, table, rng);
+        if(this.doMelt(x, y, table, rng) && rng.chance(0.5)) {
+            this.replaceWith(x, y, table, new Smoke(rng));
+            return;
+        }
+        this.doSetOnFire(x, y, table, rng);
         if(rng.chance(0.6)) {
             if(rng.chance(0.5)) {
                 this.tryToMoveInDirection(x, y, -1, 0, table, 1);
