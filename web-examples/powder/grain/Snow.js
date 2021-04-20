@@ -4,6 +4,7 @@ class Snow extends Grain {
         super(rng.int(235, 255), rng.int(235, 255), 255, 5);
         this.meltability = 0.1;
         this.meltsIntoClass = Water;
+        this.corrodability = 0.1;
     }
 
     doFrame(x, y, table, rng) {

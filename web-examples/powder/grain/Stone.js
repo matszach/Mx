@@ -2,6 +2,7 @@ class Stone extends Grain {
 
     constructor(rng) {
         super(rng.int(60, 90), rng.int(60, 90), rng.int(60, 90), 5, false);
+        this.corrodability = 0.002;
     }
 
     doFrame(x, y, table, rng) {

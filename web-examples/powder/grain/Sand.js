@@ -2,6 +2,7 @@ class Sand extends Grain {
 
     constructor(rng) {
         super(rng.int(140, 180), rng.int(60, 100), rng.int(0, 20), 5, false);
+        this.corrodability = 0.003;
     }
 
     doFrame(x, y, table, rng) {

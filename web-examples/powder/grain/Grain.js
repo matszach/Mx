@@ -13,6 +13,7 @@ class Grain {
         this.meltability = 0;
         this.meltsIntoClass = null;
         this.putOutFireChance = 0;
+        this.corrodability = 0;
     }
 
     doFrame(x, y, table, rng) {
@@ -73,8 +74,8 @@ class Grain {
     }
 
     doSetOnFire(x, y, table, rng) {
-        const u = this.tryToSetOnFire(x, y + 1, table, rng);
-        const d = this.tryToSetOnFire(x, y - 1, table, rng);
+        const u = this.tryToSetOnFire(x, y - 1, table, rng);
+        const d = this.tryToSetOnFire(x, y + 1, table, rng);
         const l = this.tryToSetOnFire(x + 1, y, table, rng);
         const r = this.tryToSetOnFire(x - 1, y, table, rng);
         return u || d || l || r;
@@ -92,11 +93,29 @@ class Grain {
     }
 
     doMelt(x, y, table, rng) {
-        const u = this.tryToMelt(x, y + 1, table, rng);
-        const d = this.tryToMelt(x, y - 1, table, rng);
+        const u = this.tryToMelt(x, y - 1, table, rng);
+        const d = this.tryToMelt(x, y + 1, table, rng);
         const l = this.tryToMelt(x + 1, y, table, rng);
         const r = this.tryToMelt(x - 1, y, table, rng);
         return u || d || l || r;
+    }
+
+    tryToCorrode(x, y, table, rng) {
+        const g = table.safeGet(x, y, undefined);
+        if(!!g && g.corrodability > 0) {
+            if(rng.chance(g.corrodability)) {
+                this.replaceWith(x, y, table, undefined);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    doCorrode(x, y, table, rng) {
+        const d = this.tryToCorrode(x, y + 1, table, rng);
+        const l = this.tryToCorrode(x + 1, y, table, rng);
+        const r = this.tryToCorrode(x - 1, y, table, rng);
+        return d || l || r;
     }
 
 }

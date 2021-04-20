@@ -38,6 +38,8 @@ class WorkAreaView extends BaseView {
             ['Rock', Rock, '#555555'],
             ['Lava', Lava, '#992200'],
             ['Stone', Stone, '#555555'],
+            ['Acid', Acid, '#66dd00'],
+            ['Void', Void, '#990044'],
         ].forEach(v => {
             const button = Mx.Geo.Rectangle.create(0, 0, 20, 20, v[2], '#ffffff', 2);
             if(v[3]) {
