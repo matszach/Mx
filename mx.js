@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.7.0
+ * @version 0.8.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1591,6 +1591,90 @@ const Mx = {
             return this._mouse;
         },
 
+    },
+
+    /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
+     * Audio instance handler
+     */
+    AudioHandler : class {
+
+        static create(fileUrl) {
+            return new Mx.AudioHandler(fileUrl);
+        }
+
+        constructor(fileUrl){
+            this.src = fileUrl;
+            this.audio = new Audio(fileUrl);
+        }
+    
+        play(){
+            this.audio.play();
+            return this;
+        }
+
+        volume(vol) {
+            this.audio.volume = Gmt.clamp(vol, 0, 1);
+            return this;
+        }
+
+        volumeEaseTo(vol, duration) {
+            let a = this.audio;
+            let dv = (Gmt.clamp(vol, 0, 1) - a.volume) / 10;
+            Gmt.echo(10, duration/10, () => a.volume += dv);
+            return this;
+        }
+
+        rate(rate) {
+            if(rate < 0) {
+                return this.pause();
+            }
+            this.audio.playbackRate = rate;
+            return this;
+        }
+
+        rateEaseTo(rate, duration) {
+            let a = this.audio;
+            let dr = (rate - a.playbackRate) / 10;
+            Gmt.echo(10, duration/10, () => {
+                if (a.playbackRate + dr <= 0) {
+                    return;
+                }
+                a.playbackRate += dr;       
+            });
+            return this;
+        }
+    
+        pause(){
+            this.audio.pause();
+            return this;
+        }
+    
+        time(time){
+            this.audio.currentTime = time;
+            return this;
+        }
+
+        rewind(){
+           return this.time(0);
+        }
+
+        reset(){
+            return this.volume(1).rate(1).rewind().pause();
+        }
+
+        source(src) {
+            this.src = src;
+            this.audio = new Audio(src);
+            return this;
+        }
+    
+        isOn(){     
+            return !this.audio.paused();
+        }
+
+        getDuration() {
+            return this.audio.duration;
+        }
     },
 
 }
