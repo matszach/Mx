@@ -14,6 +14,9 @@ class Steam extends Grain {
             }
             return;
         }
+        if(rng.chance(0.075)) {
+            this.doMelt(x, y, table, rng);
+        }
         if(rng.chance(0.5)) {
             if(rng.chance(0.5)) {
                 this.tryToMoveInDirection(x, y, -1, 0, table, 1);

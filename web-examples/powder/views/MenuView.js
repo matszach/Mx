@@ -10,7 +10,7 @@ class MenuView extends BaseView {
     onCreate() {
         this.buttons = []; 
         this.texts = [];
-        [[200, 200], [300, 200], [400, 200], [400, 400], [600, 400], [800, 400]].forEach((v, i) => {
+        [[100, 100], [200, 100], [200, 200], [300, 200], [400, 200], [400, 400], [600, 400], [800, 400]].forEach((v, i) => {
             const button = Mx.Geo.Rectangle.create(0, 250 + i * 75, 200, 50, '#111111', '#ffffff', 1);
             const text = Mx.Text.create(0, 288 + i * 75, `${v[0]}x${v[1]}`, '#ffffff',  42, 'pixel');
             button.on('over', () => {

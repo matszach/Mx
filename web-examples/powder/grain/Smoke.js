@@ -10,7 +10,7 @@ class Smoke extends Grain {
             this.replaceWith(x, y, table, undefined);
             return;
         }
-        if(rng.chance(0.1)) {
+        if(rng.chance(0.15)) {
             this.doMelt(x, y, table, rng);
         }
         if(rng.chance(0.5)) {
