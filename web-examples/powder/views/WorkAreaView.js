@@ -22,6 +22,7 @@ class WorkAreaView extends BaseView {
         const view = this;
         [
             ['Sand', Sand, '#994400', true],
+            ['Fine sand', FineSand, '#bbaa00'],
             ['Water', Water, '#0000ff'],
             ['Snow', Snow, '#ffffff'],
             ['Ice', Ice, '#ddddff'],
@@ -29,8 +30,8 @@ class WorkAreaView extends BaseView {
             ['Wood', Wood, '#442200'],
             ['Brick', Brick, '#660011'],
             ['Oil', Oil, '#999900'],
-            ['Smoke', Smoke, '#333333'],
             ['Air', undefined, '#000000'],
+            ['Smoke', Smoke, '#333333'],
             ['Fire', Fire, '#ff5500'],
             ['Gunpowder', Gunpowder, '#333333'],
             ['Fuse', Fuse, '#aaaa00'],
@@ -189,8 +190,8 @@ class WorkAreaView extends BaseView {
         }
         this._grainSize = this._vpHeight/areaHeight;
         this.grainButtons.forEach((b, i) => {
-            b.x = this._vpX + 15 + (i % 8) * 25;
-            b.y = this._vpY + 15 + Math.floor(i / 8) * 25;
+            b.x = this._vpX + 15 + (i % 10) * 25;
+            b.y = this._vpY + 15 + Math.floor(i / 10) * 25;
         }, this);
         this.sizeButtons.forEach((b, i) => {
             b.x = this._vpX + this._vpWidth - 35;

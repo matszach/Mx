@@ -10,7 +10,7 @@ class Fire extends Grain {
             this.replaceWith(x, y, table, new Smoke(rng));
             return;
         }
-        if(this.doMelt(x, y, table, rng) && rng.chance(0.5)) {
+        if(this.doMelt(x, y, table, rng) && rng.chance(0.9)) {
             this.replaceWith(x, y, table, new Smoke(rng));
             return;
         }

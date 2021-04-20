@@ -10,7 +10,7 @@ class Lava extends Grain {
             this.replaceWith(x, y, table, new Stone(rng));
             return;
         }
-        if(this.doMelt(x, y, table, rng) && rng.chance(0.2)) {
+        if(this.doMelt(x, y, table, rng) && rng.chance(0.25)) {
             this.replaceWith(x, y, table, new Stone(rng));
             return;
         }
