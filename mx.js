@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.8.0
+ * @version 0.8.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -26,6 +26,7 @@ class _Entity {
         this.isMouseDown = false;
         this.isMouseDrag = false;
         this.hidden = false;
+        this.animations = [];
         this.onMouseOver = () => {};
         this.onMouseOut = () => {};
         this.onMouseDown = () => {};
@@ -52,6 +53,13 @@ class _Entity {
     move(x, y) {
         this.x += x;
         this.y += y;
+        return this;
+    }
+
+    easeTo(x, y, ratio = 0.1) {
+        const dx = x - this.x;
+        const dy = y - this.y;
+        this.move(dx * ratio, dy * ratio);
         return this;
     }
 
@@ -144,12 +152,114 @@ class _Entity {
         return this.on('drag', (mouse, e) => e.place(mouse.xInCanvas, mouse.yInCanvas));
     }
 
+    addAnimation(animation) {
+        animation.onStart(this);
+        this.animations.push(animation);
+        return this;
+    }
+
+    clearAnimations() {
+        this.animations.forEach(a => a.onFinish(this), this);
+        this.animations = [];
+        return this;
+    }
+
+    animate() {
+        let finishedAnimationPresent = false;
+        this.animations.forEach(a => {
+            a.doFrame(this);
+            if(a.finished) {
+                finishedAnimationPresent = true;
+            }
+        }, this);
+        if(finishedAnimationPresent) {
+            this.animations = this.animations.filter(a => {
+                if(a.finished) {
+                    a.onFinish(this);
+                    return false;
+                }
+                return true;
+            });
+        }
+        return this;
+    }
+
 }
+
+/** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
+ * Base entity animation class
+ */
+class _Animation {
+
+    static create(...args) {
+        return new this(...args);
+    }
+
+    constructor() {
+        this.currTick = 0;
+        this.maxTick = 0;
+        this.finished = false;
+        this.repeat = false;
+        this.backAndForth = false;    
+        this.isNowReturn = false;
+    }
+
+    tick() {
+        if(this.isNowReturn) {
+            this.currTick--;
+            if(this.currTick < 0) {
+                if(this.repeat) {
+                    this.isNowReturn = false;
+                } else {
+                    this.finished = true;
+                }
+            }
+        } else {
+            this.currTick++;
+            if(this.currTick > this.maxTick) {
+                if(this.repeat) {
+                    if(this.backAndForth) {
+                        this.isNowReturn = true;
+                    } else {
+                        this.currTick = 0;
+                    }
+                } else {
+                    this.finished = true;
+                }
+            }
+        }
+        
+    }
+
+    onStart(entity) {
+        // abstract
+    }
+
+    doFrame(entity) {
+        this.tick();
+        // abstract
+    }
+
+    onFinish(entity) {
+        // abstract
+    }
+
+    clone() {
+        // abstract
+        return new _Animation();      
+    }
+
+    stop() {
+        this.finished = true;
+    }
+
+}
+
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
  * ImageDataManager submodule for CanvasHandler
  */
- class _PixImageDataManager {
+class _PixImageDataManager {
 
     constructor(context, canvas, alphaBlend = true) {
         this.context = context;
@@ -525,7 +635,6 @@ const Mx = {
             this.drawnHeight = drawnHeight;
             this.rotation = rotation;
             this.alpha = alpha;
-            this.animation;
         }
 
         scale(scaleX = 1, scaleY = scaleX, xOrigin = this.x, yOrigin = this.y) {
@@ -582,59 +691,40 @@ const Mx = {
             return dx**2 / a**2 + dy**2 / b**2 < 1;
         }
 
-        setAnimation(animation) {
-            this.animation = animation;
-            return this;
-        }
-
-        animate() {
-            return this;
-        }
-
     },
 
-    // todo rething this, maybe create a common class for sprite animations / scale animations / translate anmations 
-    // and allow all entities to hold it ? or moltiple animations types ? multiple animations at once per entity ? animation arrays?
-    SpriteAnimation: class {
+    /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
+     * Animations
+     */
+    Animation: _Animation,
 
-        static create(frames = [], repeat = false) {
-            return new Mx.SpriteAnimation(
-                Mx.SpriteAnimation._recalulateFrames(frames),
-                Mx.SpriteAnimation._calculateMaxFrame(frames), 
-                repeat
-            );
-        }
+    TranslateAnimation: class extends _Animation {
 
-        static _recalulateFrames(frames) {
-
-        }
-
-        static _calculateMaxFrame(frames) {
-
-        }
-
-        copy() {
-            return new Mx.SpriteAnimation(this.frames, this.maxFrame, this.repeat);
-        }
-
-        constructor(frames, maxFrame, repeat) {
-            this.frames = frames;
-            this.maxFrame = maxFrame;
+        constructor(x, y, duration = 100, repeat = false, backAndForth = false) {
+            super();
+            this.x = x;
+            this.y = y;
+            this.sx = x/duration;
+            this.sy = y/duration;
+            this.maxTick = duration;
             this.repeat = repeat;
-            this.isFinished = false;
-            this.tickCounter = 0;
+            this.backAndForth = backAndForth;
         }
 
-        tick() {
-            this.tickCounter ++;
-            if(this.tickCounter > this.maxFrame) {
-
+        doFrame(entity) {
+            super.doFrame(entity);
+            if(this.isNowReturn) {
+                entity.move(-this.sx, -this.sy);
+            } else {
+                entity.move(this.sx, this.sy);
             }
+            return this;
         }
 
-        getFrame() {
-
+        clone() {
+            return Mx.TranslateAnimation.create(this.x, this.y, this.maxTick, this.repeat, this.backAndForth);
         }
+
     },
 
     /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
