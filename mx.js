@@ -525,6 +525,7 @@ const Mx = {
             this.drawnHeight = drawnHeight;
             this.rotation = rotation;
             this.alpha = alpha;
+            this.animation;
         }
 
         scale(scaleX = 1, scaleY = scaleX, xOrigin = this.x, yOrigin = this.y) {
@@ -581,6 +582,59 @@ const Mx = {
             return dx**2 / a**2 + dy**2 / b**2 < 1;
         }
 
+        setAnimation(animation) {
+            this.animation = animation;
+            return this;
+        }
+
+        animate() {
+            return this;
+        }
+
+    },
+
+    // todo rething this, maybe create a common class for sprite animations / scale animations / translate anmations 
+    // and allow all entities to hold it ? or moltiple animations types ? multiple animations at once per entity ? animation arrays?
+    SpriteAnimation: class {
+
+        static create(frames = [], repeat = false) {
+            return new Mx.SpriteAnimation(
+                Mx.SpriteAnimation._recalulateFrames(frames),
+                Mx.SpriteAnimation._calculateMaxFrame(frames), 
+                repeat
+            );
+        }
+
+        static _recalulateFrames(frames) {
+
+        }
+
+        static _calculateMaxFrame(frames) {
+
+        }
+
+        copy() {
+            return new Mx.SpriteAnimation(this.frames, this.maxFrame, this.repeat);
+        }
+
+        constructor(frames, maxFrame, repeat) {
+            this.frames = frames;
+            this.maxFrame = maxFrame;
+            this.repeat = repeat;
+            this.isFinished = false;
+            this.tickCounter = 0;
+        }
+
+        tick() {
+            this.tickCounter ++;
+            if(this.tickCounter > this.maxFrame) {
+
+            }
+        }
+
+        getFrame() {
+
+        }
     },
 
     /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
@@ -955,7 +1009,7 @@ const Mx = {
             map(mapper = (v, x, y) => v) {
                 for(let x = 0; x < this.xSize; x++) {
                     for(let y = 0; y < this.ySize; y++) {
-                        this.put(x, y, callback(this.get(x, y), x, y));
+                        this.put(x, y, mapper(this.get(x, y), x, y));
                     }
                 }
                 return this;

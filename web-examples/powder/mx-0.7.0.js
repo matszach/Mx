@@ -955,7 +955,7 @@ const Mx = {
             map(mapper = (v, x, y) => v) {
                 for(let x = 0; x < this.xSize; x++) {
                     for(let y = 0; y < this.ySize; y++) {
-                        this.put(x, y, callback(this.get(x, y), x, y));
+                        this.put(x, y, mapper(this.get(x, y), x, y));
                     }
                 }
                 return this;

@@ -18,6 +18,7 @@ class WorkAreaView extends BaseView {
     onCreate() {
         this.grainButtons = [];
         this.sizeButtons = [];
+        this.miscButtons = [];
         this.tooltip = null;
         const view = this;
         [
@@ -86,6 +87,23 @@ class WorkAreaView extends BaseView {
             });
             view.sizeButtons.push(button);
         });
+        [
+            ['Clear', 'Clears the work area', view => view.clearPowderTable()],
+            ['Menu', 'Returns to main menu', view => Game.toView('Menu')]
+        ].forEach(v => {
+            const button = Mx.Text.create(0, 0, v[0], '#ffffff', 28, 'Roboto Sans-Serif');
+            button.on('over', () => {
+                document.body.style.cursor = 'pointer';
+                view._isMouseOverAButton = true;
+                view._tooltipContent = v[1];
+            }).on('out', () => {
+                document.body.style.cursor = 'default';
+                view._isMouseOverAButton = false;
+            }).on('up', () => {
+                v[2](view);
+            });
+            view.miscButtons.push(button);
+        });
     }
 
     unmarkGrains() {
@@ -123,11 +141,7 @@ class WorkAreaView extends BaseView {
     }
 
     drawButtons(handler) {
-        this.grainButtons.forEach(b => {
-            handler.draw(b);
-            b.listen();
-        });
-        this.sizeButtons.forEach(b => {
+        [...this.grainButtons, ...this.sizeButtons, ...this.miscButtons].forEach(b => {
             handler.draw(b);
             b.listen();
         });
@@ -199,6 +213,14 @@ class WorkAreaView extends BaseView {
             b.x = this._vpX + this._vpWidth - 35;
             b.y = this._vpY + 30 + i * 30;
         }, this);
+        this.miscButtons.forEach((b, i) => {
+            b.x = this._vpX + 10;
+            b.y = this._vpY + 120 + i * 30;
+        }, this);
+    }
+
+    clearPowderTable() {
+        this.table.map(g => undefined);
     }
 
 }
