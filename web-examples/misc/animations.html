@@ -5,17 +5,27 @@
     const handler = Mx.Draw.CanvasHandler.create();
     const input = Mx.Input.init(handler);
     const circle1 = Mx.Geo.Circle.create(100, 100, 20, 'red').enableDrag();
-    circle1.addAnimation(Mx.TranslateAnimation.create(200, 0, 100, true, true));
-    circle1.addAnimation(Mx.TranslateAnimation.create(0, 150, 50, true, true));
+    const animation1 = Mx.TranslateAnimation.create(200, 0, 100, true, true);
+    const animation2 = Mx.TranslateAnimation.create(0, 150, 50, true, true);
+    circle1.addAnimation(animation1);
+    circle1.addAnimation(animation2);
     const circle2 = Mx.Geo.Circle.create(100, 100, 20, 'blue');
+    const sheet = Mx.SpriteSheet.create('./../../sprites.png', 64, 64, 0);
+    const sprite1 = sheet.get(0, 0).setDrawnSize(100).setAlpha(0.7).move(300, 300);
+    const animation3 = Mx.SpriteAnimation.create(
+        [[0, 0, 15], [1, 0, 15], [2, 0, 15], [3, 0, 15]],
+        true, true
+    );
+    sprite1.addAnimation(animation3).addAnimation(animation1.clone());
     const loop = Mx.It.Loop.start(60, loop => {
         handler.fill();
-        handler.draw(circle1.listen().animate());
+        circle1.listen().animate();
         const {xInCanvas, yInCanvas, left} = input.mouse();
         if(left) {
             circle2.easeTo(xInCanvas, yInCanvas, 0.1);
         }
-        handler.draw(circle2);
+        sprite1.animate();
+        handler.draws(circle1, circle2, sprite1);
     });
 
 </script>

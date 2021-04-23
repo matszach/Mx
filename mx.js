@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.8.1
+ * @version 0.9.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -727,6 +727,36 @@ const Mx = {
 
     },
 
+    SpriteAnimation: class extends _Animation {
+
+        constructor(framesInfo, repeat, backAndForth) {
+            super();
+            this.framesInfo = framesInfo;
+            this.maxTick = framesInfo.reduce((acc, curr) => acc + curr[2], 0);
+            this.repeat = repeat;
+            this.backAndForth = backAndForth;
+        } 
+
+        doFrame(entity) {
+            super.doFrame(entity);
+            let ticks = this.currTick;
+            for(let fi of this.framesInfo) {
+                ticks -= fi[2];
+                console.log(fi, ticks);
+                if(ticks < 0) {
+                    entity.frameX = fi[0];
+                    entity.frameY = fi[1];
+                    break;
+                }
+            }
+            return this;
+        }
+
+        clone() {
+            return Mx.SpriteAnimation.create(this.framesInfo, this.repeat, this.backAndForth);
+        }
+    },
+
     /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
      * Random number generator
      */
@@ -1281,7 +1311,7 @@ const Mx = {
         Polyline: class extends _Entity {
 
             constructor(verticesInfo, color, thickness) {
-                super(-1, -1);
+                super(...verticesInfo[0]);
                 this.verticesInfo = verticesInfo;
                 this.color = color;
                 this.thickness = thickness;
@@ -1307,6 +1337,11 @@ const Mx = {
                 return this;
             }
 
+            rotate(phi, xOrigin = this.x, yOrigin = this.y) {
+                // TODO
+                return this;
+            }
+
             _getDrawn(canvasHandler) {
                 canvasHandler.drawPolyline(this.verticesInfo, this.color, this.thickness);
             }
@@ -1320,11 +1355,12 @@ const Mx = {
                 }
                 x /= this.verticesInfo.length;
                 y /= this.verticesInfo.length;
-                return Mx.Geo.Vertex(x, y);
+                return Mx.Geo.Vertex.create(x, y);
             }
 
             add(x, y) {
                 this.verticesInfo.push([x, y]);
+                return this;
             }
 
             pop() {
@@ -1349,6 +1385,62 @@ const Mx = {
                     return new Mx.Geo.Vertex(x, y);
                 });
             }
+        },
+
+        Polygon: class extends _Entity {
+
+            constructor(verticesInfo, backgroundColor, borderColor, borderThickness) {
+                super(...verticesInfo[0]);
+                this.body = Mx.Geo.Polyline.create(verticesInfo);
+                this.backgroundColor = backgroundColor;
+                this.borderColor = borderColor;
+                this.borderThickness = borderThickness;
+            }
+
+            place(x, y) {
+                this.body.place(x, y);
+                return this;
+            }
+
+            move(x, y) {
+                this.body.move(x, y);
+                return this;
+            }
+
+            rotate(phi, xOrigin = this.x, yOrigin = this.y) {
+                this.body.rotate(phi, xOrigin, yOrigin);
+                return this;
+            }
+
+            _getDrawn(canvasHandler) {
+                canvasHandler.drawPolygon(this.body.verticesInfo, this.backgroundColor, this.borderColor, this.thickness);
+            }
+
+            getCenter() {
+                return this.body.getCenter();
+            }
+
+            toPolyline(color = this.borderColor, thickness = this.borderThickness) {
+                return Mx.Geo.Polyline.create([...this.body.verticesInfo], color, thickness);
+            }
+
+            add(x, y) {
+                this.body.add(x, y);
+                return this;
+            }
+
+            pop() {
+                return this.body.pop();
+            }
+
+            toLines(color = this.color, thickness = this.thickness) {
+                return this.body.toLines(color, thickness);
+            }
+
+            toVertices() {
+                return this.body.toVertices();
+            }
+
         },
 
         Rectangle: class extends _Entity {
@@ -1592,7 +1684,7 @@ const Mx = {
                 return this;
             }
 
-            drawCircle(x, y, radius, fillColor, strokeColor, thickness = 1) {
+            drawCircle(x, y, radius, fillColor = 'black', strokeColor = 'black', thickness = 1) {
                 this._fillStyle(fillColor);
                 this._strokeStyle(strokeColor, thickness);
                 this.context.beginPath();
@@ -1625,6 +1717,25 @@ const Mx = {
                     this.context.lineTo(...vertex);
                 }
                 this.context.stroke();
+                return this;
+            }
+
+            drawPolygon(vertices, fillColor = 'black', strokeColor = 'black', thickness = 1) {
+                this._fillStyle(fillColor);
+                this._strokeStyle(strokeColor, thickness);
+                this.context.beginPath();
+                const startVertex = vertices[0];
+                this.context.moveTo(...startVertex);
+                for(let vertex of vertices.slice(1)) {
+                    this.context.lineTo(...vertex);
+                }
+                this.context.closePath();
+                if(fillColor) {
+                    this.context.fill();
+                }
+                if(strokeColor) {
+                    this.context.stroke();
+                }
                 return this;
             }
 
