@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.9.3
+ * @version 0.10.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1684,7 +1684,96 @@ const Mx = {
                 this.vpX = 0;
                 this.vpY = 0;
                 this.vpScale = 1;
-                this._onResize = () => {};
+                this._xDragHook = 0;
+                this._yDragHook = 0;
+                this.isMouseOver = false;
+                this.isMouseDown = false;
+                this.isMouseDrag = false;
+                this.onMouseOver = () => {};
+                this.onMouseOut = () => {};
+                this.onMouseDown = () => {};
+                this.onMouseUp = () => {};
+                this.onMouseDrag = () => {};
+                this.onResize = () => {};
+            }
+
+            on(event, callback = () => {}) {
+                switch(event) {
+                    case 'over': this.onMouseOver = callback; break;
+                    case 'out': this.onMouseOut = callback; break;
+                    case 'down': this.onMouseDown = callback; break;
+                    case 'up': this.onMouseUp = callback; break;
+                    case 'drag': this.onMouseDrag = callback; break;
+                    case 'resize': this.onResize = callback; break;
+                    default: break;
+                }
+                return this;
+            }
+
+            enableDrag() {
+                return this.on('down', (mouse, handler) => {
+                    handler._xDragHook = mouse.xInCanvas;
+                    handler._yDragHook = mouse.yInCanvas;
+                }).on('drag', (mouse, handler) => {
+                    // TODO but works for now
+                    if(Math.abs(mouse.moveX) > 1 || Math.abs(mouse.moveY) > 1) {
+                        handler.moveViewport(mouse.moveX * 2, mouse.moveY * 2);
+                    }
+                });
+            }
+
+            enableZoom() {
+                document.onscroll = event => {
+                    console.log(event);
+                };
+                return this;
+            }
+
+            isPointOver(x, y) {
+                return true; // TODO but works for now
+            }
+        
+            listen() {
+                // setup
+                const mouse = Mx.Input.mouse();
+                const isNowMouseOver = this.isPointOver(mouse.xInCanvas, mouse.yInCanvas);
+                const isNowMouseDown = mouse.left;
+                // mouse over
+                if(isNowMouseOver) {
+                    if(!this.isMouseOver) {
+                        this.onMouseOver(mouse, this);
+                    }
+                    this.isMouseOver = true;
+                } else {
+                    if(this.isMouseOver) {
+                        this.onMouseOut(mouse, this);
+                        this.isMouseOver = false;
+                    }
+                } 
+                // mouse down 
+                if(isNowMouseDown) {
+                    if(!this.isMouseDown) {
+                        if(isNowMouseOver) {
+                            this.onMouseDown(mouse, this);
+                            this.isMouseDown = true;
+                        }
+                    } else {
+                        if(mouse.draggedEntity === null) {
+                            mouse.draggedEntity = this;
+                        }
+                        if(mouse.draggedEntity === this) {
+                            this.onMouseDrag(mouse, this);
+                        }
+                    }
+                } else {
+                    if(this.isMouseDown) {
+                        this.onMouseUp(mouse, this);
+                        this.isMouseDown = false;
+                        mouse.draggedEntity = null;
+                    }
+                }
+                // fin
+                return this;
             }
 
             moveViewport(x, y) {
@@ -1717,19 +1806,13 @@ const Mx = {
                 this.context = this.canvas.getContext('2d');
                 this.parent = document.getElementById(this.parentId);
                 this.parent.appendChild(this.canvas);
-                window.addEventListener('resize', event => this.refit()._onResize(this), this);
+                window.addEventListener('resize', event => this.refit().onResize(this), this);
                 return this;
             }
 
             refit() {
                 this.canvas.width = this.parent.clientWidth;
                 this.canvas.height = this.parent.clientHeight;
-                return this;
-            }
-
-            onResize(callback) {
-                this._onResize = callback;
-                callback(this);
                 return this;
             }
     
@@ -1744,12 +1827,16 @@ const Mx = {
                 return this;
             }
 
-            grid(xSpacing, ySpacing, color = 'gray', thickness = 0.5) {
-                for(let x = 0; x < this.canvas.width; x += xSpacing) {
-                    this.drawLine(x, 0, x, this.canvas.height, color, thickness);
+            grid(xSpacing = 16, ySpacing = xSpacing, color = 'gray', thickness = 0.5) {
+                const xStart = -Math.ceil(this.vpX / xSpacing) * xSpacing;
+                const xEnd = xStart + this.canvas.width + xSpacing;
+                const yStart = -Math.ceil(this.vpY / ySpacing) * ySpacing;
+                const yEnd = yStart + this.canvas.height + ySpacing;
+                for(let x = xStart; x < xEnd; x += xSpacing) {
+                    this.drawLine(x, yStart, x, yEnd, color, thickness);
                 }
-                for(let y = 0; y < this.canvas.height; y += ySpacing) {
-                    this.drawLine(0, y, this.canvas.width, y, color, thickness);
+                for(let y = yStart; y < yEnd; y += ySpacing) {
+                    this.drawLine(xStart, y, xEnd, y, color, thickness);
                 }
                 return this;
             }
@@ -1904,7 +1991,6 @@ const Mx = {
      */
     Input: {
         
-
         _keys: {},
 
         _mouse: {

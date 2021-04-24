@@ -2,7 +2,12 @@
 <script src='./../../mx.js'></script>
 <script>
 
-    const handler = Mx.Draw.CanvasHandler.create();
+    const handler = Mx.Draw.CanvasHandler.create().enableDrag();
+    const rng = Mx.Rng.fromMathRandom();
+    const dots = [];
+    handler.on('up', mouse => {
+        dots.push(Mx.Geo.Circle.create(mouse.xInCanvas, mouse.yInCanvas, 10, rng.rgba()))
+    });
     const input = Mx.Input.init(handler);
     const pg = Mx.Geo.Polygon.create(
         [[100, 100], [120, 220], [220, 200], [240, 80], [170, 30]], 
@@ -25,9 +30,11 @@
     const cont2 = cont.clone();
 
     const loop = Mx.It.Loop.start(60, loop => {
+        handler.listen();
         handler.fill('black');
         handler.grid(20, 20);
         const {xInCanvas, yInCanvas} = input.mouse();
+        handler.drawCircle(xInCanvas, yInCanvas, 10, 'red');
         center.rotate(Math.PI/80, 200, 200);
         pg.rotate(Math.PI/100, 200, 200)
         pl.rotate(-Math.PI/100)
@@ -36,7 +43,7 @@
         rect.rotate(Math.PI/300, 100, 100);
         cont.rotate(0.01).rotate(0.04, 550, 350);
         // cont.rotate(0.01, 350, 200).rotate(0.1);
-        handler.draws(pg2, pg, pl, center, line, rect, cont, cont2);
+        handler.draws(pg2, pg, pl, center, line, rect, cont, cont2, ...dots);
     });
 
 </script>
