@@ -8,6 +8,9 @@
         [[100, 100], [120, 220], [220, 200], [240, 80], [170, 30]], 
         'red', 'blue', 2
     );
+    const pg2 = pg.clone();
+    pg2.backgroundColor = Mx.Draw.Color.rgba(0, 255, 100, 0.5);
+    pg2.move(100, 100);
     const pl = pg.toPolyline();
     const center = pg.getCenter().toCircle(10, 'yellow', 'green', 2);
     const line = Mx.Geo.Line.create(400, 400, 200, 400, 'orange', 3);
@@ -33,7 +36,7 @@
         rect.rotate(Math.PI/300, 100, 100);
         cont.rotate(0.01).rotate(0.04, 550, 350);
         // cont.rotate(0.01, 350, 200).rotate(0.1);
-        handler.draws(pg, pl, center, line, rect, cont, cont2);
+        handler.draws(pg2, pg, pl, center, line, rect, cont, cont2);
     });
 
 </script>

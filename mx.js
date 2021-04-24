@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.9.2
+ * @version 0.9.3
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1917,7 +1917,8 @@ const Mx = {
            left: false,
            middle: false,
            right: false,
-           draggedEntity: null
+           down: false,
+           draggedEntity: null,
         },
 
         init(canvasHandler = null) {
@@ -1941,6 +1942,11 @@ const Mx = {
                     case 2: Mx.Input._mouse.right = true; break;
 					default: break;
                 }
+                Mx.Input._mouse.down = (
+                    Mx.Input._mouse.left ||
+                    Mx.Input._mouse.middle ||
+                    Mx.Input._mouse.right
+                );
             };
 
             document.onmouseup = e => {
@@ -1950,6 +1956,11 @@ const Mx = {
                     case 2: Mx.Input._mouse.right = false; break;
 					default: break;
                 }
+                Mx.Input._mouse.down = (
+                    Mx.Input._mouse.left ||
+                    Mx.Input._mouse.middle ||
+                    Mx.Input._mouse.right
+                );
             };
 
             // key listeners
