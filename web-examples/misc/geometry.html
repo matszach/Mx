@@ -1,15 +1,37 @@
 <body></body>
 <script src='./../../mx.js'></script>
 <script>
+
     const handler = Mx.Draw.CanvasHandler.create();
+    const input = Mx.Input.init(handler);
     const pg = Mx.Geo.Polygon.create(
         [[100, 100], [120, 220], [220, 200], [240, 80], [170, 30]], 
         'red', 'blue', 2
     );
+    const pl = pg.toPolyline();
     const center = pg.getCenter().toCircle(10, 'yellow', 'green', 2);
-    const loop = Mx.It.Loop.start(1, loop => {
+    const line = Mx.Geo.Line.create(400, 400, 200, 400, 'orange', 3);
+    const rect = Mx.Geo.Rectangle.create(200, 200, 300, 100, 'teal', 'pink', 5);
+
+    const cont = Mx.Container.create(500, 300);
+    cont.add(Mx.Geo.Circle.create(550, 300, 20, 'yellow'));
+    cont.add(Mx.Geo.Circle.create(450, 300, 20, 'red'));
+    cont.add(Mx.Geo.Circle.create(500, 350, 20, 'blue'));
+    cont.add(Mx.Geo.Circle.create(500, 250, 20, 'green'));
+
+    const loop = Mx.It.Loop.start(60, loop => {
         handler.fill('black');
         handler.grid(20, 20);
-        handler.draws(pg, center);
+        const {xInCanvas, yInCanvas} = input.mouse();
+        center.rotate(Math.PI/80, 200, 200);
+        pg.rotate(Math.PI/100, 200, 200)
+        pl.rotate(-Math.PI/100)
+        line.rotate(Math.PI/200);
+        line.easeTo(xInCanvas, yInCanvas);
+        rect.rotate(Math.PI/300, 100, 100);
+        cont.rotate(0.01).rotate(0.04, 550, 350);
+        // cont.rotate(0.01, 350, 200).rotate(0.1);
+        handler.draws(pg, pl, center, line, rect, cont);
     });
+
 </script>

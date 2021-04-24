@@ -75,7 +75,10 @@ class _Entity {
     }
 
     rotate(phi, xOrigin = this.x, yOrigin = this.y) {
-        // TODO
+        const r = Mx.Geo.Distance.simple(xOrigin, yOrigin, this.x, this.y);
+        const pCrd = Mx.Geo.toPolar(this.x - xOrigin, this.y - yOrigin);
+        const cCrd = Mx.Geo.toCartesian(phi + pCrd.phi, r);
+        this.place(cCrd.x + xOrigin, cCrd.y + yOrigin);
         return this;
     }
 
@@ -530,7 +533,8 @@ const Mx = {
         }
     
         rotate(phi, xOrigin = this.x, yOrigin = this.y) {
-            // TODO
+            super.rotate(phi, xOrigin, yOrigin);
+            this.forChild(c => c.rotate(phi, this.x, this.y));
             return this;
         }
     
@@ -1281,6 +1285,15 @@ const Mx = {
                 this.y2 += y;
                 return this;
             }
+
+            easeTo(x, y, ratio = 0.1) {
+                const c = this.getCenter();
+                const dx = x - c.x;
+                const dy = y - c.y;
+                this.move(dx * ratio, dy * ratio);
+                return this;
+            }
+        
             
             scale(scaleX = 1, scaleY = scaleX, xOrigin = this.x1, yOrigin = this.y1) {
                 this.x1 = scaleX * (this.x1 - xOrigin) + xOrigin;
@@ -1290,8 +1303,22 @@ const Mx = {
                 return this;
             }
         
-            rotate(phi, xOrigin = this.x, yOrigin = this.y) {
-                // TODO
+            rotate(phi, xOrigin, yOrigin) {
+                if(xOrigin === undefined || yOrigin === undefined) {
+                    const {x, y} = this.getCenter();
+                    xOrigin = x;
+                    yOrigin = y;
+                }
+                const r1 = Mx.Geo.Distance.simple(xOrigin, yOrigin, this.x1, this.y1);
+                const pCrd1 = Mx.Geo.toPolar(this.x1 - xOrigin, this.y1 - yOrigin);
+                const cCrd1 = Mx.Geo.toCartesian(phi + pCrd1.phi, r1);
+                this.x1 = cCrd1.x + xOrigin;
+                this.y1 = cCrd1.y + yOrigin;
+                const r2 = Mx.Geo.Distance.simple(xOrigin, yOrigin, this.x2, this.y2);
+                const pCrd2 = Mx.Geo.toPolar(this.x2 - xOrigin, this.y2 - yOrigin);
+                const cCrd2 = Mx.Geo.toCartesian(phi + pCrd2.phi, r2);
+                this.x2 = cCrd2.x + xOrigin;
+                this.y2 = cCrd2.y + yOrigin;
                 return this;
             }
         
@@ -1300,8 +1327,8 @@ const Mx = {
             }
 
             getCenter() {
-                return new Mx.Geo.Vertex(
-                    (this.x1 + this.x2)/2
+                return Mx.Geo.Vertex.create(
+                    (this.x1 + this.x2)/2,
                     (this.y1 + this.y2)/2
                 );
             }
@@ -1318,7 +1345,7 @@ const Mx = {
             }
 
             place(x, y) {
-                const [ix, iy] = this.verticesInfo[0];
+                const {x: ix, y: iy} = this.getCenter();
                 const dx = x - ix;
                 const dy = y - iy;
                 this.verticesInfo[0] = [x, y];
@@ -1337,8 +1364,27 @@ const Mx = {
                 return this;
             }
 
-            rotate(phi, xOrigin = this.x, yOrigin = this.y) {
-                // TODO
+            easeTo(x, y, ratio = 0.1) {
+                const {x: cx, y: cy} = this.getCenter();
+                const dx = x - cx;
+                const dy = y - cy;
+                this.move(dx * ratio, dy * ratio);
+                return this;
+            }
+
+            rotate(phi, xOrigin, yOrigin) {
+                if(xOrigin === undefined && yOrigin === undefined) {
+                    const c = this.getCenter();
+                    xOrigin = c.x;
+                    yOrigin = c.y;
+                }
+                for(let v of this.verticesInfo) {
+                    const r = Mx.Geo.Distance.simple(...v, xOrigin, yOrigin);
+                    const pCrd = Mx.Geo.toPolar(v[0] - xOrigin, v[1] - yOrigin);
+                    const cCrd = Mx.Geo.toCartesian(phi + pCrd.phi, r);
+                    v[0] = cCrd.x + xOrigin;
+                    v[1] = cCrd.y + yOrigin;
+                }
                 return this;
             }
 
@@ -1407,7 +1453,12 @@ const Mx = {
                 return this;
             }
 
-            rotate(phi, xOrigin = this.x, yOrigin = this.y) {
+            easeTo(x, y, ratio = 0.1) {
+                this.body.easeTo(x, y, ratio);
+                return this;
+            }
+
+            rotate(phi, xOrigin, yOrigin) {
                 this.body.rotate(phi, xOrigin, yOrigin);
                 return this;
             }
@@ -1421,7 +1472,11 @@ const Mx = {
             }
 
             toPolyline(color = this.borderColor, thickness = this.borderThickness) {
-                return Mx.Geo.Polyline.create([...this.body.verticesInfo], color, thickness);
+                const verticesInfo = [
+                    ...this.body.verticesInfo.map(vi => [...vi]), 
+                    [...this.body.verticesInfo[0]]
+                ];
+                return Mx.Geo.Polyline.create(verticesInfo, color, thickness);
             }
 
             add(x, y) {
@@ -1473,7 +1528,7 @@ const Mx = {
             }
 
             getCenter() {
-                return new Mx.Geo.Vertex(
+                return Mx.Geo.Vertex.create(
                     this.x + this.width/2,
                     this.y + this.height/2
                 );
@@ -1684,7 +1739,7 @@ const Mx = {
                 return this;
             }
 
-            drawCircle(x, y, radius, fillColor = 'black', strokeColor = 'black', thickness = 1) {
+            drawCircle(x, y, radius, fillColor = 'black', strokeColor = undefined, thickness = 1) {
                 this._fillStyle(fillColor);
                 this._strokeStyle(strokeColor, thickness);
                 this.context.beginPath();
@@ -1720,7 +1775,9 @@ const Mx = {
                 return this;
             }
 
-            drawPolygon(vertices, fillColor = 'black', strokeColor = 'black', thickness = 1) {
+            // TODO stroke and fill polygon methods
+
+            drawPolygon(vertices, fillColor = 'black', strokeColor = undefined, thickness = 1) {
                 this._fillStyle(fillColor);
                 this._strokeStyle(strokeColor, thickness);
                 this.context.beginPath();
@@ -1785,8 +1842,8 @@ const Mx = {
            y: 0,
            moveX: 0,
            moveY: 0,
-           xInCanvas: NaN,
-           yInCanvas: NaN,
+           xInCanvas: 0,
+           yInCanvas: 0,
            left: false,
            middle: false,
            right: false,
