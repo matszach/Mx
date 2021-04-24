@@ -1999,30 +1999,11 @@ const Mx = {
             return this;
         }
 
-        volumeEaseTo(vol, duration) {
-            let a = this.audio;
-            let dv = (Gmt.clamp(vol, 0, 1) - a.volume) / 10;
-            Gmt.echo(10, duration/10, () => a.volume += dv);
-            return this;
-        }
-
         rate(rate) {
             if(rate < 0) {
                 return this.pause();
             }
             this.audio.playbackRate = rate;
-            return this;
-        }
-
-        rateEaseTo(rate, duration) {
-            let a = this.audio;
-            let dr = (rate - a.playbackRate) / 10;
-            Gmt.echo(10, duration/10, () => {
-                if (a.playbackRate + dr <= 0) {
-                    return;
-                }
-                a.playbackRate += dr;       
-            });
             return this;
         }
     
