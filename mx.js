@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.10.0
+ * @version 0.10.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1722,9 +1722,13 @@ const Mx = {
                 });
             }
 
-            enableZoom() {
-                document.onscroll = event => {
-                    console.log(event);
+            enableZoom(scaleFactor = 1.1) {
+                document.onwheel = event => {
+                    if(event.deltaY > 0) {
+                        this.scaleViewport(scaleFactor);
+                    } else {
+                        this.scaleViewport(1/scaleFactor);
+                    }
                 };
                 return this;
             }
@@ -1818,20 +1822,38 @@ const Mx = {
     
             fill(color = 'black') {
                 this._fillStyle(color);
+                this.context.resetTransform();
                 this.context.fillRect(
-                    -this.vpX, 
-                    -this.vpY, 
+                    0, 0,
                     this.canvas.width, 
                     this.canvas.height
                 );
+                this.context.translate(this.vpX, this.vpY);
+                this.context.scale(this.vpScale, this.vpScale);
                 return this;
             }
 
+            getBoundingRectangle(backgroundColor = undefined, borderColor = 'black', borderThickness = 1) {
+                return Mx.Geo.Rectangle.create(
+                    -this.vpX / this.vpScale,
+                    -this.vpY / this.vpScale,
+                    this.canvas.width / this.vpScale,
+                    this.canvas.height / this.vpScale,
+                    backgroundColor, borderColor, borderThickness
+                );
+            }
+
             grid(xSpacing = 16, ySpacing = xSpacing, color = 'gray', thickness = 0.5) {
-                const xStart = -Math.ceil(this.vpX / xSpacing) * xSpacing;
-                const xEnd = xStart + this.canvas.width + xSpacing;
-                const yStart = -Math.ceil(this.vpY / ySpacing) * ySpacing;
-                const yEnd = yStart + this.canvas.height + ySpacing;
+                const bx = -this.vpX / this.vpScale;
+                const by = -this.vpY / this.vpScale;
+                const bw = this.canvas.width / this.vpScale;
+                const bh = this.canvas.height / this.vpScale;
+                const offx = -this.vpX % xSpacing;
+                const offy = -this.vpY % ySpacing;
+                const xStart = bx - offx
+                const xEnd = xStart + bw + xSpacing;
+                const yStart = by - offy;
+                const yEnd = yStart + bh + ySpacing;
                 for(let x = xStart; x < xEnd; x += xSpacing) {
                     this.drawLine(x, yStart, x, yEnd, color, thickness);
                 }

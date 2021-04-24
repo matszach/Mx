@@ -2,7 +2,7 @@
 <script src='./../../mx.js'></script>
 <script>
 
-    const handler = Mx.Draw.CanvasHandler.create().enableDrag();
+    const handler = Mx.Draw.CanvasHandler.create().enableDrag().enableZoom();
     const rng = Mx.Rng.fromMathRandom();
     const dots = [];
     handler.on('up', mouse => {
