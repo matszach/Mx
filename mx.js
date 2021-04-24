@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.9.1
+ * @version 0.9.2
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -185,6 +185,10 @@ class _Entity {
             });
         }
         return this;
+    }
+
+    clone() {
+        return Mx.Entity.create(this.x, this.y);
     }
 
 }
@@ -546,6 +550,12 @@ const Mx = {
             this.forChild(c => c.listen());
             return this;
         }
+
+        clone() {
+            const cont = Mx.Container.create(this.x, this.y);
+            this.forChild(c => cont.add(c.clone()));
+            return cont;
+        }
     
     },
 
@@ -591,6 +601,14 @@ const Mx = {
 
         isPointOver(x, y) {
             return this.getBoundingRectangle().isPointOver(x, y);
+        }
+
+        clone() {
+            return Mx.Text.create(
+                this.x, this.y,
+                this.content, this.color, this.fontSize, this.fontFamily,
+                this.rotation, this.alpha
+            );
         }
 
     },
@@ -693,6 +711,15 @@ const Mx = {
             const dx = this.x - x;
             const dy = this.y - y;
             return dx**2 / a**2 + dy**2 / b**2 < 1;
+        }
+
+        clone() {
+            return Mx.Sprite.create(
+                this.x, this.y, 
+                this.image, this.spriteWidth, this.spriteHeight, this.borderThickness, 
+                this.frameX, this.frameY, this.drawnWidth, this.drawnHeight,
+                this.rotation, this.alpha
+            );
         }
 
     },
@@ -1248,10 +1275,18 @@ const Mx = {
 
         },
 
+        Collision: {
+
+        },
+
         Vertex: class extends _Entity {
 
             toCircle(radius, backgroundColor, borderColor, borderThickness) {
                 return new Mx.Geo.Circle(this.x, this.y, radius, backgroundColor, borderColor, borderThickness);
+            }
+
+            clone() {
+                return Mx.Geo.Vertex.create(this.x, this.y);
             }
 
         },
@@ -1330,6 +1365,13 @@ const Mx = {
                 return Mx.Geo.Vertex.create(
                     (this.x1 + this.x2)/2,
                     (this.y1 + this.y2)/2
+                );
+            }
+
+            clone() {
+                return Mx.Geo.Line.create(
+                    this.x1, this.y1, this.x2, this.y2, 
+                    this.color, this.thickness
                 );
             }
 
@@ -1431,6 +1473,13 @@ const Mx = {
                     return new Mx.Geo.Vertex(x, y);
                 });
             }
+
+            clone() {
+                return Mx.Geo.Polyline.create(
+                    [...this.verticesInfo.map(v => [...v])],
+                    this.color, this.thickness
+                );
+            }
         },
 
         Polygon: class extends _Entity {
@@ -1496,6 +1545,13 @@ const Mx = {
                 return this.body.toVertices();
             }
 
+            clone() {
+                return Mx.Geo.Polygon.create(
+                    [...this.body.verticesInfo.map(v => [...v])],
+                    this.backgroundColor, this.borderColor, this.borderThickness
+                );
+            }
+
         },
 
         Rectangle: class extends _Entity {
@@ -1534,6 +1590,13 @@ const Mx = {
                 );
             }
 
+            clone() {
+                return Mx.Geo.Rectangle.create(
+                    this.x, this.y, this.width, this.height, 
+                    this.backgroundColor, this.borderColor, this.borderThickness
+                );
+            }
+
         },
 
         Circle: class extends _Entity {
@@ -1561,7 +1624,14 @@ const Mx = {
             }
 
             getCenter() {
-                return new Mx.Geo.Vertex(this.x, this.y);
+                return Mx.Geo.Vertex.create(this.x, this.y);
+            }
+
+            clone() {
+                return Mx.Geo.Circle.create(
+                    this.x, this.y, this.radius, 
+                    this.backgroundColor, this.borderColor, this.borderThickness
+                );
             }
 
         },

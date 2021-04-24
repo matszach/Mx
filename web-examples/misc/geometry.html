@@ -19,6 +19,8 @@
     cont.add(Mx.Geo.Circle.create(500, 350, 20, 'blue'));
     cont.add(Mx.Geo.Circle.create(500, 250, 20, 'green'));
 
+    const cont2 = cont.clone();
+
     const loop = Mx.It.Loop.start(60, loop => {
         handler.fill('black');
         handler.grid(20, 20);
@@ -31,7 +33,7 @@
         rect.rotate(Math.PI/300, 100, 100);
         cont.rotate(0.01).rotate(0.04, 550, 350);
         // cont.rotate(0.01, 350, 200).rotate(0.1);
-        handler.draws(pg, pl, center, line, rect, cont);
+        handler.draws(pg, pl, center, line, rect, cont, cont2);
     });
 
 </script>
