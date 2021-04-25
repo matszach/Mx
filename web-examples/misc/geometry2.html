@@ -2,14 +2,23 @@
 <script src='./../../mx.js'></script>
 <script>
 
-    const handler = Mx.Draw.CanvasHandler.create();
+    const handler = Mx.Draw.CanvasHandler.create().enableDrag().enableZoom();
     const rng = Mx.Rng.fromMathRandom();
     const input = Mx.Input.init(handler);
-  
+
+    const pg = Mx.Geo.Polygon.create(
+        Mx.Ds.range(0, 10).map(i => [rng.float(200, 500), rng.float(200, 500)]),
+        'blue'
+    ).enableDrag();
+
     const loop = Mx.It.Loop.start(60, loop => {
         handler.fill('black');
         handler.grid(20, 20);
-        handler.draws();
+        pg.rotate(0.02).listen();
+        const rect = pg.getBoundingRectangle();
+        const circle = pg.getBoundingCircle();
+        handler.draws(pg, rect, circle);
+        handler.listen();
     });
 
 </script>

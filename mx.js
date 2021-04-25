@@ -1523,11 +1523,26 @@ const Mx = {
             }
 
             getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
-                // TODO
+                let minX = this.verticesInfo[0][0];
+                let minY = this.verticesInfo[0][1];
+                let maxX = this.verticesInfo[0][0];
+                let maxY = this.verticesInfo[0][1];
+                for(let [x, y] of this.verticesInfo.slice(1)) {
+                    if(x > maxX) maxX = x;
+                    if(y > maxY) maxY = y;
+                    if(x < minX) minX = x;
+                    if(y < minY) minY = y;
+                }
+                return Mx.Geo.Rectangle.create(
+                    minX - padding, minY - padding,
+                    maxX - minX + 2 * padding, maxY - minY + 2 * padding, 
+                    backgroundColor, borderColor, borderThickness
+                );
             }
         
             getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
-                // TODO
+                // FIXME this requires more work
+                return this.getBoundingRectangle().getBoundingCircle(padding, backgroundColor, borderColor, borderThickness);
             }
         },
 
@@ -1609,6 +1624,10 @@ const Mx = {
                 return this.body.getBoundingCircle(padding, backgroundColor, borderColor, borderThickness);
             }
 
+            isPointOver(x, y) {
+                return this.getBoundingRectangle().isPointOver(x, y);
+            }
+
         },
 
         Rectangle: class extends _Entity {
@@ -1655,15 +1674,24 @@ const Mx = {
             }
 
             toPolygon() {
-
+                // todo
             }
 
             getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
-                // todo
+                return Mx.Geo.Rectangle.create(
+                    this.x - padding, this.y - padding, 
+                    this.width + 2 * padding, this.height + 2 * padding, 
+                    backgroundColor, borderColor, borderThickness
+                );
             }
         
             getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
-                // todo
+                const {x, y} = this.getCenter();
+                const r = Math.sqrt((x - this.x) ** 2 + (y - this.y) ** 2);
+                return Mx.Geo.Circle.create(
+                    x, y, r + padding, 
+                    backgroundColor, borderColor, borderThickness
+                );
             }
 
         },
@@ -2014,10 +2042,12 @@ const Mx = {
     
             drawRect(x, y, width, height, fillColor, strokeColor, thickness) {
                 if(fillColor) {
-                    this.fillRect(x, y, width, height, fillColor);
+                    this._fillStyle(fillColor);
+                    this.context.fillRect(x, y, width, height);
                 }
                 if(strokeColor) {
-                    this.strokeRect(x, y, width, height, strokeColor, thickness);
+                    this._strokeStyle(strokeColor, thickness);
+                    this.context.strokeRect(x, y, width, height);
                 }
                 return this;
             }
@@ -2039,15 +2069,15 @@ const Mx = {
                 return this;
             }
 
-            drawCircle(x, y, radius, fillColor = 'black', strokeColor = undefined, thickness = 1) {
-                this._fillStyle(fillColor);
-                this._strokeStyle(strokeColor, thickness);
+            drawCircle(x, y, radius, fillColor, strokeColor, thickness) {
                 this.context.beginPath();
                 this.context.arc(x, y, radius, 0, Math.PI * 2);
                 if(fillColor) {
+                    this._fillStyle(fillColor);
                     this.context.fill();
                 }
                 if(strokeColor) {
+                    this._strokeStyle(strokeColor, thickness);
                     this.context.stroke();
                 }
                 return this;
