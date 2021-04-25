@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.12.0
+ * @version 0.12.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -102,6 +102,9 @@ class _Entity {
     }
 
     listen() {
+        if(!this._listenerAttached) {
+            return this;
+        }
         // setup
         const mouse = Mx.Input.mouse();
         const isNowMouseOver = this.isPointOver(mouse.xInCanvas, mouse.yInCanvas);
@@ -576,8 +579,8 @@ const Mx = {
         }
 
         listen() {
-            super.listen();
             this.forChild(c => c.listen());
+            super.listen();
             return this;
         }
 

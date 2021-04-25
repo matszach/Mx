@@ -12,6 +12,7 @@
     );
     cont.adds(...circles);
     cont.enableDrag();
+    cont.forChild(e => e.enableDrag());
 
     const c = Mx.Geo.Circle.create(100, 100, 100, rng.rgb()).enableDrag();
 
