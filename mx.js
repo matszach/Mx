@@ -575,7 +575,7 @@ const Mx = {
         }
 
         getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
-            let minX, minY, maxX, maxY;
+            // TODO
         }
     
         getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
@@ -745,6 +745,14 @@ const Mx = {
                 this.frameX, this.frameY, this.drawnWidth, this.drawnHeight,
                 this.rotation, this.alpha
             );
+        }
+
+        getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+            // TODO
+        }
+    
+        getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+            // TODO
         }
 
     },
@@ -1400,6 +1408,14 @@ const Mx = {
                 );
             }
 
+            getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+                // TODO
+            }
+        
+            getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+                // TODO
+            }
+
         },
 
         Polyline: class extends _Entity {
@@ -1506,8 +1522,12 @@ const Mx = {
                 );
             }
 
-            getBoundingRectangle() {
-
+            getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+                // TODO
+            }
+        
+            getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+                // TODO
             }
         },
 
@@ -1581,6 +1601,14 @@ const Mx = {
                 );
             }
 
+            getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+                return this.body.getBoundingRectangle(padding, backgroundColor, borderColor, borderThickness);
+            }
+        
+            getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+                return this.body.getBoundingCircle(padding, backgroundColor, borderColor, borderThickness);
+            }
+
         },
 
         Rectangle: class extends _Entity {
@@ -1626,6 +1654,18 @@ const Mx = {
                 );
             }
 
+            toPolygon() {
+
+            }
+
+            getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+                // todo
+            }
+        
+            getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+                // todo
+            }
+
         },
 
         Circle: class extends _Entity {
@@ -1661,6 +1701,22 @@ const Mx = {
                     this.x, this.y, this.radius, 
                     this.backgroundColor, this.borderColor, this.borderThickness
                 );
+            }
+
+            toInscribedPolygon(backgroundColor = this.backgroundColor, borderColor = this.borderColor, borderThickness = this.borderThickness) {
+                // todo
+            }
+
+            toCircumscribedPolygon(backgroundColor = this.backgroundColor, borderColor = this.borderColor, borderThickness = this.borderThickness) {
+                // todo
+            }
+
+            getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+                // todo
+            }
+        
+            getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+                // todo
             }
 
         },
