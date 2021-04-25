@@ -1,0 +1,24 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    const handler = Mx.Draw.CanvasHandler.create().enableDrag().enableZoom();
+    const input = Mx.Input.init(handler);
+    const r1 = Mx.Geo.Rectangle.create(100, 100, 50, 50, 'red');
+    const r2 = Mx.Geo.Rectangle.create(200, 100, 50, 50, 'blue');
+    handler.moveViewport(100, 100).scaleViewport(1.2);
+
+    const loop = Mx.It.Loop.start(60, loop => {
+        handler.listen();
+        handler.fill('black');
+        handler.grid(20, 20);
+        r1.listen();
+        handler.draws(r1);
+        handler.storeTransform();
+        handler.resetTransform();
+        r2.listen();
+        handler.draws(r2);
+        handler.restoreTransform();
+    });
+
+</script>

@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.10.1
+ * @version 0.10.3
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -27,6 +27,7 @@ class _Entity {
         this.isMouseDrag = false;
         this.hidden = false;
         this.animations = [];
+        this._listenerAttached = true;
         this.onMouseOver = () => {};
         this.onMouseOut = () => {};
         this.onMouseDown = () => {};
@@ -140,6 +141,7 @@ class _Entity {
     }
 
     on(event, callback = () => {}) {
+        this._listenerAttached = true;
         switch(event) {
             case 'over': this.onMouseOver = callback; break;
             case 'out': this.onMouseOut = callback; break;
@@ -1681,14 +1683,16 @@ const Mx = {
                 this.context = null;
                 this.parentId = parentId;
                 this.parent = null;
+                this._storedVpX = 0;
+                this._storedVpY = 0;
+                this._storedVpScale = 1;
                 this.vpX = 0;
                 this.vpY = 0;
                 this.vpScale = 1;
-                this._xDragHook = 0;
-                this._yDragHook = 0;
                 this.isMouseOver = false;
                 this.isMouseDown = false;
                 this.isMouseDrag = false;
+                this._listenerAttached = false;
                 this.onMouseOver = () => {};
                 this.onMouseOut = () => {};
                 this.onMouseDown = () => {};
@@ -1697,7 +1701,41 @@ const Mx = {
                 this.onResize = () => {};
             }
 
+            storeTransform() {
+                this._storedVpX = this.vpX;
+                this._storedVpY = this.vpY;
+                this._storedVpScale = this.vpScale;
+                Mx.Input.update();
+                return this;
+            }
+
+            resetTransform() {
+                this.context.resetTransform();
+                this.vpX = 0;
+                this.vpY = 0;
+                this.vpScale = 1;
+                Mx.Input.update();
+                return this;
+            }
+
+            restoreTransform() {
+                this.context.resetTransform();
+                this.moveViewport(this._storedVpX, this._storedVpY);
+                this.scaleViewport(this._storedVpScale);
+                Mx.Input.update();
+                return this;
+            }
+            
+            setTransform(x = this.vpX, y = this.vpY, scale = this.vpScale) {
+                this.context.resetTransform();
+                this.moveViewport(x, y);
+                this.scaleViewport(scale);
+                Mx.Input.update();
+                return this;
+            }
+
             on(event, callback = () => {}) {
+                this._listenerAttached = true;
                 switch(event) {
                     case 'over': this.onMouseOver = callback; break;
                     case 'out': this.onMouseOut = callback; break;
@@ -1715,7 +1753,7 @@ const Mx = {
                     handler._xDragHook = mouse.xInCanvas;
                     handler._yDragHook = mouse.yInCanvas;
                 }).on('drag', (mouse, handler) => {
-                    // TODO but works for now
+                    // FIXME but works for now
                     if(Math.abs(mouse.moveX) > 1 || Math.abs(mouse.moveY) > 1) {
                         handler.moveViewport(mouse.moveX * 2, mouse.moveY * 2);
                     }
@@ -2012,25 +2050,29 @@ const Mx = {
      * User input
      */
     Input: {
+
+        _handler: null,
         
         _keys: {},
 
         _mouse: {
-           x: 0,
-           y: 0,
-           moveX: 0,
-           moveY: 0,
-           xInCanvas: 0,
-           yInCanvas: 0,
-           left: false,
-           middle: false,
-           right: false,
-           down: false,
-           draggedEntity: null,
+            x: 0,
+            y: 0,
+            moveX: 0,
+            moveY: 0,
+            xInCanvas: 0,
+            yInCanvas: 0,
+            left: false,
+            middle: false,
+            right: false,
+            down: false,
+            draggedEntity: null,
         },
 
         init(canvasHandler = null) {
             
+            this._handler = canvasHandler;
+
             // mouse listeners
             document.onmousemove = e => {
                 Mx.Input._mouse.x = e.x;
@@ -2091,6 +2133,17 @@ const Mx = {
         mouse() {
             return this._mouse;
         },
+
+        update() {
+            const handler = Mx.Input._handler;
+            if(!handler) {
+                return;
+            }
+            const {x, y} = Mx.Input._mouse;
+            Mx.Input._mouse.xInCanvas = (x - handler.vpX) / handler.vpScale - handler.parent.clientLeft;
+            Mx.Input._mouse.yInCanvas = (y - handler.vpY) / handler.vpScale - handler.parent.clientTop;
+            return this;
+        }
 
     },
 
