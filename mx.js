@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.12.1
+ * @version 0.12.2
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -217,6 +217,13 @@ class _Entity {
 
     getCenter() {
         return new Mx.Geo.Vertex(this.x, this.y);
+    }
+
+    snapToGrid(gridX = 16, gridY = 16, offsetX = 0, offsetY = 0) {
+        const dx = (this.x + offsetX) % gridX;
+        const dy = (this.y + offsetY) % gridY;
+        this.move(-dx, -dy);
+        return this;
     }
 
 }
@@ -2389,6 +2396,20 @@ const Mx = {
             return this.audio.duration;
         }
     },
+
+    /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
+     * Premade component entities
+     */
+    Gui: {
+        // TODO
+    },
+
+    /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
+     * Application bootstrap tools
+     */
+    Game: {
+        // TODO
+    }
 
 }
 

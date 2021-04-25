@@ -10,17 +10,12 @@
     const circles = Mx.Geo.Circle.creates(
         ...Mx.Ds.arr(10, i => [rng.float(100, 500), rng.float(100, 500), rng.float(20, 50), rng.rgb()])
     );
-    cont.adds(...circles);
-    cont.enableDrag();
-    cont.forChild(e => e.enableDrag());
-
-    const c = Mx.Geo.Circle.create(100, 100, 100, rng.rgb()).enableDrag();
+    cont.adds(...circles).enableDrag().forChild(e => e.enableDrag());
 
     const loop = Mx.It.Loop.start(60, loop => {
         handler.fill('black');
         handler.grid(20, 20);
-        handler.draws(cont, cont.getBoundingRectangle(), c);
-        c.listen();
+        handler.draws(cont, cont.getBoundingRectangle());
         cont.listen();
         handler.listen();
     });
