@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.12.2
+ * @version 0.12.3
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -531,6 +531,15 @@ const Mx = {
      * Entity that can contain other entities
      */
     Container: class extends _Entity {
+
+        static of(elements) {
+            const cont = Mx.Container.create();
+            cont.adds(...elements);
+            const {x, y} = cont.getCenter();
+            cont.x = x;
+            cont.y = y;
+            return cont;
+        }
 
         constructor(x = 0, y = 0) {
             super(x, y);
