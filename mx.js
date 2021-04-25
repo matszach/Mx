@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.11.1
+ * @version 0.12.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -17,6 +17,10 @@ class _Entity {
 
     static create(...args) {
         return new this(...args);
+    }
+
+    static creates(...args) {
+        return args.map(a => new this(...a));
     }
 
     constructor(x = 0, y = 0) {
@@ -206,6 +210,10 @@ class _Entity {
             this.x, this.y, padding, 
             backgroundColor, borderColor, borderThickness
         );
+    }
+
+    getCenter() {
+        return new Mx.Geo.Vertex(this.x, this.y);
     }
 
 }
@@ -535,6 +543,9 @@ const Mx = {
         }
 
         place(x, y) {
+            const c = this.getCenter();
+            this.x = c.x;
+            this.y = c.y; 
             const dx = x - this.x;
             const dy = y - this.y;
             this.x = x;
@@ -565,6 +576,7 @@ const Mx = {
         }
 
         listen() {
+            super.listen();
             this.forChild(c => c.listen());
             return this;
         }
@@ -575,12 +587,46 @@ const Mx = {
             return cont;
         }
 
+        isPointOver(x, y) {
+            return this.getBoundingRectangle().isPointOver(x, y);
+        }
+
         getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
-            // TODO
+            const initialChildRect = this.children[0].getBoundingRectangle();
+            let minX = initialChildRect.x;
+            let minY = initialChildRect.y;
+            let maxX = initialChildRect.x + initialChildRect.width;
+            let maxY = initialChildRect.y + initialChildRect.height;
+            for(let child of this.children.slice(1)) {
+                const {x, y, width, height} = child.getBoundingRectangle();
+                if(x + width > maxX) maxX = x + width;
+                if(y + height > maxY) maxY = y + height;
+                if(x < minX) minX = x;
+                if(y < minY) minY = y;
+            }
+            return Mx.Geo.Rectangle.create(
+                minX - padding, minY - padding,
+                maxX - minX + 2 * padding, maxY - minY + 2 * padding, 
+                backgroundColor, borderColor, borderThickness
+            );
         }
     
         getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
-            // TODO
+            // FIXME this requires more work
+            return this.getBoundingRectangle().getBoundingCircle(padding, backgroundColor, borderColor, borderThickness);
+        }
+
+        getCenter() {
+            let x = 0;
+            let y = 0;
+            for(let child of this.children) {
+                const c = child.getCenter();
+                x += c.x;
+                y += c.y;
+            }
+            x /= this.children.length;
+            y /= this.children.length;
+            return Mx.Geo.Vertex.create(x, y);
         }
     
     },
@@ -807,7 +853,6 @@ const Mx = {
             let ticks = this.currTick;
             for(let fi of this.framesInfo) {
                 ticks -= fi[2];
-                console.log(fi, ticks);
                 if(ticks < 0) {
                     entity.frameX = fi[0];
                     entity.frameY = fi[1];
@@ -1037,6 +1082,10 @@ const Mx = {
      * Data Structures and Tools
      */
     Ds: {
+
+        arr(n, mapper) {
+            return Mx.Ds.range(0, n).map(mapper);
+        },
 
         /**
          * TODO
@@ -1746,11 +1795,18 @@ const Mx = {
             }
 
             getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
-                // todo
+                return Mx.Geo.Rectangle.create(
+                    this.x - this.radius - padding, this.y - this.radius - padding,
+                    2 * (this.radius + padding), 2 * (this.radius + padding),
+                    backgroundColor, borderColor, borderThickness
+                );
             }
         
             getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
-                // todo
+                return Mx.Geo.Circle.create(
+                    this.x, this.y, this.radius + padding, 
+                    backgroundColor, borderColor, borderThickness
+                );
             }
 
         },

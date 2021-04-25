@@ -1,0 +1,27 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    const handler = Mx.Draw.CanvasHandler.create().enableDrag().enableZoom();
+    const rng = Mx.Rng.fromMathRandom();
+    const input = Mx.Input.init(handler);
+
+    const cont = Mx.Container.create();
+    const circles = Mx.Geo.Circle.creates(
+        ...Mx.Ds.arr(10, i => [rng.float(100, 500), rng.float(100, 500), rng.float(20, 50), rng.rgb()])
+    );
+    cont.adds(...circles);
+    cont.enableDrag();
+
+    const c = Mx.Geo.Circle.create(100, 100, 100, rng.rgb()).enableDrag();
+
+    const loop = Mx.It.Loop.start(60, loop => {
+        handler.fill('black');
+        handler.grid(20, 20);
+        handler.draws(cont, cont.getBoundingRectangle(), c);
+        c.listen();
+        cont.listen();
+        handler.listen();
+    });
+
+</script>
