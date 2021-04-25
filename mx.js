@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.10.3
+ * @version 0.10.4
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -191,6 +191,21 @@ class _Entity {
 
     clone() {
         return Mx.Entity.create(this.x, this.y);
+    }
+
+    getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+        return Mx.Geo.Rectangle.create(
+            this.x - padding, this.y - padding, 
+            padding * 2, padding * 2,
+            backgroundColor, borderColor, borderThickness
+        );     
+    }
+
+    getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+        return Mx.Geo.Circle.create(
+            this.x, this.y, padding, 
+            backgroundColor, borderColor, borderThickness
+        );
     }
 
 }
@@ -557,6 +572,14 @@ const Mx = {
             const cont = Mx.Container.create(this.x, this.y);
             this.forChild(c => cont.add(c.clone()));
             return cont;
+        }
+
+        getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+            let minX, minY, maxX, maxY;
+        }
+    
+        getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+            // TODO
         }
     
     },
@@ -1481,6 +1504,10 @@ const Mx = {
                     [...this.verticesInfo.map(v => [...v])],
                     this.color, this.thickness
                 );
+            }
+
+            getBoundingRectangle() {
+
             }
         },
 
