@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.11.0
+ * @version 0.11.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1419,6 +1419,11 @@ const Mx = {
         },
 
         Polyline: class extends _Entity {
+
+            static fromVerices(vertices, color, thickness) {
+                const vi = vertices.map(v => [v.x, v.y]);
+                return Mx.Geo.Polyline.create(vi, color, thickness);
+            }
 
             constructor(verticesInfo, color, thickness) {
                 super(...verticesInfo[0]);
