@@ -495,6 +495,7 @@ const Mx = {
     /**
      * Initializes a simplified app
      * @param {*} update 
+     * @deprecated
      */
     simpleInit(update) {
         const handler = Mx.Draw.CanvasHandler.create();
