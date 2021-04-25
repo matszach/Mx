@@ -9,12 +9,14 @@
     const circles = Mx.Geo.Circle.creates(
         ...Mx.Ds.arr(20, i => [rng.float(50, 1000), rng.float(50, 700), rng.float(20, 50), rng.rgba()])
     );
-    circles.forEach(c => c.snapToGrid(20, 20));
-
     const rects = Mx.Geo.Rectangle.creates(
         ...Mx.Ds.arr(20, i => [rng.float(50, 1000), rng.float(50, 700), rng.float(20, 150), rng.float(20, 150), rng.rgba()])
     );
-    rects.forEach(r => r.snapToGrid(20, 20));
+
+    setTimeout(() => {
+        circles.forEach(c => c.snapToGrid(20, 20));
+        rects.forEach(r => r.snapToGrid(20, 20));
+    }, 3000);
 
     const loop = Mx.It.Loop.start(60, loop => {
         handler.fill('black');
