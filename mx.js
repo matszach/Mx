@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.12.4
+ * @version 0.13.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -184,6 +184,9 @@ class _Entity {
     }
 
     animate() {
+        if(this.animations.length === 0) {
+            return;
+        }
         let finishedAnimationPresent = false;
         this.animations.forEach(a => {
             a.doFrame(this);
@@ -233,6 +236,10 @@ class _Entity {
         return this;
     }
 
+    update() {
+        // abstract
+    }
+
 }
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
@@ -245,18 +252,27 @@ class _GuiComponent extends _Entity {
         this.options = options;
         this._setDefaultOptions();
         this.container = Mx.Container.create(x, y);
-        this._construct();
+        this.construct();
         const c = this.getCenter();
         this.x = c.x;
         this.y = c.y;
     }   
 
+    getDefaultOptions() {
+        return {};
+    }
+
     _setDefaultOptions() {
-       // abstract
+        const defaults = this.getDefaultOptions();
+        for(let key in defaults) {
+            if(!(key in this.options)) {
+                this.options[key] = defaults[key];
+            }
+        }
     }
 
     // constructs the components by adding elements to the _container
-    _construct() {
+    construct() {
         // abstract
     }
 
@@ -660,13 +676,26 @@ const Mx = {
 
         adds(...entities) {
             for(let e of entities) {
-                this.add(e);
+                this.children.push(e);
             }
+            const {x, y} = this.getCenter();
+            this.x = x;
+            this.y = y;
             return this;
         }
 
         forChild(callback) {
-            this.children.forEach(callback);
+            for(let i = 0; i < this.children.length; i++) {
+                callback(this.children[i], i);
+            }
+            return this;
+        }
+
+        forChildBackwards(callback) {
+            for(let i = this.children.length - 1; i >= 0; i--) {
+                callback(this.children[i], i);
+            }
+            return this;
         }
 
         place(x, y) {
@@ -705,7 +734,7 @@ const Mx = {
         }
 
         listen() {
-            this.forChild(c => c.listen());
+            this.forChildBackwards(c => c.listen());
             super.listen();
             return this;
         }
@@ -2083,6 +2112,9 @@ const Mx = {
             }
         
             listen() {
+                if(!this._listenerAttached) {
+                    return this;
+                }
                 // setup
                 const mouse = Mx.Input.mouse();
                 const isNowMouseOver = this.isPointOver(mouse.xInCanvas, mouse.yInCanvas);
@@ -2129,12 +2161,14 @@ const Mx = {
                 this.vpX += x;
                 this.vpY += y;
                 this.context.translate(x, y);
+                Mx.Input.update();
                 return this;
             }
 
             scaleViewport(scale) {
                 this.vpScale *= scale;
                 this.context.scale(scale, scale);
+                Mx.Input.update();
                 return this;
             }
 
@@ -2351,6 +2385,16 @@ const Mx = {
                 this.context.restore();
                 return this;
             }
+
+            handleLayers(...layers) {
+                for(let i = 0; i < layers.length; i++) {
+                    layers[i].handleDraw(this);
+                } 
+                for(let i = layers.length - 1; i >= 0; i--) {
+                    layers[i].handleListen(this);
+                }
+                this.listen();
+            }
                     
         }
     },
@@ -2528,29 +2572,178 @@ const Mx = {
         
         GuiComponent: _GuiComponent,
 
+        // TODO finish this
         Button: class extends _GuiComponent {
 
-
-            _setDefaultOptions() {
-                // todo
+            getDefaultOptions() {
+                return {
+                    width: 100,
+                    height: 30,
+                    fontFamily: 'Arial monospaced',
+                    fontSize: 20,
+                    backgroundColor: '#111111',
+                    borderColor: '#ffffff',
+                    borderThickness: 2,
+                    textColor: '#ffffff',
+                    backgroundColorHover: undefined,
+                    borderColor: undefined,
+                    borderThickness: undefined,
+                    textColor: undefined,
+                };
             }
 
-            _construct() {
-                const bodyRect = Mx.Geo.Rectangle.create(
+            construct() {
+                const body = Mx.Geo.Rectangle.create(
                     this.x, this.y, 100, 50, 'red' 
                 );
-                this.on('over', mouse => {
-                    bodyRect.backgroundColor = 'yellow';
-                }).on('out', mouse => {
-                    bodyRect.backgroundColor = 'red';
-                });
                 const text = Mx.Text.create(
                     this.x + 10, this.y + 25, 'Button', 'blue', 20
                 );
-                this.container.adds(bodyRect, text);
+                this.container.adds(body, text);
+
+                this.on('over', mouse => {
+                    body.backgroundColor = 'yellow';
+                }).on('out', mouse => {
+                    body.backgroundColor = 'red';
+                });
             }
 
         }
+
+    },
+
+    /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
+     * 
+     */
+    Layer: class {
+
+        static create(options = {}) {
+            return new Mx.Layer(options);
+        }
+
+        constructor(options = {}) {
+            this.vpX = options.vpX || undefined;
+            this.vpY = options.vpY || undefined;
+            this.vpScale = options.vpScale || undefined;
+            this.hidden = options.hidden || false;
+            this.entities = options.entities || [];
+        }
+
+        moveViewport(x, y) {
+            this.vpX += x;
+            this.vpY += y;
+            return this;
+        } 
+
+        setViewportPosition(x, y) {
+            this.vpX = x;
+            this.vpY = y;
+            return this;
+        }
+
+        scaleViewport(scale) {
+            this.vpScale *= scale;
+            return this;
+        }
+
+        setViewportScale(scale) {
+            this.vpScale = scale;
+            return this;
+        }
+
+        unanchorViewport() {
+            this.vpX = undefined;
+            this.vpY = undefined;
+            this.vpScale = undefined;
+            return this;
+        }
+        
+        add(element) {
+            this.entities.push(element);
+            return this;
+        }
+
+        adds(elements) {
+            for(let element of elements) {
+                this.entities.push(element);
+            }
+            return this;
+        }
+
+        empty() {
+            this.entities = [];
+            return this;
+        }
+
+        hide() {
+            this.hidden = true;
+            return this;
+        }
+
+        show() {
+            this.hidden = false;
+            return this;
+        }
+
+        _isAnchored() {
+            return (
+                this.vpX !== undefined ||
+                this.vpY !== undefined ||
+                this.vpScale !== undefined
+            );
+        }
+
+        _beforeHandle(canvasHandler) {
+            if(this._isAnchored()) {
+                // console.log(1);
+                canvasHandler.storeTransform();
+                canvasHandler.resetTransform();
+                canvasHandler.moveViewport(this.vpX || 0, this.vpY || 0);
+                canvasHandler.scaleViewport(this.vpScale || 1);
+            }
+        }
+
+        _afterHandle(canvasHandler) {
+            if(this._isAnchored()) {
+                canvasHandler.resetTransform();
+                canvasHandler.restoreTransform();
+            }
+        }
+
+        handleDraw(canvasHandler) {
+            if(this.hidden) {
+                return this;
+            }
+            this._beforeHandle(canvasHandler);
+            for(let i = 0; i < this.entities.length; i++) {
+                const e = this.entities[i];
+                e.update();
+                e._getDrawn(canvasHandler);
+                e.animate();
+            }  
+            this._afterHandle(canvasHandler);
+            return this;
+        }
+
+        handleListen(canvasHandler) {
+            if(this.hidden) {
+                return this;
+            }
+            this._beforeHandle(canvasHandler);
+            for(let i = this.entities.length - 1; i >= 0; i--) {
+                const e = this.entities[i];
+                e.listen();
+            }
+            this._afterHandle(canvasHandler);
+            return this;
+        }
+
+        handle(canvasHandler) {
+            this.handleDraw(canvasHandler);
+            this.handleListen(canvasHandler);
+            return this;
+        }
+
 
     },
 

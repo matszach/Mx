@@ -1,0 +1,28 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    const handler = Mx.Draw.CanvasHandler.create().enableDrag().enableZoom();
+    const input = Mx.Input.init(handler);
+
+    const layer1 = Mx.Layer.create();
+    const r1 = Mx.Geo.Rectangle.create(100, 100, 50, 50, 'red').enableDrag();
+    r1.update = () => r1.x += 0.5;
+    layer1.add(r1);
+
+    const layer2 = Mx.Layer.create({vpX: 0, vpY: 0, vpScale: 1.2});
+    const r2 = Mx.Geo.Rectangle.create(200, 100, 50, 50, 'blue').enableDrag();
+    layer2.add(r2);
+
+    const loop = Mx.It.Loop.start(60, loop => {
+        handler.fill('black');
+        handler.grid(20, 20);
+        // layer1.handleDraw(handler);
+        // layer2.handleDraw(handler);
+        // layer2.handleListen(handler);
+        // layer1.handleListen(handler);
+        // handler.listen();
+        handler.handleLayers(layer1, layer2);
+    });
+
+</script>
