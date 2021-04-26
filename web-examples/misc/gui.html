@@ -7,14 +7,12 @@
     const input = Mx.Input.init(handler);
     
     const button = Mx.Gui.Button.create(100, 100).enableDrag();
-    const rect = Mx.Geo.Rectangle.create(200, 200, 100, 50, 'green').enableDrag();
 
     const loop = Mx.It.Loop.start(60, loop => {
         handler.fill('black');
         handler.grid(20, 20);
-        handler.draws(button, rect);
+        handler.draws(button);
         button.listen();
-        rect.listen();
         // handler.listen();
     });
 

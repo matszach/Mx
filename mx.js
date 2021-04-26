@@ -246,6 +246,9 @@ class _GuiComponent extends _Entity {
         this._setDefaultOptions();
         this.container = Mx.Container.create(x, y);
         this._construct();
+        const c = this.getCenter();
+        this.x = c.x;
+        this.y = c.y;
     }   
 
     _setDefaultOptions() {
