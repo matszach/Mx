@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.12.3
+ * @version 0.12.4
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -32,6 +32,8 @@ class _Entity {
         this.hidden = false;
         this.animations = [];
         this._listenerAttached = true;
+        this._xDragOffset = 0;
+        this._yDragOffset = 0;
         this.onMouseOver = () => {};
         this.onMouseOut = () => {};
         this.onMouseDown = () => {};
@@ -161,7 +163,12 @@ class _Entity {
     }
 
     enableDrag() {
-        return this.on('drag', (mouse, e) => e.place(mouse.xInCanvas, mouse.yInCanvas));
+        return this.on('down', (mouse, e) => {
+            e._xDragHook = mouse.xInCanvas - e.x;
+            e._yDragHook = mouse.yInCanvas - e.y;
+        }).on('drag', (mouse, e) => {
+            e.place(mouse.xInCanvas - e._xDragHook, mouse.yInCanvas - e._yDragHook);
+        });
     }
 
     addAnimation(animation) {
@@ -197,7 +204,7 @@ class _Entity {
     }
 
     clone() {
-        return Mx.Entity.create(this.x, this.y);
+        // abstract
     }
 
     getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
@@ -224,6 +231,103 @@ class _Entity {
         const dy = (this.y + offsetY) % gridY;
         this.move(-dx, -dy);
         return this;
+    }
+
+}
+
+/** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
+ * Base gui component class, extended by gui classes and by image draw classes
+ */
+class _GuiComponent extends _Entity {
+
+    constructor(x = 0, y = 0, options = {}) {
+        super(x, y);
+        this.options = options;
+        this._setDefaultOptions();
+        this.container = Mx.Container.create(x, y);
+        this._construct();
+    }   
+
+    _setDefaultOptions() {
+       // abstract
+    }
+
+    // constructs the components by adding elements to the _container
+    _construct() {
+        // abstract
+    }
+
+    hide() {
+        this.container.hide();
+        return this;   
+    }
+
+    show() {
+        this.container.show();
+        return this;
+    }
+
+    place(x, y) {
+        this.container.place(x, y);    
+        this.x = this.container.x;
+        this.y = this.container.y;
+        return this;       
+    }
+
+    move(x, y) {
+        this.container.move(x, y);
+        this.x = this.container.x;
+        this.y = this.container.y;
+        return this;
+    }
+
+    easeTo(x, y, ratio = 0.1) {
+        this.container.easeTo(x, y, ratio);
+        this.x = this.container.x;
+        this.y = this.container.y;
+        return this;
+    }
+
+    movePolar(phi, r) {
+        this.container.movePolar(phi, r);
+        this.x = this.container.x;
+        this.y = this.container.y;
+        return this;
+    }
+    
+    scale(scaleX = 1, scaleY = scaleX, xOrigin = undefined, yOrigin = undefined) {
+        this.container.scale(scaleX, scaleY, xOrigin, yOrigin);
+        return this;
+    }
+
+    rotate(phi, xOrigin = this.x, yOrigin = this.y) {
+        this.container.rotate(phi, xOrigin, yOrigin);
+        return this;
+    }
+
+    _getDrawn(canvasHandler) {
+        this.container._getDrawn(canvasHandler);
+        return this;
+    }
+
+    isPointOver(x, y) {
+        return this.container.isPointOver(x, y);
+    }
+
+    getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+        return this.container.getBoundingRectangle(padding, backgroundColor, borderColor, borderThickness);
+    }
+
+    getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+        return this.container.getBoundingCircle(padding, backgroundColor, borderColor, borderThickness);
+    }
+
+    getCenter() {
+        return this.container.getCenter();
+    }
+
+    clone() {
+        return _GuiComponent.create(this.x, this.y, this.options);
     }
 
 }
@@ -535,9 +639,6 @@ const Mx = {
         static of(elements) {
             const cont = Mx.Container.create();
             cont.adds(...elements);
-            const {x, y} = cont.getCenter();
-            cont.x = x;
-            cont.y = y;
             return cont;
         }
 
@@ -548,6 +649,10 @@ const Mx = {
 
         add(entity) {
             this.children.push(entity);
+            const {x, y} = this.getCenter();
+            this.x = x;
+            this.y = y;
+            return this;
         }
 
         adds(...entities) {
@@ -591,7 +696,9 @@ const Mx = {
         }
     
         _getDrawn(canvasHandler) {
-            this.forChild(c => c._getDrawn(canvasHandler))
+            if(!this.hidden) {
+                this.forChild(c => c._getDrawn(canvasHandler))
+            }
         }
 
         listen() {
@@ -1622,6 +1729,11 @@ const Mx = {
 
         Polygon: class extends _Entity {
 
+            static fromVertices(vertices, backgroundColor, borderColor, borderThickness) {
+                const vi = vertices.map(v => [v.x, v.y]);
+                return Mx.Geo.Polygon(vi, backgroundColor, borderColor, borderThickness);
+            }
+
             constructor(verticesInfo, backgroundColor, borderColor, borderThickness) {
                 super(...verticesInfo[0]);
                 this.body = Mx.Geo.Polyline.create(verticesInfo);
@@ -2410,7 +2522,33 @@ const Mx = {
      * Premade component entities
      */
     Gui: {
-        // TODO
+        
+        GuiComponent: _GuiComponent,
+
+        Button: class extends _GuiComponent {
+
+
+            _setDefaultOptions() {
+                // todo
+            }
+
+            _construct() {
+                const bodyRect = Mx.Geo.Rectangle.create(
+                    this.x, this.y, 100, 50, 'red' 
+                );
+                this.on('over', mouse => {
+                    bodyRect.backgroundColor = 'yellow';
+                }).on('out', mouse => {
+                    bodyRect.backgroundColor = 'red';
+                });
+                const text = Mx.Text.create(
+                    this.x + 10, this.y + 25, 'Button', 'blue', 20
+                );
+                this.container.adds(bodyRect, text);
+            }
+
+        }
+
     },
 
     /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
