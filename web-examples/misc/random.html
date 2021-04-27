@@ -1,0 +1,15 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    const handler = Mx.Draw.CanvasHandler.create();
+    const input = Mx.Input.init(handler);
+    const rng = Mx.Rng.init();
+    console.log(rng);
+    const loop = Mx.It.Loop.start(1, loop => {
+        handler.fill();
+        const circles = Mx.Ds.arr(100, i => rng.vertex(10, 10, 500, 500).toCircle(2, 'red'));
+        handler.draws(...circles);
+    });
+
+</script>

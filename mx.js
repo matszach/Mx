@@ -1078,7 +1078,16 @@ const Mx = {
             this.precision = args.precision || 10;
             this._denominator = Math.pow(10, this.precision);
             this._transformedSeed = Mx.Rng._transformSeed(this.seed);
-            this._numbers = '0192837465'.split('');
+            this._numbers = (
+                '6836453615513531689757455124145279629417428904518882295877985670054' + 
+                '1636210789191231101142939232361183917418043205054356243543054682474' + 
+                '9114841376650907127962718406037547249028934266871878301466829966241' + 
+                '0610259976147531319599747763070362863820583796855383482481689437788' + 
+                '1059188643210207998220356565008501526260390562250677553240784880223' + 
+                '0366953566773509631848267542822517096306562924834373412460112115091' +
+                '7978780720475421728443964349964392090037840980933826391183155772005' + 
+                '9994900474853978677608195739551'
+            ).split('');
             this._initRandomGeneratorIndices();
         }
         
@@ -1211,6 +1220,13 @@ const Mx = {
                 return this.int(1, dieSize + 1);
             } 
             return Mx.Ds.range(0, diceNumber).map(i => this.int(1, dieSize + 1));
+        }
+
+        vertex(xMin, yMin, xMax, yMax) {
+            return Mx.Geo.Vertex.create(
+                this.float(xMin, xMax),
+                this.float(yMin, yMax)
+            );
         }
 
     },
