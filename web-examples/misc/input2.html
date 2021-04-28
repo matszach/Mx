@@ -1,0 +1,17 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+    const handler = Mx.Draw.CanvasHandler.create();
+    const input = Mx.Input.init(handler);
+    const loop = Mx.It.Loop.start(60, loop => {
+        if(input.isJustDown('KeyE')) {
+            console.log('Just Down E');
+        }
+        if(input.isJustUp('KeyE')) {
+            console.log('Just Up E');
+        }
+        if(input.isDown('KeyW')) {
+            console.log('Is Down W');
+        }
+    });
+</script>

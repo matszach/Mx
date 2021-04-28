@@ -12,8 +12,20 @@
             this.handler.clear();
             this.handler.grid(20, 20);
             this.handler.draw(this.rect);
-            this.rect.move(0.2, 0.2);
+            // this.rect.move(0.2, 0.2);
             this.rect.listen();
+            if(this.input.isDown('KeyW')) {
+                this.rect.move(0, -2);
+            }
+            if(this.input.isDown('KeyA')) {
+                this.rect.move(-2, 0);
+            }
+            if(this.input.isDown('KeyS')) {
+                this.rect.move(0, 2);
+            }
+            if(this.input.isDown('KeyD')) {
+                this.rect.move(2, 0);
+            }
         }
 
     }

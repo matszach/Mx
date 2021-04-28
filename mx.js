@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.14.1
+ * @version 0.14.2
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1560,6 +1560,7 @@ const Mx = {
                 this._interval = setInterval(loop => {
                     loop.tickCount++;
                     loop._callback(loop);
+                    Mx.Input._clearJustUpAndDownKeys();
                 }, 1000/this.tps, this);
                 return this;
             }
@@ -2522,6 +2523,10 @@ const Mx = {
     Input: {
 
         _handler: null,
+
+        _justUpKeys: {},
+
+        _justDownKeys: {},
         
         _keys: {},
 
@@ -2586,9 +2591,12 @@ const Mx = {
             // key listeners
             document.onkeydown = (e) => {
                 Mx.Input._keys[e.code] = true;
+                Mx.Input._justDownKeys[e.code] = true;
+
             };
             document.onkeyup = (e) => {
                 Mx.Input._keys[e.code] = false;
+                Mx.Input._justUpKeys[e.code] = true;
             };
 
             // disable context menu on right click
@@ -2604,6 +2612,18 @@ const Mx = {
            return this._keys;
         },
 
+        isDown(code) {
+            return this._keys[code];
+        },
+
+        isJustDown(code) {
+            return this._justDownKeys[code];
+        },
+
+        isJustUp(code) {
+            return this._justUpKeys[code];
+        },
+
         mouse() {
             return this._mouse;
         },
@@ -2617,6 +2637,11 @@ const Mx = {
             Mx.Input._mouse.xInCanvas = (x - handler.vpX) / handler.vpScale - handler.parent.clientLeft;
             Mx.Input._mouse.yInCanvas = (y - handler.vpY) / handler.vpScale - handler.parent.clientTop;
             return this;
+        },
+
+        _clearJustUpAndDownKeys() {
+            this._justDownKeys = {};
+            this._justUpKeys = {};
         }
 
     },
