@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.13.1
+ * @version 0.14.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -625,7 +625,86 @@ class _PixImageDataManager {
         this.context.putImageData(this.imageData, x, y);
     }
 
+}
 
+/** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
+ * Postprocessing submodule for CanvasHandler
+ */
+class _CanvasHandlerPostProcessor {
+
+    constructor(handler) {
+        this.handler = handler;
+        this.canvas = handler.canvas;
+        this.context = handler.context;
+    } 
+
+    pixelate(pixelSize = 2) {
+        const wasImageSmoothing = this.context.msImageSmoothingEnabled;
+        this.handler.setImageSmoothing(false);
+        const w = this.canvas.width / pixelSize;
+        const h = this.canvas.height / pixelSize;
+        this.context.drawImage(
+            this.canvas, 
+            0, 0, this.canvas.width, this.canvas.height,
+            0, 0, w, h
+        );
+        this.context.drawImage(
+            this.canvas, 
+            0, 0, w, h,
+            0, 0, this.canvas.width, this.canvas.height
+        );
+        if(!wasImageSmoothing) {
+            this.handler.setImageSmoothing(true);
+        }
+    }
+
+    invert() {
+        const imageData = this.context.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        const data = imageData.data;
+        for(let i = 0; i < data.length; i += 4) {
+            data[i] = 255 - data[i];
+            data[i + 1] = 255 - data[i + 1];
+            data[i + 2] = 255 - data[i + 2];
+        }
+        this.context.putImageData(imageData, 0, 0);
+    }
+
+    grayscale() {
+        const imageData = this.context.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        const data = imageData.data;
+        for(let i = 0; i < data.length; i += 4) {
+            const avg = (data[i] + data[i + 1] + data[i + 2])/3
+            data[i] = avg;
+            data[i + 1] = avg;
+            data[i + 2] = avg;
+        }
+        this.context.putImageData(imageData, 0, 0);
+    }
+
+    watercolor(step = 20) {
+        const imageData = this.context.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        const data = imageData.data;
+        for(let i = 0; i < data.length; i += 4) {
+            data[i] = data[i] - data[i] % step;
+            data[i + 1] = data[i + 1] - data[i + 1] % step;
+            data[i + 2] = data[i + 2] - data[i + 2] % step;
+        }
+        this.context.putImageData(imageData, 0, 0);
+    }
+
+    generic(funct = (r, g, b, a) => [r, g, b, a]) {
+        const imageData = this.context.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        const data = imageData.data;
+        for(let i = 0; i < data.length; i += 4) {
+            const info = funct(data[i], data[i + 1], data[i + 2], data[i + 3]);
+            data[i] = info[0];
+            data[i + 1] = info[1];
+            data[i + 2] = info[2];
+            data[i + 3] = info[3];
+        }
+        this.context.putImageData(imageData, 0, 0);
+    }
+    
 }
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
@@ -2020,11 +2099,7 @@ const Mx = {
         CanvasHandler: class {
 
             static init(parentId) {
-                const handler = new Mx.Draw.CanvasHandler(parentId);
-                handler.init();
-                handler.refit();
-                handler.pix = new _PixImageDataManager(handler.context, handler.canvas, true);
-                return handler;
+                return new Mx.Draw.CanvasHandler(parentId)
             }
 
             static create() {
@@ -2059,6 +2134,10 @@ const Mx = {
                 this.onMouseUp = () => {};
                 this.onMouseDrag = () => {};
                 this.onResize = () => {};
+                this.init();
+                this.refit();
+                this.pix = new _PixImageDataManager(this.context, this.canvas, true);
+                this.post = new _CanvasHandlerPostProcessor(this);
             }
 
             storeTransform() {
@@ -2257,10 +2336,10 @@ const Mx = {
                 const bh = this.canvas.height / this.vpScale;
                 const offx = -this.vpX % xSpacing;
                 const offy = -this.vpY % ySpacing;
-                const xStart = bx - offx
-                const xEnd = xStart + bw + xSpacing;
-                const yStart = by - offy;
-                const yEnd = yStart + bh + ySpacing;
+                const xStart = bx - offx - xSpacing
+                const xEnd = xStart + bw + 2 * xSpacing;
+                const yStart = by - offy - ySpacing;
+                const yEnd = yStart + bh + 2 * ySpacing;
                 for(let x = xStart; x < xEnd; x += xSpacing) {
                     this.drawLine(x, yStart, x, yEnd, color, thickness);
                 }
@@ -2429,37 +2508,6 @@ const Mx = {
                 this.context.webkitImageSmoothingEnabled = value;
                 this.context.imageSmoothingEnabled = value;
                 return true;
-            }
-
-            pixelate(pixelSize = 1) {
-                const wasImageSmoothing = this.context.msImageSmoothingEnabled;
-                this.setImageSmoothing(false);
-                const w = this.canvas.width / pixelSize;
-                const h = this.canvas.height / pixelSize;
-                this.context.drawImage(
-                    this.canvas, 
-                    0, 0, this.canvas.width, this.canvas.height,
-                    0, 0, w, h
-                );
-                this.context.drawImage(
-                    this.canvas, 
-                    0, 0, w, h,
-                    0, 0, this.canvas.width, this.canvas.height
-                );
-                if(!wasImageSmoothing) {
-                    this.setImageSmoothing(true);
-                }
-            }
-
-            invert() {
-                const imageData = this.context.getImageData(0, 0, this.canvas.width, this.canvas.height);
-                const data = imageData.data;
-                for(let i = 0; i < data.length; i += 4) {
-                    data[i] = 255 - data[i];
-                    data[i + 1] = 255 - data[i + 1];
-                    data[i + 2] = 255 - data[i + 2];
-                }
-                this.context.putImageData(imageData, 0, 0);
             }
                     
         }
