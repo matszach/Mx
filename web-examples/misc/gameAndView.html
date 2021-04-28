@@ -1,0 +1,26 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    class TestView extends Mx.View {
+
+        onCreate() {
+            this.rect = Mx.Geo.Rectangle.create(10, 10, 50, 50, 'red').enableDrag();
+        }
+
+        onUpdate() {
+            this.handler.clear();
+            this.handler.grid(20, 20);
+            this.handler.draw(this.rect);
+            this.rect.move(0.2, 0.2);
+            this.rect.listen();
+        }
+
+    }
+
+
+    const game = Mx.Game.create().toView(TestView);
+
+    
+
+</script>

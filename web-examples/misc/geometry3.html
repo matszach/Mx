@@ -14,10 +14,13 @@
 
     const loop = Mx.It.Loop.start(60, loop => {
         handler.fill('black');
-        handler.grid(20, 20);
-        handler.draws(cont, cont.getBoundingRectangle());
+        handler.grid(100, 100, 'white', 5);
+        handler.draws(cont, cont.getBoundingRectangle(0, undefined, 'red', 5));
         cont.listen();
         handler.listen();
+        // handler.invert();
+        // handler.invert();
+        handler.pixelate(5);
     });
 
 </script>

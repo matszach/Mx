@@ -4,12 +4,13 @@
 
     const handler = Mx.Draw.CanvasHandler.create();
     const input = Mx.Input.init(handler);
-    const rng = Mx.Rng.init();
-    console.log(rng);
-    const loop = Mx.It.Loop.start(1, loop => {
+    const rng1 = Mx.Rng.init();
+    const rng2 = Mx.Rng.fromMathRandom();
+    const loop = Mx.It.Loop.start(4, loop => {
         handler.fill();
-        const circles = Mx.Ds.arr(100, i => rng.vertex(10, 10, 500, 500).toCircle(2, 'red'));
-        handler.draws(...circles);
+        const circles1 = Mx.Ds.arr(100, i => rng1.vertex(10, 10, 500, 500).toCircle(2, 'red'));
+        const circles2 = Mx.Ds.arr(100, i => rng2.vertex(10, 10, 500, 500).toCircle(2, 'blue'));
+        handler.draws(...circles2, ...circles1);
     });
 
 </script>

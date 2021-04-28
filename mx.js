@@ -1079,20 +1079,27 @@ const Mx = {
             this._denominator = Math.pow(10, this.precision);
             this._transformedSeed = Mx.Rng._transformSeed(this.seed);
             this._numbers = (
-                '6836453615513531689757455124145279629417428904518882295877985670054' + 
-                '1636210789191231101142939232361183917418043205054356243543054682474' + 
-                '9114841376650907127962718406037547249028934266871878301466829966241' + 
-                '0610259976147531319599747763070362863820583796855383482481689437788' + 
-                '1059188643210207998220356565008501526260390562250677553240784880223' + 
-                '0366953566773509631848267542822517096306562924834373412460112115091' +
-                '7978780720475421728443964349964392090037840980933826391183155772005' + 
-                '9994900474853978677608195739551'
+                '58277981493064857604303426349911051672791058625382' + 
+                '92357637557400591326812877689231893280454964146010' + 
+                '03849136475419169638276933015275206402758784928501' + 
+                '53501961456128466272342158498329610779079338504708' + 
+                '04903927227043496615093088374397528586516157416821' + 
+                '50830479994401814052216507238772982378564913661365' +
+                '07896320441717258516949498316370150824389507623562' + 
+                '61577904404885527163218919903402257681473393866052'
             ).split('');
             this._initRandomGeneratorIndices();
         }
-        
-        static init(seed, args = {}) {
+
+        static create(seed, args = {}) {
             return new Mx.Rng(seed, args);
+        }
+
+        /**
+         * @deprecated
+         */
+        static init(seed, args = {}) {
+            return Mx.Rng.create(seed, args);
         }
 
         /**
@@ -1467,6 +1474,7 @@ const Mx = {
             }
 
             start() {
+                this._callback(this);
                 this._interval = setInterval(loop => {
                     loop.tickCount++;
                     loop._callback(loop);
@@ -2202,7 +2210,7 @@ const Mx = {
             init() {
                 this.canvas = document.createElement('canvas');
                 this.canvas.classList.add(`${this.parentId}-canvas`);
-                this.context = this.canvas.getContext('2d');
+                this.context = this.canvas.getContext('2d', {alpha: false});
                 this.parent = document.getElementById(this.parentId);
                 this.parent.appendChild(this.canvas);
                 window.addEventListener('resize', event => this.refit().onResize(this), this);
@@ -2213,6 +2221,10 @@ const Mx = {
                 this.canvas.width = this.parent.clientWidth;
                 this.canvas.height = this.parent.clientHeight;
                 return this;
+            }
+
+            clear() {
+                return this.fill('#000000');
             }
     
             fill(color = 'black') {
@@ -2410,6 +2422,45 @@ const Mx = {
                     layers[i].handleListen(this);
                 }
             }
+            
+            setImageSmoothing(value = true) {
+                this.context.msImageSmoothingEnabled = value;
+                this.context.mozImageSmoothingEnabled = value;
+                this.context.webkitImageSmoothingEnabled = value;
+                this.context.imageSmoothingEnabled = value;
+                return true;
+            }
+
+            pixelate(pixelSize = 1) {
+                const wasImageSmoothing = this.context.msImageSmoothingEnabled;
+                this.setImageSmoothing(false);
+                const w = this.canvas.width / pixelSize;
+                const h = this.canvas.height / pixelSize;
+                this.context.drawImage(
+                    this.canvas, 
+                    0, 0, this.canvas.width, this.canvas.height,
+                    0, 0, w, h
+                );
+                this.context.drawImage(
+                    this.canvas, 
+                    0, 0, w, h,
+                    0, 0, this.canvas.width, this.canvas.height
+                );
+                if(!wasImageSmoothing) {
+                    this.setImageSmoothing(true);
+                }
+            }
+
+            invert() {
+                const imageData = this.context.getImageData(0, 0, this.canvas.width, this.canvas.height);
+                const data = imageData.data;
+                for(let i = 0; i < data.length; i += 4) {
+                    data[i] = 255 - data[i];
+                    data[i + 1] = 255 - data[i + 1];
+                    data[i + 2] = 255 - data[i + 2];
+                }
+                this.context.putImageData(imageData, 0, 0);
+            }
                     
         }
     },
@@ -2492,6 +2543,10 @@ const Mx = {
             // disable context menu on right click
             document.oncontextmenu = () => false;
             return this;
+        },
+
+        create(canvasHandler = null) {
+            return Mx.Input.init(canvasHandler);
         },
 
         keys() {
@@ -2710,7 +2765,6 @@ const Mx = {
 
         _beforeHandle(canvasHandler) {
             if(this._isAnchored()) {
-                // console.log(1);
                 canvasHandler.storeTransform();
                 canvasHandler.resetTransform();
                 canvasHandler.moveViewport(this.vpX || 0, this.vpY || 0);
@@ -2767,13 +2821,66 @@ const Mx = {
      */
     View: class {
 
+        constructor(game) {
+            this.game = game;
+            this.handler = game.handler;
+            this.loop = game.loop;
+            this.input = game.input;
+        }
+
+        onCreate() {
+            // abstract
+        }
+
+        onUpdate() {
+            // abstract
+        }
+
+        _create() {
+            this.onCreate();
+        }
+
+        _update() {
+            this.onUpdate();
+        }
+
     },
 
     /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
      * Application bootstrap tools
      */
-    Game: {
-        // TODO
+    Game: class {
+
+        /**
+         * 
+         * @param {*} options 
+         * @returns 
+         */
+        static create(options = {}) {
+            return new Mx.Game(options);
+        }
+
+        constructor(options = {}) {
+            this.options = options;
+            this.handler = Mx.Draw.CanvasHandler.create();
+            this.input = Mx.Input.create(this.handler);
+            this.loop = Mx.It.Loop.start(options.fps || 60, () => this._update());
+            this.state = options.state || {};
+            this.view;
+        }
+
+        toView(ViewClass) {
+            this.view = new ViewClass(this);
+            this.view._create();
+            return this;
+        }
+
+        _update() {
+            if(!!this.view) {
+                this.view._update();
+            }
+        }
+
     }
 
 }
