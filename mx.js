@@ -643,6 +643,7 @@ class _CanvasHandlerPostProcessor {
         this.handler.setImageSmoothing(false);
         const w = this.canvas.width / pixelSize;
         const h = this.canvas.height / pixelSize;
+        this.context.resetTransform();
         this.context.drawImage(
             this.canvas, 
             0, 0, this.canvas.width, this.canvas.height,
@@ -653,6 +654,8 @@ class _CanvasHandlerPostProcessor {
             0, 0, w, h,
             0, 0, this.canvas.width, this.canvas.height
         );
+        this.context.translate(this.handler.vpX, this.handler.vpY);
+        this.context.scale(this.handler.vpScale, this.handler.vpScale);
         if(!wasImageSmoothing) {
             this.handler.setImageSmoothing(true);
         }
