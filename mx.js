@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.14.2
+ * @version 0.15.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -162,6 +162,15 @@ class _Entity {
         return this;
     }
 
+    clearListeners() {
+        this.onMouseOver = () => {};
+        this.onMouseOut = () => {};
+        this.onMouseDown = () => {};
+        this.onMouseUp = () => {};
+        this.onMouseDrag = () => {};
+        return this;
+    }
+
     enableDrag() {
         return this.on('down', (mouse, e) => {
             e._xDragHook = mouse.xInCanvas - e.x;
@@ -180,6 +189,11 @@ class _Entity {
     clearAnimations() {
         this.animations.forEach(a => a.onFinish(this), this);
         this.animations = [];
+        return this;
+    }
+
+    setAnimation(animation) {
+        this.animations = [animation];
         return this;
     }
 
@@ -360,62 +374,34 @@ class _Animation {
         return new this(...args);
     }
 
-    constructor() {
-        this.currTick = 0;
-        this.maxTick = 0;
+    constructor(maxDuration = 60) {
         this.finished = false;
-        this.repeat = false;
-        this.backAndForth = false;    
-        this.isNowReturn = false;
+        this.currentDuration = 0;
+        this.maxDuration = maxDuration;
     }
 
     tick() {
-        if(this.isNowReturn) {
-            this.currTick--;
-            if(this.currTick < 0) {
-                if(this.repeat) {
-                    this.isNowReturn = false;
-                } else {
-                    this.finished = true;
-                }
-            }
-        } else {
-            this.currTick++;
-            if(this.currTick > this.maxTick) {
-                if(this.repeat) {
-                    if(this.backAndForth) {
-                        this.isNowReturn = true;
-                    } else {
-                        this.currTick = 0;
-                    }
-                } else {
-                    this.finished = true;
-                }
-            }
+        this.currentDuration ++;
+        if(this.currentDuration > this.maxDuration) {
+            this.finished = true;
         }
-        
+    }
+
+    doFrame(entity) {
+       this.tick();
+       this.onFrame(entity);
     }
 
     onStart(entity) {
         // abstract
     }
 
-    doFrame(entity) {
-        this.tick();
-        // abstract
+    onFrame(entity) {
+        // abstarct
     }
 
     onFinish(entity) {
         // abstract
-    }
-
-    clone() {
-        // abstract
-        return new _Animation();      
-    }
-
-    stop() {
-        this.finished = true;
     }
 
 }
@@ -1047,65 +1033,87 @@ const Mx = {
     /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
      * Animations
      */
-    Animation: _Animation,
+    Animations:  {
+        
+        Animation: _Animation,
 
-    TranslateAnimation: class extends _Animation {
+        Sequence: class extends _Animation {
 
-        constructor(x, y, duration = 100, repeat = false, backAndForth = false) {
-            super();
-            this.x = x;
-            this.y = y;
-            this.sx = x/duration;
-            this.sy = y/duration;
-            this.maxTick = duration;
-            this.repeat = repeat;
-            this.backAndForth = backAndForth;
-        }
-
-        doFrame(entity) {
-            super.doFrame(entity);
-            if(this.isNowReturn) {
-                entity.move(-this.sx, -this.sy);
-            } else {
-                entity.move(this.sx, this.sy);
+            static from(...animationInfo) {
+                return Mx.Animations.Sequence.create(
+                    ...animationInfo.map(a => {
+                        const [type, ...args] = a;
+                        return Mx.Animations[type].create(...args)
+                    })
+                );
             }
-            return this;
-        }
+            
+            constructor(...animations) {
+                super(animations.reduce((acc, curr) => acc + curr.maxDuration + 1, 0));
+                this.animations = animations;
+                this.currentAnimationIndex = 0;
+            }
 
-        clone() {
-            return Mx.TranslateAnimation.create(this.x, this.y, this.maxTick, this.repeat, this.backAndForth);
-        }
+            onStart(entity) {
+                this.animations[this.currentAnimationIndex].onStart(entity);
+            }
 
-    },
-
-    SpriteAnimation: class extends _Animation {
-
-        constructor(framesInfo, repeat, backAndForth) {
-            super();
-            this.framesInfo = framesInfo;
-            this.maxTick = framesInfo.reduce((acc, curr) => acc + curr[2], 0);
-            this.repeat = repeat;
-            this.backAndForth = backAndForth;
-        } 
-
-        doFrame(entity) {
-            super.doFrame(entity);
-            let ticks = this.currTick;
-            for(let fi of this.framesInfo) {
-                ticks -= fi[2];
-                if(ticks < 0) {
-                    entity.frameX = fi[0];
-                    entity.frameY = fi[1];
-                    break;
+            onFrame(entity) {
+                const animation = this.animations[this.currentAnimationIndex];
+                animation.doFrame(entity);
+                if(animation.finished) {
+                    animation.onFinish(entity);
+                    this.currentAnimationIndex++;
+                    if(this.currentAnimationIndex >= this.animations.length) {
+                        this.finished = true;
+                    } else {
+                        this.animations[this.currentAnimationIndex].onStart(entity)
+                    }
                 }
             }
-            return this;
+
+        },
+
+        Wait: class extends _Animation { 
+            // no overriding needed
+        },
+
+        Ease: class extends _Animation {
+
+            constructor(targetX, targetY, ratio = 0.1, maxDuration = 120) {
+                super(maxDuration);
+                this.targetX = targetX;
+                this.targetY = targetY;
+                this.ratio = ratio;
+            }
+
+            onFrame(entity) {
+                entity.easeTo(this.targetX, this.targetY, this.ratio);
+                if(Math.abs(this.targetY - entity.y) < 0.1 && Math.abs(this.targetX - entity.x) < 0.1) {
+                    entity.place(this.targetX, this.targetY);
+                    this.finished = true;
+                }
+            }
+
+        },
+
+        Move: class extends _Animation {
+        
+            constructor(dx, dy, maxDuration = 60) {
+                super(maxDuration);
+                this.sx = dx/maxDuration;
+                this.sy = dy/maxDuration;
+            }
+
+            onFrame(entity) {
+                entity.move(this.sx, this.sy);
+            }
+
         }
 
-        clone() {
-            return Mx.SpriteAnimation.create(this.framesInfo, this.repeat, this.backAndForth);
-        }
+
     },
+    
 
     /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
      * Random number generator
@@ -1560,7 +1568,7 @@ const Mx = {
                 this._interval = setInterval(loop => {
                     loop.tickCount++;
                     loop._callback(loop);
-                    Mx.Input._clearJustUpAndDownKeys();
+                    Mx.Input._clearJustUpAndDown();
                 }, 1000/this.tps, this);
                 return this;
             }
@@ -1999,7 +2007,15 @@ const Mx = {
             }
 
             toPolygon() {
-                // todo
+                return Mx.Geo.Polygon.create(
+                    [
+                        [this.x, this.y], 
+                        [this.x + this.width, this.y],
+                        [this.x + this.width, this.y + this.height], 
+                        [this.x, this.y + this.height]
+                    ],
+                    this.backgroundColor, this.borderColor, this.borderThickness
+                );
             }
 
             getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
@@ -2188,6 +2204,16 @@ const Mx = {
                     case 'resize': this.onResize = callback; break;
                     default: break;
                 }
+                return this;
+            }
+
+            clearListeners() {
+                this.onMouseOver = () => {};
+                this.onMouseOut = () => {};
+                this.onMouseDown = () => {};
+                this.onMouseUp = () => {};
+                this.onMouseDrag = () => {};
+                this.onResize = () => {};
                 return this;
             }
 
@@ -2540,9 +2566,16 @@ const Mx = {
             left: false,
             middle: false,
             right: false,
-            down: false,
+            justDownLeft: false,
+            justDownMiddle: false,
+            justDownRight: false,
+            justUpLeft: false,
+            justUpMiddle: false,
+            justUpRight: false,
             draggedEntity: null,
         },
+
+        
 
         init(canvasHandler = null) {
             
@@ -2562,30 +2595,39 @@ const Mx = {
 
             document.onmousedown = e => {
                 switch(e.button) {
-                    case 0: Mx.Input._mouse.left = true; break;
-                    case 1: Mx.Input._mouse.middle = true; break;
-                    case 2: Mx.Input._mouse.right = true; break;
-					default: break;
+                    case 0: 
+                        Mx.Input._mouse.left = true; 
+                        Mx.Input._mouse.justDownLeft = true;
+                        break;
+                    case 1: 
+                        Mx.Input._mouse.middle = true; 
+                        Mx.Input._mouse.justDownMiddle = true;
+                        break;
+                    case 2: 
+                        Mx.Input._mouse.right = true; 
+                        Mx.Input._mouse.justDownRight = true; 
+                        break;
+					default: 
+                        break;
                 }
-                Mx.Input._mouse.down = (
-                    Mx.Input._mouse.left ||
-                    Mx.Input._mouse.middle ||
-                    Mx.Input._mouse.right
-                );
             };
 
             document.onmouseup = e => {
                 switch(e.button) {
-                    case 0: Mx.Input._mouse.left = false; break;
-                    case 1: Mx.Input._mouse.middle = false; break;
-                    case 2: Mx.Input._mouse.right = false; break;
+                    case 0: 
+                        Mx.Input._mouse.left = false; 
+                        Mx.Input._mouse.justUpLeft = true; 
+                        break;
+                    case 1: 
+                        Mx.Input._mouse.middle = false; 
+                        Mx.Input._mouse.justUpMiddle = true; 
+                        break;
+                    case 2: 
+                        Mx.Input._mouse.right = false; 
+                        Mx.Input._mouse.justUpRight = true; 
+                        break;
 					default: break;
                 }
-                Mx.Input._mouse.down = (
-                    Mx.Input._mouse.left ||
-                    Mx.Input._mouse.middle ||
-                    Mx.Input._mouse.right
-                );
             };
 
             // key listeners
@@ -2628,6 +2670,30 @@ const Mx = {
             return this._mouse;
         },
 
+        mouseDown() {
+            return (
+                this._mouse.left || 
+                this._mouse.middle || 
+                this._mouse.right
+            );
+        },
+
+        mouseJustUp() {
+            return (
+                this._mouse.justUpLeft || 
+                this._mouse.justUpMiddle || 
+                this._mouse.justUpRight
+            );
+        },
+
+        mouseJustDown() {
+            return (
+                this._mouse.justDownLeft || 
+                this._mouse.justDownMiddle || 
+                this._mouse.justDownRight
+            );
+        },
+
         update() {
             const handler = Mx.Input._handler;
             if(!handler) {
@@ -2639,9 +2705,15 @@ const Mx = {
             return this;
         },
 
-        _clearJustUpAndDownKeys() {
+        _clearJustUpAndDown() {
             this._justDownKeys = {};
             this._justUpKeys = {};
+            this._mouse.justDownLeft = false;
+            this._mouse.justDownMiddle = false;
+            this._mouse.justDownRight = false;
+            this._mouse.justUpLeft = false;
+            this._mouse.justUpMiddle = false;
+            this._mouse.justUpRight = false;
         }
 
     },
@@ -2946,6 +3018,7 @@ const Mx = {
         }
 
         toView(ViewClass) {
+            this.handler.clearListeners();
             this.view = new ViewClass(this);
             this.view._create();
             return this;

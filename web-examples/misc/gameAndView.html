@@ -5,34 +5,44 @@
     class TestView extends Mx.View {
 
         onCreate() {
-            this.rect = Mx.Geo.Rectangle.create(10, 10, 50, 50, 'red').enableDrag();
+            this.rect = Mx.Geo.Rectangle.create(10, 10, 50, 50, 'red');
+            // this.handler.enableZoom().enableDrag();
         }
 
         onUpdate() {
+
+            // user input
+            const {KeyW, KeyA, KeyS, KeyD} = this.input.keys();
+            if(KeyW) this.rect.move(0, -5);
+            if(KeyA) this.rect.move(-5, 0);
+            if(KeyS) this.rect.move(0, 5);
+            if(KeyD) this.rect.move(5, 0);
+            const {xInCanvas, yInCanvas, justUpLeft} = this.input.mouse();
+            if(justUpLeft) {
+                const sequence = Mx.Animations.Sequence.from(
+                    ['Ease', xInCanvas, yInCanvas, 0.1],
+                    ['Wait', 10],
+                    ['Move', 0, -40, 10],
+                    ['Move', 0, 40, 10],
+                    ['Wait', 10],
+                    ['Ease', this.rect.x, this.rect.y, 0.03]
+                );
+                this.rect.setAnimation(sequence);
+            }
+            
+            // drawing
             this.handler.clear();
             this.handler.grid(20, 20);
             this.handler.draw(this.rect);
-            // this.rect.move(0.2, 0.2);
+
+            // event listening, and animations
+            this.rect.animate();
             this.rect.listen();
-            if(this.input.isDown('KeyW')) {
-                this.rect.move(0, -2);
-            }
-            if(this.input.isDown('KeyA')) {
-                this.rect.move(-2, 0);
-            }
-            if(this.input.isDown('KeyS')) {
-                this.rect.move(0, 2);
-            }
-            if(this.input.isDown('KeyD')) {
-                this.rect.move(2, 0);
-            }
+            this.handler.listen();    
         }
 
     }
 
-
     const game = Mx.Game.create().toView(TestView);
-
-    
 
 </script>
