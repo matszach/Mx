@@ -20,5 +20,8 @@
         sprite2.place(...ring2.prev()).rotate(-Math.PI/75);
         sprite3.listen();
         handler.draws(sprite1, sprite2, sprite3);
+        if(loop.tickCount % 60 === 0) {
+            sprite3.flip();
+        }
     });
 </script>

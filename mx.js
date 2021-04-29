@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.15.0
+ * @version 0.15.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -942,7 +942,7 @@ const Mx = {
         constructor(
             x, y, image, spriteWidth = 32, spriteHeight = 32, borderThickness = 0, 
             frameX = 0, frameY = 0, drawnWidth = spriteWidth, drawnHeight = spriteHeight,
-            rotation = 0, alpha = 1
+            rotation = 0, alpha = 1, mirrored = false,
         ) {
             super(x, y);
             this.image = image;
@@ -955,6 +955,12 @@ const Mx = {
             this.drawnHeight = drawnHeight;
             this.rotation = rotation;
             this.alpha = alpha;
+            this.mirrored = mirrored;
+        }
+        
+        flip() {
+            this.mirrored = !this.mirrored;
+            return this;
         }
 
         scale(scaleX = 1, scaleY = scaleX, xOrigin = this.x, yOrigin = this.y) {
@@ -998,7 +1004,7 @@ const Mx = {
                 this.frameX * (this.spriteWidth + this.borderThickness),
                 this.frameY * (this.spriteHeight + this.borderThickness),
                 this.spriteWidth, this.spriteHeight, this.drawnWidth, this.drawnHeight,
-                this.rotation, this.alpha
+                this.rotation, this.alpha, this.mirrored
             );
         }
 
@@ -2509,16 +2515,23 @@ const Mx = {
             // Images
             drawSprite(
                 x, y, image, spriteX, spriteY, spriteWidth, spriteHeight, 
-                drawnWidth = spriteWidth, drawnHeight = spriteHeight, rotation = 0, alpha = 1
+                drawnWidth = spriteWidth, drawnHeight = spriteHeight, rotation = 0, alpha = 1, mirrored = false
             ) {
                 this.context.save();
                 this.context.globalAlpha = alpha;
                 this.context.translate(x, y);
                 this.context.rotate(rotation);
+                if(mirrored) {
+                    this.context.save();
+                    this.context.scale(-1, 1);
+                }
                 this.context.drawImage(
                     image, spriteX, spriteY, spriteWidth, spriteHeight,
                     -drawnWidth/2, -drawnHeight/2, drawnWidth, drawnHeight
                 );
+                if(mirrored) {
+                    this.context.restore();
+                }
                 this.context.restore();
                 return this;
             }
