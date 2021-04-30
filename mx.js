@@ -1130,61 +1130,14 @@ const Mx = {
         static _MAX_CHAR_CODE = 127;
 
         static _transformSeed(seed) {
+            if(!isNaN(seed)) {
+                return seed;
+            }
             const stringified = JSON.stringify(seed);
             const split = stringified.split('');
             const reduced = split.reduce((acc, curr, index) => acc + (curr.charCodeAt(0) - Mx.Rng._MIN_CHAR_CODE) * (index + 1), 0);
             const absolute = Math.abs(reduced);
             return absolute;
-        }
-
-        _generateRandomSeed() {
-            let seed = '';
-            for(let i = 0; i < 20; i++) {
-                const charCode = Math.floor(Math.random() * (Mx.Rng._MAX_CHAR_CODE - Mx.Rng._MIN_CHAR_CODE) + Mx.Rng._MIN_CHAR_CODE);
-                seed += String.fromCharCode(charCode)
-            }
-            return seed;
-        }
-
-        _initRandomGeneratorIndices() {
-            this._indices = [];
-            for(let i = 0; i < this.precision; i++) {
-                this._indices.push((this._transformedSeed * i) % this._numbers.length);
-            }
-        }
-
-        _random() {
-            let counter = '';
-            for(let i = 0; i < this.precision; i++) {
-                const nextIndexValue = i < this.precision - 1 ? this._indices[i + 1] : this._indices[0];
-                const newIndexValue = (this._indices[i] + nextIndexValue + i) % this._numbers.length;
-                this._indices[i] = newIndexValue;
-                counter += this._numbers[newIndexValue];
-            }
-            return parseInt(counter)/this._denominator;
-        }
-
-        /**
-         * Constructs a new instance of the random number generator
-         * @param {any} seed - seed for random number generator
-         * @param {any} args - TODO
-         */
-        constructor(seed, args = {}) {
-            this.seed = seed || this._generateRandomSeed();
-            this.precision = args.precision || 10;
-            this._denominator = Math.pow(10, this.precision);
-            this._transformedSeed = Mx.Rng._transformSeed(this.seed);
-            this._numbers = (
-                '58277981493064857604303426349911051672791058625382' + 
-                '92357637557400591326812877689231893280454964146010' + 
-                '03849136475419169638276933015275206402758784928501' + 
-                '53501961456128466272342158498329610779079338504708' + 
-                '04903927227043496615093088374397528586516157416821' + 
-                '50830479994401814052216507238772982378564913661365' +
-                '07896320441717258516949498316370150824389507623562' + 
-                '61577904404885527163218919903402257681473393866052'
-            ).split('');
-            this._initRandomGeneratorIndices();
         }
 
         static create(seed, args = {}) {
@@ -1206,6 +1159,40 @@ const Mx = {
             const rng = new Mx.Rng();
             rng._random = Math.random;
             return rng;
+        }
+
+        /**
+         * Constructs a new instance of the random number generator
+         * @param {any} seed - seed for random number generator
+         * @param {any} args - TODO
+         */
+        constructor(seed) {
+            this.seed = seed || this._generateRandomSeed();
+            this.state = Mx.Rng._transformSeed(this.seed);
+        }
+
+        reseed(seed) {
+            this.seed = seed || this._generateRandomSeed();
+            this.state = Mx.Rng._transformSeed(this.seed);
+            return this;
+        }
+        
+        _generateRandomSeed() {
+            let seed = '';
+            for(let i = 0; i < 20; i++) {
+                const charCode = Math.floor(Math.random() * (Mx.Rng._MAX_CHAR_CODE - Mx.Rng._MIN_CHAR_CODE) + Mx.Rng._MIN_CHAR_CODE);
+                seed += String.fromCharCode(charCode)
+            }
+            return seed;
+        }
+
+        _random() {
+            this.state += 0xe120fc15;
+            let temp = this.state * 0x4a39b70d;
+            const m1 = (temp >> 1) ^ temp;
+            temp = m1 * 0x12fad5c9;
+            const m2 = (temp >> 1) ^ temp;
+            return m2 % 100000 / 100000;
         }
 
         /**
