@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.17.1
+ * @version 0.18.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1638,6 +1638,15 @@ const Mx = {
                     v.x < r.x + r.width &&
                     v.y > r.y &&
                     v.y < r.y + r.height
+                );
+            },
+
+            rectangleVsRectangle(r1, r2) {
+                return (
+                    r1.x + r1.width > r2.x &&
+                    r1.x < r2.x + r2.width &&
+                    r1.y + r1.height > r2.y &&
+                    r1.y < r2.y + r2.height
                 );
             }
 

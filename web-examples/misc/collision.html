@@ -4,30 +4,33 @@
 
     const handler = Mx.Draw.CanvasHandler.create();
     const input = Mx.Input.create(handler);
-    const rng = Mx.Rng.create();
 
     const c1 = Mx.Geo.Circle.create(100, 100, 50, 'red').enableDrag();
-    const c2 = Mx.Geo.Circle.create(100, 300, 50, 'red').enableDrag();
+    const c2 = Mx.Geo.Circle.create(100, 300, 70, 'red').enableDrag();
 
-    let col = 'blue';
-    let nowTouching = false;
+    const r1 = Mx.Geo.Rectangle.create(200, 100, 50, 100, 'green').enableDrag();
+    const r2 = Mx.Geo.Rectangle.create(200, 300, 70, 30, 'green').enableDrag();
 
     const loop = Mx.It.Loop.start(60, loop => {
         handler.fill();
-        handler.draws(c1, c2);
+        handler.draws(c1, c2, r1, r2);
+        r2.listen();
+        r1.listen();
         c2.listen();
         c1.listen();
         if(Mx.Geo.Collision.circleVsCircle(c1, c2)) {
-            if(!nowTouching) {
-                nowTouching = true;
-                col = rng.rgb();
-            }
-            c1.backgroundColor = col;
-            c2.backgroundColor = col;
+            c1.backgroundColor = 'blue';
+            c2.backgroundColor = 'blue';
         } else {
             c1.backgroundColor = 'red';
             c2.backgroundColor = 'red';
-            nowTouching = false;
+        }
+        if(Mx.Geo.Collision.rectangleVsRectangle(r1, r2)) {
+            r1.backgroundColor = 'yellow';
+            r2.backgroundColor = 'yellow';
+        } else {
+            r1.backgroundColor = 'green';
+            r2.backgroundColor = 'green';
         }
     }); 
 
