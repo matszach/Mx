@@ -1,0 +1,31 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    const handler = Mx.Draw.CanvasHandler.create();
+    const rng = Mx.Rng.fromMathRandom();
+    const input = Mx.Input.init(handler);
+
+    const surface = new Mx.Ds.Array2D(100, 100);
+    surface.map((v, x, y) => rng.int(0, 255));
+    
+    const loop = Mx.It.Loop.start(60, loop => {
+        handler.fill('black');
+        handler.pix.initImageData(800, 800);
+        const gs = Math.ceil(this._grainSize);
+        surface.forEach((v, x, y) => {
+            if(rng.chance(0.01)) {
+                const v1 = surface.safeGet(x, y + 1, v);
+                const v2 = surface.safeGet(x, y - 1, v);
+                const v3 = surface.safeGet(x + 1, y, v);
+                const v4 = surface.safeGet(x - 1, y, v);
+                const newV = Math.round((v1 + v2 + v3 + v4)/4);
+                surface.put(x, y, newV);
+            }
+            handler.pix.putRectangle(x * 8, y * 8, 8, 8, v, 0, 0);
+        });
+        handler.pix.displayImageData(0, 0);
+
+    });
+
+</script>

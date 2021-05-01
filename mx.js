@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.18.0
+ * @version 0.18.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -2209,7 +2209,7 @@ const Mx = {
                 Mx.Input.update();
                 return this;
             }
-
+            
             on(event, callback = () => {}) {
                 this._listenerAttached = true;
                 switch(event) {
@@ -2489,8 +2489,7 @@ const Mx = {
                 return this;
             }
 
-            // TODO stroke and fill polygon methods
-
+            // Polygon
             drawPolygon(vertices, fillColor = 'black', strokeColor = undefined, thickness = 1) {
                 this._fillStyle(fillColor);
                 this._strokeStyle(strokeColor, thickness);
