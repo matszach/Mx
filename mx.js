@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.17.0
+ * @version 0.17.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1623,6 +1623,23 @@ const Mx = {
         },
 
         Collision: {
+
+            vertexVsCircle(v, c) {
+                return Mx.Geo.Distance.vertexVsCircle(v, c) < 0;
+            },
+
+            circleVsCircle(c1, c2) {
+                return Mx.Geo.Distance.circleVsCircle(c1, c2) < 0;
+            },
+
+            vertexVsRectangle(v, r) {
+                return (
+                    v.x > r.x &&
+                    v.x < r.x + r.width &&
+                    v.y > r.y &&
+                    v.y < r.y + r.height
+                );
+            }
 
         },
 

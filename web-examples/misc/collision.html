@@ -1,0 +1,34 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    const handler = Mx.Draw.CanvasHandler.create();
+    const input = Mx.Input.create(handler);
+    const rng = Mx.Rng.create();
+
+    const c1 = Mx.Geo.Circle.create(100, 100, 50, 'red').enableDrag();
+    const c2 = Mx.Geo.Circle.create(100, 300, 50, 'red').enableDrag();
+
+    let col = 'blue';
+    let nowTouching = false;
+
+    const loop = Mx.It.Loop.start(60, loop => {
+        handler.fill();
+        handler.draws(c1, c2);
+        c2.listen();
+        c1.listen();
+        if(Mx.Geo.Collision.circleVsCircle(c1, c2)) {
+            if(!nowTouching) {
+                nowTouching = true;
+                col = rng.rgb();
+            }
+            c1.backgroundColor = col;
+            c2.backgroundColor = col;
+        } else {
+            c1.backgroundColor = 'red';
+            c2.backgroundColor = 'red';
+            nowTouching = false;
+        }
+    }); 
+
+</script>
