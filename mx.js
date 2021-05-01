@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.16.3
+ * @version 0.17.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -264,26 +264,12 @@ class _GuiComponent extends _Entity {
     constructor(x = 0, y = 0, options = {}) {
         super(x, y);
         this.options = options;
-        this._setDefaultOptions();
         this.container = Mx.Container.create(x, y);
         this.construct();
         const c = this.getCenter();
         this.x = c.x;
         this.y = c.y;
     }   
-
-    getDefaultOptions() {
-        return {};
-    }
-
-    _setDefaultOptions() {
-        const defaults = this.getDefaultOptions();
-        for(let key in defaults) {
-            if(!(key in this.options)) {
-                this.options[key] = defaults[key];
-            }
-        }
-    }
 
     // constructs the components by adding elements to the _container
     construct() {
@@ -344,15 +330,15 @@ class _GuiComponent extends _Entity {
     }
 
     isPointOver(x, y) {
-        return this.container.isPointOver(x, y);
+        return this.container.isPointOver(x, y); // should be overriden
     }
 
     getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
-        return this.container.getBoundingRectangle(padding, backgroundColor, borderColor, borderThickness);
+        return this.container.getBoundingRectangle(padding, backgroundColor, borderColor, borderThickness); // should be overriden
     }
 
     getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
-        return this.container.getBoundingCircle(padding, backgroundColor, borderColor, borderThickness);
+        return this.container.getBoundingCircle(padding, backgroundColor, borderColor, borderThickness); // should be overriden
     }
 
     getCenter() {
@@ -2806,39 +2792,34 @@ const Mx = {
         // TODO finish this
         Button: class extends _GuiComponent {
 
-            getDefaultOptions() {
-                return {
-                    width: 100,
-                    height: 30,
-                    fontFamily: 'Arial monospaced',
-                    fontSize: 20,
-                    backgroundColor: '#111111',
-                    borderColor: '#ffffff',
-                    borderThickness: 2,
-                    textColor: '#ffffff',
-                    backgroundColorHover: undefined,
-                    borderColor: undefined,
-                    borderThickness: undefined,
-                    textColor: undefined,
-                };
-            }
-
             construct() {
-                const body = Mx.Geo.Rectangle.create(
-                    this.x, this.y, 100, 50, 'red' 
-                );
-                const text = Mx.Text.create(
-                    this.x + 10, this.y + 25, 'Button', 'blue', 20
-                );
+                // preset values
+                const bw = this.options.width || 100;
+                const bh = this.options.height || 40;
+                const bcol = this.options.backgroundColor || Mx.Draw.Color.rgb(30, 30, 30);
+                const hcol = this.options.hoverColor || Mx.Draw.Color.rgb(50, 50, 50);
+                const acol = this.options.activeColor || Mx.Draw.Color.rgb(70, 70, 70);
+                const tval = this.options.text || 'Button';
+                const tcol = this.options.textColor || Mx.Draw.Color.rgb(255, 255, 255);
+                const tsize = this.options.fontSize || 30;
+                const tfont = this.options.fontFamily || 'Arial';
+                const action = this.options.action || (() => {});
+                // elements
+                const body = Mx.Geo.Rectangle.create(this.x, this.y, bw, bh, bcol);
+                const text = Mx.Text.create(this.x + bw/2, this.y + (bh + tsize * 0.8)/2 , tval, tcol, tsize, tfont, 0, 1, 'center');
                 this.container.adds(body, text);
-
+                // events
                 this.on('over', mouse => {
-                    body.backgroundColor = 'yellow';
+                    body.backgroundColor = hcol;
                 }).on('out', mouse => {
-                    body.backgroundColor = 'red';
+                    body.backgroundColor = bcol;
+                }).on('down', mouse => {
+                    body.backgroundColor = acol;
+                }).on('up', mouse => {
+                    body.backgroundColor = bcol;
+                    action(mouse);
                 });
             }
-
         }
 
     },

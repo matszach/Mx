@@ -6,14 +6,18 @@
     const rng = Mx.Rng.fromMathRandom();
     const input = Mx.Input.init(handler);
     
-    const button = Mx.Gui.Button.create(100, 100).enableDrag();
+    let count = 0;
+    const button = Mx.Gui.Button.create(100, 100, {
+        text: 'Count',
+        action: mouse => console.log(`Clicked ${++count} times`)
+    });
 
     const loop = Mx.It.Loop.start(60, loop => {
         handler.fill('black');
         handler.grid(20, 20);
         handler.draws(button);
         button.listen();
-        // handler.listen();
+        handler.listen();
     });
 
 </script>
