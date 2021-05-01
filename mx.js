@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.18.1
+ * @version 0.18.2
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -2177,6 +2177,13 @@ const Mx = {
                 this.post = new _CanvasHandlerPostProcessor(this);
             }
 
+            center(x, y) {
+                const dx = this.canvas.width/2 - x;
+                const dy = this.canvas.height/2 - y;
+                this.setTransform(dx, dy);
+                return this;
+            }
+
             storeTransform() {
                 this._storedVpX = this.vpX;
                 this._storedVpY = this.vpY;
@@ -2203,7 +2210,7 @@ const Mx = {
             }
             
             setTransform(x = this.vpX, y = this.vpY, scale = this.vpScale) {
-                this.context.resetTransform();
+                this.resetTransform();
                 this.moveViewport(x, y);
                 this.scaleViewport(scale);
                 Mx.Input.update();
@@ -2562,6 +2569,22 @@ const Mx = {
                 this.context.webkitImageSmoothingEnabled = value;
                 this.context.imageSmoothingEnabled = value;
                 return true;
+            }
+
+            displayDebugInfo(loop, color = 'rgba(255, 255, 255, 0.5)') {
+                const tickTime = new Date().getTime() - loop._lastTickTime                
+                const fps = `FPS: ${(1000/tickTime).toFixed(2)}`;
+                loop._lastTickTime = new Date().getTime();
+                const vppos = `VPPOS: (x: ${this.vpX.toFixed(2)}, y: ${this.vpY.toFixed(2)})`;
+                const vpsc = `VPSC: ${(100 * this.vpScale).toFixed(2)}%`;
+                const cdim = `CDIM: (x: ${this.canvas.width.toFixed(2)}, y: ${this.canvas.height.toFixed(2)})`;
+                this.storeTransform();
+                this.resetTransform();
+                this.write(20, 30, fps, color, 15, 'Arial');
+                this.write(20, 50, vppos, color, 15, 'Arial');
+                this.write(20, 70, vpsc, color, 15, 'Arial');
+                this.write(20, 90, cdim, color, 15, 'Arial');
+                this.restoreTransform();
             }
                     
         }
