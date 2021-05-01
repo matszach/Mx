@@ -2,35 +2,15 @@
 <script src='./../../mx.js'></script>
 <script>
 
-    let state = Math.random();
-    function rand() {
-        state += 0xe120fc15;
-        let temp = state * 0x4a39b70d;
-        const m1 = (temp >> 1) ^ temp;
-        temp = m1 * 0x12fad5c9;
-        const m2 = (temp >> 1) ^ temp;
-        return m2 % 10000 / 10000;
-    }
-
-    function randomVertex(minX, minY, maxX, maxY) {
-        const x = rand() * (maxX - minX) + minX;
-        const y = rand() * (maxY - minY) + minY;
-        return Mx.Geo.Vertex.create(x, y);
-    }
-
     const handler = Mx.Draw.CanvasHandler.create();
     const input = Mx.Input.init(handler);
     const rng1 = Mx.Rng.init();
-    console.log(rng1);
     const rng2 = Mx.Rng.fromMathRandom();
     const loop = Mx.It.Loop.start(4, loop => {
         handler.fill();
-        // rng1.reseed(loop.tickCount);
         const circles1 = Mx.Ds.arr(100, i => rng1.vertex(10, 10, 500, 500).toCircle(2, 'red'));
-        // const circles2 = Mx.Ds.arr(100, i => rng2.vertex(10, 10, 500, 500).toCircle(2, 'blue'));
-        // const circles3 = Mx.Ds.arr(100, i => randomVertex(10, 10, 500, 500).toCircle(2, 'green'));
-        // handler.draws(...circles3, ...circles2, ...circles1);
-        handler.draws(...circles1);
+        const circles2 = Mx.Ds.arr(100, i => rng2.vertex(10, 10, 500, 500).toCircle(2, 'blue'));
+        handler.draws(...circles1, ...circles2);
     });
 
 </script>

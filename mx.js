@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.16.0
+ * @version 0.16.2
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -862,7 +862,7 @@ const Mx = {
      */
     Text: class extends _Entity {
 
-        constructor(x, y, content = 'Text', color = 'black', fontSize = '12', fontFamily = 'Arial monospaced', rotation = 0, alpha = 1) {
+        constructor(x, y, content = 'Text', color = 'black', fontSize = '12', fontFamily = 'Arial monospaced', rotation = 0, alpha = 1, align = 'start') {
             super(x, y);
             this.content = content;
             this.color = color;
@@ -870,6 +870,7 @@ const Mx = {
             this.fontFamily = fontFamily;
             this.rotation = rotation;
             this.alpha = alpha;
+            this.align = align;
             this.characterWidthRatio = 0.44;
             this.characterHeightRatio = 0.85;
         }
@@ -877,7 +878,8 @@ const Mx = {
         _getDrawn(canvasHandler) {
             canvasHandler.write(
                 this.x, this.y, this.content, this.color, 
-                this.fontSize, this.fontFamily, this.rotation, this.alpha
+                this.fontSize, this.fontFamily, this.rotation, 
+                this.alpha, this.align
             );
         }
 
@@ -890,10 +892,15 @@ const Mx = {
             const {x: dx, y: dy} = Mx.Geo.toCartesian(this.rotation, r);
             const x2 = x1 + dx + rotationOffset;
             const y2 = y1 + dy + this.fontSize - rotationOffset;
-            const x = x1 < x2 ? x1 : x2;
-            const y = y1 < y2 ? y1 : y2;
+            let x = x1 < x2 ? x1 : x2;
+            let y = y1 < y2 ? y1 : y2;
             const width = Math.abs(x1 - x2);
             const height = Math.abs(y1 - y2);
+            if (this.align === 'center') {
+                x -= width/2;
+            } else if (this.align === 'end') {
+                x -= width;
+            }
             return new Mx.Geo.Rectangle(x, y, width, height, backgroundColor, borderColor, borderThickness);
         }
 
@@ -905,7 +912,7 @@ const Mx = {
             return Mx.Text.create(
                 this.x, this.y,
                 this.content, this.color, this.fontSize, this.fontFamily,
-                this.rotation, this.alpha
+                this.rotation, this.alpha, this.align
             );
         }
 
@@ -2487,8 +2494,9 @@ const Mx = {
             }
 
             // Text
-            write(x, y, content, color = 'black', size = 12, font = 'Arial monospaced', rotation = 0, alpha = 1) {
+            write(x, y, content, color = 'black', size = 12, font = 'Arial monospaced', rotation = 0, alpha = 1, align = 'start') {
                 this.context.save();
+                this.context.textAlign = align;
                 this.context.globalAlpha = alpha;
                 this.context.translate(x, y); 
                 this.context.rotate(rotation);
@@ -2999,11 +3007,6 @@ const Mx = {
      */
     Game: class {
 
-        /**
-         * 
-         * @param {*} options 
-         * @returns 
-         */
         static create(options = {}) {
             return new Mx.Game(options);
         }

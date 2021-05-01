@@ -1,0 +1,22 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    const handler = Mx.Draw.CanvasHandler.create();
+    const input = Mx.Input.init(handler);
+
+    const text1 = Mx.Text.create(200, 100, 'Hello', 'red', 50, 'Arial', 0, 1, 'start');
+    const text2 = Mx.Text.create(200, 200, 'Hello', 'red', 50, 'Arial', 0, 1, 'center');
+    const text3 = Mx.Text.create(200, 300, 'Hello', 'red', 50, 'Arial', 0, 1, 'end');
+
+    const loop = Mx.It.Loop.start(60, loop => {
+        handler.fill('black');
+        handler.grid(20, 20);
+        handler.draws(
+            text1, text1.getBoundingRectangle(),
+            text2, text2.getBoundingRectangle(),
+            text3, text3.getBoundingRectangle()
+        );
+    });
+
+</script>
