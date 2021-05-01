@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.18.2
+ * @version 0.19.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -2182,6 +2182,10 @@ const Mx = {
                 const dy = this.canvas.height/2 - y;
                 this.setTransform(dx, dy);
                 return this;
+            }
+
+            centerOn(entity) {
+                return this.center(entity.x, entity.y);
             }
 
             storeTransform() {

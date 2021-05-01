@@ -4,14 +4,24 @@
 
     const handler = Mx.Draw.CanvasHandler.create();
     const input = Mx.Input.create(handler);
-    const c = Mx.Geo.Circle.create(100, 100, 50, 'red');
-    c.on('over', mouse => c.backgroundColor = 'green').on('out', mouse => c.backgroundColor = 'red');
+    const rng = Mx.Rng.create();
+    const circles = Mx.Ds.arr(100, i => {
+        const c = Mx.Geo.Circle.create(
+            rng.float(-1000, 1000),
+            rng.float(-1000, 1000),
+            rng.float(10, 100),
+            rng.rgba()
+        );
+        c.on('up', mouse => handler.centerOn(c));
+        return c;
+    });
 
     const loop = Mx.It.Loop.start(60, loop => {
         handler.fill();
-        handler.draws(c);
-        c.listen();
-        handler.center(c.x, c.y);
+        for(let c of circles) {
+            c.listen();
+            handler.draw(c);
+        };
         handler.displayDebugInfo(loop);
     }); 
 
