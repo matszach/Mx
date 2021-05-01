@@ -2582,12 +2582,14 @@ const Mx = {
                 const vppos = `VPPOS: (x: ${this.vpX.toFixed(2)}, y: ${this.vpY.toFixed(2)})`;
                 const vpsc = `VPSC: ${(100 * this.vpScale).toFixed(2)}%`;
                 const cdim = `CDIM: (x: ${this.canvas.width.toFixed(2)}, y: ${this.canvas.height.toFixed(2)})`;
+                const mpos = `MPOS: (x: ${Mx.Input._mouse.xInCanvas.toFixed(2)}, y: ${Mx.Input._mouse.yInCanvas.toFixed(2)})`;
                 this.storeTransform();
                 this.resetTransform();
                 this.write(20, 30, fps, color, 15, 'Arial');
                 this.write(20, 50, vppos, color, 15, 'Arial');
                 this.write(20, 70, vpsc, color, 15, 'Arial');
                 this.write(20, 90, cdim, color, 15, 'Arial');
+                this.write(20, 110, mpos, color, 15, 'Arial');
                 this.restoreTransform();
             }
                     
