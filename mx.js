@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.16.2
+ * @version 0.16.3
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1181,6 +1181,11 @@ const Mx = {
         reseed(seed) {
             this.seed = seed || this._generateRandomSeed();
             this.state = Mx.Rng._transformSeed(this.seed);
+            return this;
+        }
+
+        setState(newState) {
+            this.state = newState;
             return this;
         }
         
@@ -3022,8 +3027,9 @@ const Mx = {
 
         toView(ViewClass) {
             this.handler.clearListeners();
-            this.view = new ViewClass(this);
-            this.view._create();
+            const view = new ViewClass(this);
+            view._create();
+            this.view = view;
             return this;
         }
 
