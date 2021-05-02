@@ -3,6 +3,7 @@
 <script>
 
     const handler = Mx.Draw.CanvasHandler.create();
+    document.body.style.cursor = 'none';
     const input = Mx.Input.create(handler);
 
     const c1 = Mx.Geo.Circle.create(100, 100, 50, 'red').enableDrag();
@@ -32,6 +33,8 @@
             r1.backgroundColor = 'green';
             r2.backgroundColor = 'green';
         }
+        const {xInCanvas: mx, yInCanvas: my} = input.mouse();
+        handler.drawCircle(mx, my, 5, 'pink');
     }); 
 
 </script>

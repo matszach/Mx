@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.19.0
+ * @version 0.19.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -923,7 +923,7 @@ const Mx = {
 
         get(x, y) {
             return new Mx.Sprite(
-                0, 0, this.img,
+                this, 0, 0, this.img,
                 this.spriteWidth, this.spriteHeight, this.borderThickness,
                 x, y
             );
@@ -933,11 +933,13 @@ const Mx = {
     Sprite: class extends _Entity {
 
         constructor(
+            sheet, 
             x, y, image, spriteWidth = 32, spriteHeight = 32, borderThickness = 0, 
             frameX = 0, frameY = 0, drawnWidth = spriteWidth, drawnHeight = spriteHeight,
             rotation = 0, alpha = 1, mirrored = false,
         ) {
             super(x, y);
+            this.sheet = sheet;
             this.image = image;
             this.spriteWidth = spriteWidth;
             this.spriteHeight = spriteHeight;
@@ -2350,11 +2352,12 @@ const Mx = {
                 this.context = this.canvas.getContext('2d', {alpha: false});
                 this.parent = document.getElementById(this.parentId);
                 this.parent.appendChild(this.canvas);
-                window.addEventListener('resize', event => this.refit().onResize(this), this);
+                window.addEventListener('resize', event => this.refit(), this);
                 return this;
             }
 
             refit() {
+                this.onResize(this)
                 this.canvas.width = this.parent.clientWidth;
                 this.canvas.height = this.parent.clientHeight;
                 return this;
@@ -3032,6 +3035,10 @@ const Mx = {
             // abstract
         }
 
+        onResize() {
+            // abstract
+        }
+
         _create() {
             this.onCreate();
         }
@@ -3060,8 +3067,15 @@ const Mx = {
             this.view;
         }
 
+        refit() {
+            if(!!this.view) {
+                this.view.onResize();
+            }
+        }
+
         toView(ViewClass) {
             this.handler.clearListeners();
+            this.handler.on('resize', () => this.refit());
             const view = new ViewClass(this);
             view._create();
             this.view = view;
