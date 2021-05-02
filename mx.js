@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.19.2.1
+ * @version 0.19.3.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -909,16 +909,16 @@ const Mx = {
      */
     SpriteSheet: class {
 
-        static create(src, spriteSizeX, spriteSizeY, borderThickness) {
-            return new Mx.SpriteSheet(src, spriteSizeX, spriteSizeY, borderThickness);
+        static create(src, spriteSizeX, spriteSizeY, borderThickness, innerScale) {
+            return new Mx.SpriteSheet(src, spriteSizeX, spriteSizeY, borderThickness, innerScale);
         }
 
-        constructor(src, spriteSizeX = 32, spriteSizeY = 32, borderThickness = 0) {
+        constructor(src, spriteSizeX = 32, spriteSizeY = 32, borderThickness = 0, innerScale = 1) {
             this.img = new Image();
             this.img.src = src;
-            this.spriteWidth = spriteSizeX;
-            this.spriteHeight = spriteSizeY;
-            this.borderThickness = borderThickness;
+            this.spriteWidth = spriteSizeX * innerScale;
+            this.spriteHeight = spriteSizeY * innerScale;
+            this.borderThickness = borderThickness * innerScale;
         }
 
         get(x, y) {
