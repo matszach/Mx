@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.19.1
+ * @version 0.19.2.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -2179,6 +2179,19 @@ const Mx = {
                 this.post = new _CanvasHandlerPostProcessor(this);
             }
 
+            handles(entities) {
+                for(let i = 0; i < entities.length; i++) {
+                    const e = entities[i];
+                    e.animate();
+                    this.draw(e);
+                }
+                for(let i = entities.length - 1; i >= 0; i--) {
+                    const e = entities[i];
+                    e.listen();
+                }   
+                return this;
+            }
+
             center(x, y) {
                 const dx = this.canvas.width/2 - x;
                 const dy = this.canvas.height/2 - y;
@@ -2357,9 +2370,9 @@ const Mx = {
             }
 
             refit() {
-                this.onResize(this)
                 this.canvas.width = this.parent.clientWidth;
                 this.canvas.height = this.parent.clientHeight;
+                this.onResize(this);
                 return this;
             }
 
@@ -3067,7 +3080,7 @@ const Mx = {
             this.view;
         }
 
-        refit() {
+        _refit() {
             if(!!this.view) {
                 this.view.onResize();
             }
@@ -3075,10 +3088,11 @@ const Mx = {
 
         toView(ViewClass) {
             this.handler.clearListeners();
-            this.handler.on('resize', () => this.refit());
             const view = new ViewClass(this);
             view._create();
             this.view = view;
+            this.handler.on('resize', () => this._refit());
+            this._refit()
             return this;
         }
 
