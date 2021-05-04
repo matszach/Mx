@@ -1240,9 +1240,10 @@ const Mx = {
             const choices = [];
             while (choices.length < n) {
                 const c = this.choice(options);
-                if(unique && !choices.includes(c)) {
-                    choices.push(c);
+                if(unique && choices.includes(c)) {
+                    continue;
                 }
+                choices.push(c);
             }
             return choices;
         }
