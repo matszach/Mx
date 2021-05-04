@@ -1291,7 +1291,7 @@ const Mx = {
          * @param {Array<any>} array - array to be shuffled
          * @returns {Array<any>} shuffled array 
          */
-        shuffe(array) {
+        shuffle(array) {
             const shuffled = new Array(array.length);
             for(let i = 0; i < shuffled.length; i++) {
                 shuffled[i] = array[i];
