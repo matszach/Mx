@@ -2150,6 +2150,14 @@ const Mx = {
                 return `rgba(${r}, ${g}, ${b}, ${a})`;
             },
 
+            hsl(h, s, l = 50) {
+                return `hsl(${h}, ${s}%, ${l}%)`;
+            },
+
+            hsla(h, s, l = 50, a= 1) {
+                return `hsla(${h}, ${s}%, ${l}%, ${a})`;
+            }
+
         },
 
         CanvasHandler: class {

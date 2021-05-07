@@ -1,0 +1,29 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    const handler = Mx.Draw.CanvasHandler.create();
+    const rng = Mx.Rng.fromMathRandom();
+    const input = Mx.Input.init(handler);
+    const rects = [];
+
+    for(let i = 0; i < 20; i++) {
+        const o = 20 + i * 10;
+        const s = 30;
+        const color1 = Mx.Draw.Color.hsla(0, Math.floor(i * 5), 50, 0.6);
+        const color2 = Mx.Draw.Color.hsla(120, Math.floor(i * 5), 50, 0.6);
+        const color3 = Mx.Draw.Color.hsla(240, Math.floor(i * 5), 50, 0.6);
+        rects.push(new Mx.Geo.Rectangle(o, o, s, s, color1))
+        rects.push(new Mx.Geo.Rectangle(o + 100, o, s, s, color2))
+        rects.push(new Mx.Geo.Rectangle(o + 200, o, s, s, color3))
+    }
+    
+
+    
+    const loop = Mx.It.Loop.start(60, loop => {
+        handler.fill('black');
+        handler.grid(20, 20);
+        handler.draws(...rects);
+    });
+
+</script>
