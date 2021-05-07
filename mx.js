@@ -2565,7 +2565,7 @@ const Mx = {
             write(x, y, content, color = 'black', size = 12, font = 'Arial monospaced', rotation = 0, alpha = 1, align = 'start') {
                 this.context.save();
                 this.context.textAlign = align;
-                this.context.globalAlpha = alpha;
+                this.context.globalAlpha = alpha; // TODO change to accomodate layer alpha
                 this.context.translate(x, y); 
                 this.context.rotate(rotation);
                 this._fillStyle(color);
@@ -2581,7 +2581,7 @@ const Mx = {
                 drawnWidth = spriteWidth, drawnHeight = spriteHeight, rotation = 0, alpha = 1, mirrored = false
             ) {
                 this.context.save();
-                this.context.globalAlpha = alpha;
+                this.context.globalAlpha = alpha; // TODO change to accomodate layer alpha
                 this.context.translate(x, y);
                 this.context.rotate(rotation);
                 if(mirrored) {
