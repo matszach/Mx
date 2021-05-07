@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.21.1
+ * @version 0.21.2
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -39,6 +39,12 @@ class _Entity {
         this.onMouseDown = () => {};
         this.onMouseUp = () => {};
         this.onMouseDrag = () => {};
+    }
+
+    centerOn(x, y) {
+        const {x, y} = this.getCenter();
+        this.move(-x, -y);
+        return this;
     }
 
     hide() {
