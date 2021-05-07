@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.20.0
+ * @version 0.21.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -2917,7 +2917,7 @@ const Mx = {
     Layer: class {
 
         static create(options = {}) {
-            return new Mx.Layer(options);
+            return new this(options);
         }
 
         constructor(options = {}) {
@@ -2929,8 +2929,8 @@ const Mx = {
         }
 
         moveViewport(x, y) {
-            this.vpX += x;
-            this.vpY += y;
+            this.vpX = (this.vpX || 0) + x;
+            this.vpY = (this.vpY || 0) + y;
             return this;
         } 
 
@@ -2941,7 +2941,7 @@ const Mx = {
         }
 
         scaleViewport(scale) {
-            this.vpScale *= scale;
+            this.vpScale = (this.vpScale || 1) * scale;
             return this;
         }
 
@@ -3016,7 +3016,7 @@ const Mx = {
             for(let i = 0; i < this.entities.length; i++) {
                 const e = this.entities[i];
                 e.update();
-                e._getDrawn(canvasHandler);
+                canvasHandler.draw(e);
                 e.animate();
             }  
             this._afterHandle(canvasHandler);
