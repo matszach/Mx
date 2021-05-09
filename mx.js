@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.21.3
+ * @version 0.22.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -30,6 +30,7 @@ class _Entity {
         this.isMouseDown = false;
         this.isMouseDrag = false;
         this.hidden = false;
+        this.muted = false;
         this.animations = [];
         this._listenerAttached = true;
         this._xDragOffset = 0;
@@ -44,6 +45,16 @@ class _Entity {
     centerOn(x, y) {
         const {x: cx, y: cy} = this.getCenter();
         this.move(x - cx, y - cy);
+        return this;
+    }
+
+    mute() {
+        this.muted = true;
+        return this;
+    }
+
+    unmute() {
+        this.muted = false;
         return this;
     }
 
@@ -110,7 +121,7 @@ class _Entity {
     }
 
     listen() {
-        if(!this._listenerAttached) {
+        if(!this._listenerAttached || this.muted) {
             return this;
         }
         // setup
@@ -787,15 +798,21 @@ const Mx = {
             return this;
         }
     
-        _getDrawn(canvasHandler) {
+	    _getDrawn(canvasHandler) {
             if(!this.hidden) {
-                this.forChild(c => c._getDrawn(canvasHandler))
+                this.forChild(c => {
+                    if(!c.hidden) {
+                        c._getDrawn(canvasHandler);
+                    }
+                });
             }
         }
 
         listen() {
-            this.forChildBackwards(c => c.listen());
-            super.listen();
+            if(!this.muted) {
+                this.forChildBackwards(c => c.listen());
+                super.listen();
+            }
             return this;
         }
 
@@ -2939,6 +2956,7 @@ const Mx = {
             this.vpY = options.vpY || undefined;
             this.vpScale = options.vpScale || undefined;
             this.hidden = options.hidden || false;
+            this.muted = options.muted || false;
             this.entities = options.entities || [];
         }
 
@@ -2998,6 +3016,16 @@ const Mx = {
             return this;
         }
 
+        mute() {
+            this.muted = true;
+            return this;
+        }
+
+        unmuted() {
+            this.muted = false;
+            return this;
+        }
+
         _isAnchored() {
             return (
                 this.vpX !== undefined ||
@@ -3038,7 +3066,7 @@ const Mx = {
         }
 
         handleListen(canvasHandler) {
-            if(this.hidden) {
+            if(this.hidden || this.muted) {
                 return this;
             }
             this._beforeHandle(canvasHandler);
