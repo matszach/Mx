@@ -3021,7 +3021,7 @@ const Mx = {
             return this;
         }
 
-        unmuted() {
+        unmute() {
             this.muted = false;
             return this;
         }
