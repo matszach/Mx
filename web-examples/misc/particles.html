@@ -14,7 +14,6 @@
             const {width, height} = this.handler.canvas;
             const circle = new Mx.Geo.Circle(width/2, 300, this.rng.float(5, 15), this.rng.rgba());
             circle.accelerate(this.rng.float(-20, 20), this.rng.float(-30, 0));
-            this.circles.push(circle);
             this.circles.forEach(c => {
                 c.accelerate(0, 1);
                 if (c.x + c.radius > width || c.x - c.radius < 0) {
@@ -28,6 +27,7 @@
                     }
                 }
             });
+            this.circles.push(circle);
             this.circles = this.circles.filter(c => !c.expired);
             this.handler.handles(this.circles);
         }
