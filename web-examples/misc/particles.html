@@ -29,7 +29,6 @@
                 }
             });
             this.circles = this.circles.filter(c => !c.expired);
-            this.handler.write(50, 50, this.circles.length, 'red');
             this.handler.handles(this.circles);
         }
     });
