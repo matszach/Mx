@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.22.0
+ * @version 0.23.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -26,6 +26,8 @@ class _Entity {
     constructor(x = 0, y = 0) {
         this.x = x;
         this.y = y;
+        this.vx = 0;
+        this.vy = 0;
         this.isMouseOver = false;
         this.isMouseDown = false;
         this.isMouseDrag = false;
@@ -40,6 +42,36 @@ class _Entity {
         this.onMouseDown = () => {};
         this.onMouseUp = () => {};
         this.onMouseDrag = () => {};
+        this.expired = false;
+    }
+
+    travel() {
+        return this.move(this.vx, this.vy);
+    }
+
+    accelerate(ax, ay) {
+        this.vx += ax;
+        this.vy += ay;
+        return this;
+    }
+
+    stop() {
+        this.vx = 0;
+        this.vy = 0;
+        return this;
+    }
+
+    capVelocity(maxX, maxY, minX = -maxX, minY = -maxY) {
+        if (this.vx > maxX) {
+            this.vx = maxX;
+        } else if (this.vx < minX) {
+            this.vx = minX;
+        } else if (this.vy > maxY) {
+            this.vy = maxY;
+        } else if (this.vy < minY) {
+            this.vy = minY;
+        }
+        return this;
     }
 
     centerOn(x, y) {
@@ -2231,6 +2263,8 @@ const Mx = {
                 for(let i = 0; i < entities.length; i++) {
                     const e = entities[i];
                     e.animate();
+                    e.update();
+                    e.travel();
                     this.draw(e);
                 }
                 for(let i = entities.length - 1; i >= 0; i--) {
@@ -2960,6 +2994,36 @@ const Mx = {
             this.entities = options.entities || [];
         }
 
+        cull() {
+            this.entities = this.entities.filter(e => !e.expired);
+            return this;
+        }
+
+        cullIfNthFrame(loop, n) {
+            if(loop.tickCount % n === 0) {
+                this.cull();
+            }
+            return this;
+        }
+
+        scaleToSize(handler, targetWidth = 800, targetHeight = 600) {
+            const {width, height} = handler.canvas;
+            const scale = Mat.min(width/targetWidth, height/targetHeight);
+            this.setViewportScale(scale);
+            return this;
+        }
+
+        center(hadler) {
+            this.align(hadler, 0.5, 0.5);
+            return this;
+        }
+
+        align(handler, xRatio = 0, yRatio = 0) {
+            const {width, height} = handler.canvas;
+            layer.setViewportPosition(width * xRatio, height * yRatio);
+            return this;
+        }
+
         moveViewport(x, y) {
             this.vpX = (this.vpX || 0) + x;
             this.vpY = (this.vpY || 0) + y;
@@ -3060,6 +3124,7 @@ const Mx = {
                 e.update();
                 canvasHandler.draw(e);
                 e.animate();
+                e.travel();
             }  
             this._afterHandle(canvasHandler);
             return this;
