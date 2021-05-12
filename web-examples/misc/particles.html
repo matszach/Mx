@@ -2,8 +2,6 @@
 <script src='./../../mx.js'></script>
 <script>
 
-
-
     Mx.Game.create().toView(class extends Mx.View {
         onCreate() {
             this.circles = [];
@@ -17,8 +15,21 @@
             const circle = new Mx.Geo.Circle(width/2, 300, this.rng.float(5, 15), this.rng.rgba());
             circle.accelerate(this.rng.float(-20, 20), this.rng.float(-30, 0));
             this.circles.push(circle);
-            this.circles.forEach(c => c.accelerate(0, 1));
-            this.cirlces = this.circles.filter(c => c.y > height + 100);
+            this.circles.forEach(c => {
+                c.accelerate(0, 1);
+                if (c.x > width || c.x < 0) {
+                    c.vx = -c.vx;
+                }
+                if (c.y > height) {
+                    if(this.rng.chance(0.5)) {
+                        c.vy = -c.vy;
+                    } else {
+                        c.expired = true;
+                    }
+                }
+            });
+            this.circles = this.circles.filter(c => !c.expired);
+            this.handler.write(50, 50, this.circles.length, 'red');
             this.handler.handles(this.circles);
         }
     });
