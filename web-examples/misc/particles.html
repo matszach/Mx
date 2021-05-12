@@ -18,11 +18,11 @@
             this.circles.forEach(c => {
                 c.accelerate(0, 1);
                 if (c.x > width || c.x < 0) {
-                    c.vx = -c.vx;
+                    c.vx = -c.vx * 0.99;
                 }
                 if (c.y > height) {
-                    if(this.rng.chance(0.25)) {
-                        c.vy = -c.vy;
+                    if(this.rng.chance(0.9)) {
+                        c.vy = -c.vy * 0.8;
                     } else {
                         c.expired = true;
                     }
