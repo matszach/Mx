@@ -2240,9 +2240,11 @@ const Mx = {
                 this._storedVpX = 0;
                 this._storedVpY = 0;
                 this._storedVpScale = 1;
+                this._storedAlpha = 1;
                 this.vpX = 0;
                 this.vpY = 0;
                 this.vpScale = 1;
+                this.alpha = 1;
                 this.isMouseOver = false;
                 this.isMouseDown = false;
                 this.isMouseDrag = false;
@@ -2289,6 +2291,7 @@ const Mx = {
                 this._storedVpX = this.vpX;
                 this._storedVpY = this.vpY;
                 this._storedVpScale = this.vpScale;
+                this._storedAlpha = this.alpha;
                 Mx.Input.update();
                 return this;
             }
@@ -2298,6 +2301,7 @@ const Mx = {
                 this.vpX = 0;
                 this.vpY = 0;
                 this.vpScale = 1;
+                this.alpha = 1;
                 Mx.Input.update();
                 return this;
             }
@@ -2306,14 +2310,21 @@ const Mx = {
                 this.context.resetTransform();
                 this.moveViewport(this._storedVpX, this._storedVpY);
                 this.scaleViewport(this._storedVpScale);
+                this.setAlpha(this._storedAlpha);
                 Mx.Input.update();
                 return this;
             }
+
+            restoreAlpha() {
+                this.setAlpha(this._storedAlpha);
+                return this;
+            }
             
-            setTransform(x = this.vpX, y = this.vpY, scale = this.vpScale) {
+            setTransform(x = this.vpX, y = this.vpY, scale = this.vpScale, alpha = this.alpha) {
                 this.resetTransform();
                 this.moveViewport(x, y);
                 this.scaleViewport(scale);
+                this.setAlpha(alpha);
                 Mx.Input.update();
                 return this;
             }
@@ -2427,6 +2438,12 @@ const Mx = {
                 this.vpScale *= scale;
                 this.context.scale(scale, scale);
                 Mx.Input.update();
+                return this;
+            }
+
+            setAlpha(alpha) {
+                this.alpha = alpha;
+                this.context.globalAlpha = alpha;
                 return this;
             }
 
@@ -2620,9 +2637,10 @@ const Mx = {
 
             // Text
             write(x, y, content, color = 'black', size = 12, font = 'Arial monospaced', rotation = 0, alpha = 1, align = 'start') {
+                const blendAlpha = this.context.globalAlpha;
                 this.context.save();
                 this.context.textAlign = align;
-                this.context.globalAlpha = alpha; // TODO change to accomodate layer alpha
+                this.context.globalAlpha = blendAlpha * alpha;
                 this.context.translate(x, y); 
                 this.context.rotate(rotation);
                 this._fillStyle(color);
@@ -2637,8 +2655,9 @@ const Mx = {
                 x, y, image, spriteX, spriteY, spriteWidth, spriteHeight, 
                 drawnWidth = spriteWidth, drawnHeight = spriteHeight, rotation = 0, alpha = 1, mirrored = false
             ) {
+                const blendAlpha = this.context.globalAlpha;
                 this.context.save();
-                this.context.globalAlpha = alpha; // TODO change to accomodate layer alpha
+                this.context.globalAlpha = blendAlpha * alpha;
                 this.context.translate(x, y);
                 this.context.rotate(rotation);
                 if(mirrored) {
@@ -2981,6 +3000,10 @@ const Mx = {
      */
     Layer: class {
 
+        static of(entities = []) {
+            return this.create({entities});
+        }
+
         static create(options = {}) {
             return new this(options);
         }
@@ -2989,6 +3012,7 @@ const Mx = {
             this.vpX = options.vpX || undefined;
             this.vpY = options.vpY || undefined;
             this.vpScale = options.vpScale || undefined;
+            this.alpha = options.alpha || undefined;
             this.hidden = options.hidden || false;
             this.muted = options.muted || false;
             this.entities = options.entities || [];
@@ -3105,6 +3129,7 @@ const Mx = {
                 canvasHandler.moveViewport(this.vpX || 0, this.vpY || 0);
                 canvasHandler.scaleViewport(this.vpScale || 1);
             }
+            canvasHandler.setAlpha(this.alpha || 1);
         }
 
         _afterHandle(canvasHandler) {
@@ -3112,6 +3137,7 @@ const Mx = {
                 canvasHandler.resetTransform();
                 canvasHandler.restoreTransform();
             }
+            canvasHandler.restoreAlpha();
         }
 
         handleDraw(canvasHandler) {

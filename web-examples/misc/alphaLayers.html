@@ -1,0 +1,29 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    Mx.Game.create({
+        onCreate() {
+            const sheet = Mx.SpriteSheet.create('./../../sprites.png', 64, 64, 0);
+            this.layer1 = Mx.Layer.of([
+                sheet.get(0, 0).place(100, 100),
+                sheet.get(0, 0).place(200, 100),
+                sheet.get(0, 0).place(300, 100),
+                Mx.Geo.Rectangle.create(70, 200, 300, 100, 'red')
+            ]);
+            this.layer1.alpha = 0.5;
+            this.layer2 = Mx.Layer.of([
+                sheet.get(1, 0).place(100, 250),
+                sheet.get(1, 0).place(200, 250),
+                sheet.get(1, 0).place(300, 250),
+                Mx.Geo.Rectangle.create(70, 50, 300, 100, 'blue')
+            ]);
+            this.layer2.alpha = 0.7;
+        },
+        onUpdate() {
+            this.handler.clear();
+            this.handler.handleLayers(this.layer1, this.layer2);
+        }
+    });
+
+</script>
