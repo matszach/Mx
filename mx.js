@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.23.0
+ * @version 0.23.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -3202,6 +3202,22 @@ const Mx = {
             this.loop = Mx.It.Loop.start(options.fps || 60, () => this._update());
             this.state = options.state || {};
             this.view;
+            this._createDefaultViewIfNeeded();
+        }
+
+        _createDefaultViewIfNeeded() {
+            const {onCreate, onResize, onUpdate} = this.options;
+            if(!!onCreate || !!onResize || !!onUpdate) {
+                const view = new Mx.View(this);
+                view.onCreate = onCreate || ((...args) => {});
+                view.onResize = onResize || ((...args) => {});
+                view.onUpdate = onUpdate || ((...args) => {});
+                view._create();
+                this.handler.clearListeners();
+                this.view = view;
+                this.handler.on('resize', () => this._refit());
+                this._refit()
+            }
         }
 
         _refit() {

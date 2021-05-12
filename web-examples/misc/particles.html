@@ -2,11 +2,11 @@
 <script src='./../../mx.js'></script>
 <script>
 
-    Mx.Game.create().toView(class extends Mx.View {
+    Mx.Game.create({
         onCreate() {
             this.circles = [];
             this.rng = Mx.Rng.create();
-        }
+        },
         onUpdate() {
             if(!this.input.isDown('Space')) {
                 this.handler.clear();
