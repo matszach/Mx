@@ -3,8 +3,8 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.23.1
- */
+ * @version 0.23.2
+ */s
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
  * Base classes extended / used within the library
@@ -716,11 +716,11 @@ class _CanvasHandlerPostProcessor {
         this.context.putImageData(imageData, 0, 0);
     }
 
-    generic(funct = (r, g, b, a) => [r, g, b, a]) {
+    generic(funct = (r, g, b, a, imgData, i) => [r, g, b, a]) {
         const imageData = this.context.getImageData(0, 0, this.canvas.width, this.canvas.height);
         const data = imageData.data;
         for(let i = 0; i < data.length; i += 4) {
-            const info = funct(data[i], data[i + 1], data[i + 2], data[i + 3]);
+            const info = funct(data[i], data[i + 1], data[i + 2], data[i + 3], data, i);
             data[i] = info[0];
             data[i + 1] = info[1];
             data[i + 2] = info[2];

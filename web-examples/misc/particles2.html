@@ -1,0 +1,47 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    Mx.Game.create({
+        onCreate() {
+            this.circles = [];
+            this.rng = Mx.Rng.create();
+        },
+        onResize() {
+            const {width, height} = this.handler.canvas;
+            for(let i = 0; i < 20; i++) {
+                const circle = new Mx.Geo.Circle(width/2, 300, this.rng.float(5, 15), this.rng.rgba());
+                circle.accelerate(this.rng.float(-30, 30), this.rng.float(-30, 30));
+                this.circles.push(circle);
+            }
+        },
+        onUpdate() {
+            if(!this.input.isDown('Space')) {
+                this.handler.clear();
+            } else {
+                for(let k = 0; k < 3; k++) {
+                    this.handler.post.generic((r, g, b, a, data, i) => {
+                        return [
+                            (r + data[i - 4] + data[i + 4])/3,
+                            (g + data[i - 3] + data[i + 5])/3,
+                            (b + data[i - 2] + data[i + 6])/3,
+                            (a + data[i - 1] + data[i + 7])/3,
+                        ]
+                    });
+                }
+                this.handler.post.pixelate(4, 4);
+            }
+            const {width, height} = this.handler.canvas;
+            this.circles.forEach(c => {
+                if (c.x + c.radius > width || c.x - c.radius < 0) {
+                    c.vx = -c.vx;
+                }
+                if (c.y + c.radius > height || c.y - c.radius < 0) {
+                    c.vy = -c.vy;
+                }
+            });
+            this.handler.handles(this.circles);
+        }
+    });
+
+</script>
