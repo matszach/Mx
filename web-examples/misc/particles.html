@@ -17,10 +17,10 @@
             this.circles.push(circle);
             this.circles.forEach(c => {
                 c.accelerate(0, 1);
-                if (c.x > width || c.x < 0) {
+                if (c.x + c.radius > width || c.x - c.radius < 0) {
                     c.vx = -c.vx * 0.99;
                 }
-                if (c.y > height) {
+                if (c.y + c.radius > height) {
                     if(this.rng.chance(0.9)) {
                         c.vy = -c.vy * 0.8;
                     } else {
