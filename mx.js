@@ -4,7 +4,7 @@
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
  * @version 0.23.2
- */s
+ */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
  * Base classes extended / used within the library
