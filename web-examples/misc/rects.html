@@ -1,0 +1,27 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    Mx.Game.create({
+        onCreate() {
+            this.cr1 = Mx.Draw.Color.rgba(255, 0, 0, 1);
+            this.cr2 = Mx.Draw.Color.rgba(255, 0, 0, 0.2);
+            this.cg1 = Mx.Draw.Color.rgba(0, 255, 0, 1);
+            this.cg2 = Mx.Draw.Color.rgba(0, 255, 0, 0.2);
+            this.cb1 = Mx.Draw.Color.rgba(0, 0, 255, 1);
+            this.cb2 = Mx.Draw.Color.rgba(0, 0, 255, 0.2);
+        },
+        onUpdate() {
+            const r1 = Mx.Geo.Rectangle.create(300, 300, 300, 300, this.cr2, this.cr1, 3);   
+            const {xInCanvas: x, yInCanvas: y} = this.input.mouse();         
+            const r2 = Mx.Geo.Rectangle.create(x - 100, y - 100, 200, 200, this.cb2, this.cb1, 3);      
+            this.handler.clear();
+            this.handler.draws(r1, r2);
+            const inter = Mx.Geo.Intersect.rectangles(r1, r2, this.cg2, this.cg1, 5);
+            if(inter.intersect) {
+                this.handler.draw(inter.rectangle);
+            }
+        }
+    });
+
+</script>

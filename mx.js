@@ -1059,12 +1059,7 @@ const Mx = {
         }
 
         isPointOver(x, y) {
-            // TODO probably move this elipsis equation to Math or Geo
-            const a = this.drawnWidth/2;
-            const b = this.drawnHeight/2;
-            const dx = this.x - x;
-            const dy = this.y - y;
-            return dx**2 / a**2 + dy**2 / b**2 < 1;
+            return this.getBoundingRectangle(x, y);
         }
 
         clone() {
@@ -1701,6 +1696,28 @@ const Mx = {
                     u: u
                 };
             },
+
+            rectangles(r1, r2, backgroundColor, borderColor, borderThickness) {
+                const xs = Math.max(r1.x, r2.x);
+                const ys = Math.max(r1.y, r2.y);
+                const xe = Math.min(r1.x + r1.width, r2.x + r2.width);
+                const ye = Math.min(r1.y + r1.height, r2.y + r2.height);
+                if(xe > xs && ye > ys) {
+                    const w = Math.abs(xs - xe);
+                    const h = Math.abs(ys - ye);
+                    return {
+                        intersect: true,
+                        rectangle: new Mx.Geo.Rectangle(xs, ys, w, h, backgroundColor,  borderColor, borderThickness)
+                    };
+                } else {
+                    return {
+                        intersect: false,
+                        rectangle: null
+                    };
+                }
+
+
+            }
 
         },
 
