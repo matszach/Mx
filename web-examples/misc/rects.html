@@ -11,14 +11,19 @@
             this.cb1 = Mx.Draw.Color.rgba(0, 0, 255, 1);
             this.cb2 = Mx.Draw.Color.rgba(0, 0, 255, 0.2);
         },
+        onResize() {
+            this.handler.scaleToSize(800, 600);
+            this.handler.center(0, 0);
+        },
         onUpdate() {
-            const r1 = Mx.Geo.Rectangle.create(300, 300, 300, 300, this.cr2, this.cr1, 3);  
+            const border = Mx.Geo.Rectangle.create(-395, -295, 790, 590, null, 'white', 1);  
+            const r1 = Mx.Geo.Rectangle.create(-150, -150, 300, 300, this.cr2, this.cr1, 3);  
             r1.setShadow(this.cr2, 5, 5, 5);
             const {xInCanvas: x, yInCanvas: y} = this.input.mouse();         
             const r2 = Mx.Geo.Rectangle.create(x - 100, y - 100, 200, 200, this.cb2, this.cb1, 3);  
             r2.setShadow(this.cb2, 5, 5, 5);    
             this.handler.clear();
-            this.handler.draws(r1, r2);
+            this.handler.draws(border, r1, r2);
             const inter = Mx.Geo.Intersect.rectangles(r1, r2, this.cg2, this.cg1, 5);
             if(inter.intersect) {
                 this.handler.draw(inter.rectangle);

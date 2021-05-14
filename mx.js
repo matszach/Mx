@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -2418,6 +2418,14 @@ const Mx = {
                 Mx.Input.update();
                 return this;
             }
+
+            scaleToSize(targetWidth = 800, targetHeight = 600) {
+                const {width, height} = this.canvas;
+                const scale = Math.min(width/targetWidth, height/targetHeight);
+                this.setViewportScale(scale);
+                return this;
+            }
+    
             
             on(event, callback = () => {}) {
                 this._listenerAttached = true;
@@ -2529,6 +2537,11 @@ const Mx = {
                 this.context.scale(scale, scale);
                 Mx.Input.update();
                 return this;
+            }
+
+            setViewportScale(scale) {
+                const rescale = scale/this.vpScale;
+                return this.scaleViewport(rescale);
             }
 
             setAlpha(alpha) {
@@ -3124,7 +3137,7 @@ const Mx = {
 
         scaleToSize(handler, targetWidth = 800, targetHeight = 600) {
             const {width, height} = handler.canvas;
-            const scale = Mat.min(width/targetWidth, height/targetHeight);
+            const scale = Math.min(width/targetWidth, height/targetHeight);
             this.setViewportScale(scale);
             return this;
         }
