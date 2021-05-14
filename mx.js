@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 0.24.0
+ * @version 1.0.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -43,6 +43,26 @@ class _Entity {
         this.onMouseUp = () => {};
         this.onMouseDrag = () => {};
         this.expired = false;
+        this.shadowColor = '#000000';
+        this.shadowBlur = 0;
+        this.shadowOffsetX = 0;
+        this.shadowOffsetY = 0;
+    }
+
+    setShadow(color = '#000000', blur = 0, offsetX = 0, offsetY = 0) {
+        this.shadowColor = color;
+        this.shadowBlur = blur;
+        this.shadowOffsetX = offsetX;
+        this.shadowOffsetY = offsetY;
+        return this;
+    }
+
+    resetShadow() {
+        this.shadowColor = '#000000';
+        this.shadowBlur = 0;
+        this.shadowOffsetX = 0;
+        this.shadowOffsetY = 0;
+        return this;
     }
 
     travel() {
@@ -2310,6 +2330,27 @@ const Mx = {
                 this.post = new _CanvasHandlerPostProcessor(this);
             }
 
+            setShadow(color = '#000000', blur = 0, offsetX = 0, offsetY = 0) {
+                this.context.shadowColor = color;
+                this.context.shadowBlur = blur;
+                this.context.shadowOffsetX = offsetX;
+                this.context.shadowOffsetY = offsetY;
+                return this;
+            }
+        
+            resetShadow() {
+                this.context.shadowColor = '#000000';
+                this.context.shadowBlur = 0;
+                this.context.shadowOffsetX = 0;
+                this.context.shadowOffsetY = 0;
+                return this;
+            }
+
+            disableShadow() {
+                this.setShadow = () => this;
+                this.resetShadow = () => this;
+            } 
+
             handles(entities) {
                 for(let i = 0; i < entities.length; i++) {
                     const e = entities[i];
@@ -2574,7 +2615,9 @@ const Mx = {
             // Mx.Entity
             draw(entity) {
                 if(!entity.hidden && entity._canBeDrawn(this)) {
+                    this.setShadow(entity.shadowColor, entity.shadowBlur, entity.shadowOffsetX, entity.shadowOffsetY);
                     entity._getDrawn(this);
+                    this.resetShadow();
                 }
                 return this
             }

@@ -12,9 +12,11 @@
             this.cb2 = Mx.Draw.Color.rgba(0, 0, 255, 0.2);
         },
         onUpdate() {
-            const r1 = Mx.Geo.Rectangle.create(300, 300, 300, 300, this.cr2, this.cr1, 3);   
+            const r1 = Mx.Geo.Rectangle.create(300, 300, 300, 300, this.cr2, this.cr1, 3);  
+            r1.setShadow(this.cr2, 5, 5, 5);
             const {xInCanvas: x, yInCanvas: y} = this.input.mouse();         
-            const r2 = Mx.Geo.Rectangle.create(x - 100, y - 100, 200, 200, this.cb2, this.cb1, 3);      
+            const r2 = Mx.Geo.Rectangle.create(x - 100, y - 100, 200, 200, this.cb2, this.cb1, 3);  
+            r2.setShadow(this.cb2, 5, 5, 5);    
             this.handler.clear();
             this.handler.draws(r1, r2);
             const inter = Mx.Geo.Intersect.rectangles(r1, r2, this.cg2, this.cg1, 5);
