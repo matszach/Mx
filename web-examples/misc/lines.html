@@ -1,0 +1,23 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    Mx.Game.create({
+        onCreate() {
+            this.lineA = Mx.Geo.Line.create(100, 100, 800, 800, 'red', 5);
+        },
+        onUpdate() {
+            this.lineA.rotate(0.01);
+            const {xInCanvas, yInCanvas} = this.input.mouse();
+            const lineB = Mx.Geo.Line.create(100, 300, xInCanvas, yInCanvas, 'blue', 5);
+            const point = Mx.Geo.Intersect.lines(this.lineA, lineB);
+            this.handler.clear();
+            this.handler.draws(this.lineA, lineB);
+            if(point.vertex) {
+                const circle = point.vertex.toCircle(10, point.intersect ? 'green' : 'yellow');
+                this.handler.draw(circle);
+            }
+        }
+    });
+
+</script>

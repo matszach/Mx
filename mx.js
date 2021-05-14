@@ -1676,6 +1676,34 @@ const Mx = {
             };
         },
 
+        Intersect: {
+
+            lines(s1, s2) {
+                let tNom = (s1.x1 - s2.x1) * (s2.y1 - s2.y2) - (s1.y1 - s2.y1) * (s2.x1 - s2.x2);
+                let uNom = - ((s1.x1 - s1.x2) * (s1.y1 - s2.y1) - (s1.y1 - s1.y2) * (s1.x1 - s2.x1));
+                let tDen = (s1.x1 - s1.x2) * (s2.y1 - s2.y2) - (s1.y1 - s1.y2) * (s2.x1 - s2.x2);
+                if(tDen === 0) { // -> lines are parallel
+                    return {
+                        parallel: true,
+                        vertex: null,
+                        intersect: false,
+                        t: null,
+                        u: null
+                    };
+                } 
+                let t = tNom/tDen;
+                let u = uNom/tDen;
+                return {
+                    parallel: false,
+                    vertex: new Mx.Geo.Vertex(s1.x1 + t * (s1.x2 - s1.x1), s1.y1 + t * (s1.y2 - s1.y1)),
+                    intersect: t > 0 && t < 1 && u > 0 && u < 1,
+                    t: t,
+                    u: u
+                };
+            },
+
+        },
+
         Distance: {
 
             simple(x1, y1, x2, y2) {
@@ -1722,6 +1750,10 @@ const Mx = {
                     r1.y + r1.height > r2.y &&
                     r1.y < r2.y + r2.height
                 );
+            },
+
+            lineVsLine(s1, s2) {
+                return Mx.Geo.Intersect(s1, s2).vertex !== null;
             }
 
         },
