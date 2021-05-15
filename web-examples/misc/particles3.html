@@ -8,6 +8,7 @@
             this.rng = Mx.Rng.create();
         },
         onResize() {
+            this.circles = [];
             const {width, height} = this.handler.canvas;
             for(let i = 0; i < 30; i++) {
                 const circle = new Mx.Geo.Circle(width/2, height/2, this.rng.float(2, 40), 'red');
