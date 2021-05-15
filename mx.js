@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.1.4
+ * @version 1.1.5
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -450,7 +450,7 @@ class _Animation {
 
     tick() {
         this.currentDuration ++;
-        if(this.currentDuration > this.maxDuration) {
+        if(this.currentDuration >= this.maxDuration) {
             this.finished = true;
         }
     }
@@ -1206,7 +1206,6 @@ const Mx = {
 
         },
 
-        // fixme slightly overshoots but works fine-ish
         MovePow: class extends _Animation {
 
             constructor(dx, dy, power = 2, maxDuration = 60) {
