@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.1.5
+ * @version 1.1.6
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1185,7 +1185,7 @@ const Mx = {
             onFrame(entity) {
                 entity.easeTo(this.targetX, this.targetY, this.ratio);
                 if(Math.abs(this.targetY - entity.y) < 0.1 && Math.abs(this.targetX - entity.x) < 0.1) {
-                    entity.place(this.targetX, this.targetY);
+                    entity.move(this.targetX - entity.x, this.targetY - entity.y);
                     this.finished = true;
                 }
             }

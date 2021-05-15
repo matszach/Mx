@@ -10,6 +10,7 @@
             this.handler.clear();
             const {xInCanvas: x, yInCanvas: y, justUpLeft: up} = this.input.mouse();
             if(up) {
+                this.circle.clearAnimations();
                 const animation = new Mx.Animations.MovePow(x - this.circle.x, y - this.circle.y, 2);
                 this.circle.addAnimation(animation);
             }
