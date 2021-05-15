@@ -1,0 +1,20 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    Mx.Game.create({
+        onCreate() {
+            this.circle = Mx.Geo.Circle.create(100, 100, 50, 'red');
+        },
+        onUpdate() {
+            this.handler.clear();
+            const {xInCanvas: x, yInCanvas: y, justUpLeft: up} = this.input.mouse();
+            if(up) {
+                const animation = new Mx.Animations.MovePow(x - this.circle.x, y - this.circle.y, 2);
+                this.circle.addAnimation(animation);
+            }
+            this.handler.handles([this.circle]);
+        }
+    });
+
+</script>

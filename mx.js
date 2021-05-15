@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.1.3
+ * @version 1.1.4
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1203,6 +1203,25 @@ const Mx = {
             onFrame(entity) {
                 entity.move(this.sx, this.sy);
             }
+
+        },
+
+        // fixme slightly overshoots but works fine-ish
+        MovePow: class extends _Animation {
+
+            constructor(dx, dy, power = 2, maxDuration = 60) {
+                super(maxDuration);
+                this.dx = dx;
+                this.dy = dy;
+                this.power = power;
+            }
+
+            onFrame(entity) {
+                const t1 = (this.currentDuration - 1)/this.maxDuration;
+                const t2 = this.currentDuration/this.maxDuration;
+                const fract = t2 ** this.power - t1 ** this.power;
+                entity.move(this.dx * fract, this.dy * fract);
+            } 
 
         }
 
