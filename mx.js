@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.1.6
+ * @version 1.1.7
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1206,7 +1206,7 @@ const Mx = {
 
         },
 
-        MovePow: class extends _Animation {
+        SmoothStart: class extends _Animation {
 
             constructor(dx, dy, power = 2, maxDuration = 60) {
                 super(maxDuration);
@@ -1219,6 +1219,42 @@ const Mx = {
                 const t1 = (this.currentDuration - 1)/this.maxDuration;
                 const t2 = this.currentDuration/this.maxDuration;
                 const fract = t2 ** this.power - t1 ** this.power;
+                entity.move(this.dx * fract, this.dy * fract);
+            } 
+
+        },
+
+        SmoothStop: class extends _Animation {
+
+            constructor(dx, dy, power = 2, maxDuration = 60) {
+                super(maxDuration);
+                this.dx = dx;
+                this.dy = dy;
+                this.power = power;
+            }
+
+            onFrame(entity) {
+                const t1 = (this.currentDuration - 1)/this.maxDuration;
+                const t2 = this.currentDuration/this.maxDuration;
+                const fract = (1 - t1) ** this.power - (1 - t2) ** this.power;
+                entity.move(this.dx * fract, this.dy * fract);
+            } 
+
+        },
+
+        Sin: class extends _Animation {
+
+            constructor(dx, dy, rad = Math.PI, maxDuration = 60) {
+                super(maxDuration);
+                this.dx = dx;
+                this.dy = dy;
+                this.rad = rad;
+            }
+
+            onFrame(entity) {
+                const t1 = (this.currentDuration - 1)/this.maxDuration;
+                const t2 = this.currentDuration/this.maxDuration;
+                const fract = Math.sin(t2 * this.rad) - Math.sin(t1 * this.rad)
                 entity.move(this.dx * fract, this.dy * fract);
             } 
 
