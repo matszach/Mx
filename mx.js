@@ -3437,7 +3437,7 @@ const Mx = {
             this.view;
             this._createDefaultViewIfNeeded();
         }
-        a
+        
         _createDefaultViewIfNeeded() {
             const {onCreate, onResize, onUpdate} = this.options;
             if(!!onCreate || !!onResize || !!onUpdate) {
