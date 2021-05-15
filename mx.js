@@ -1079,7 +1079,7 @@ const Mx = {
         }
 
         isPointOver(x, y) {
-            return this.getBoundingRectangle(x, y);
+            return this.getBoundingRectangle().isPointOver(x, y);
         }
 
         clone() {
@@ -1093,7 +1093,7 @@ const Mx = {
 
         getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
             return Mx.Geo.Rectangle.create(
-                this.x - this.drawnWidth/2 - padding, this.y - this.drawnHeight - padding,
+                this.x - this.drawnWidth/2 - padding, this.y - this.drawnHeight/2 - padding,
                 this.drawnWidth + padding * 2, this.drawnHeight + padding * 2,
                 backgroundColor, borderColor, borderThickness
             );
