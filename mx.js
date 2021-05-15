@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.1.1
+ * @version 1.1.2
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -3344,6 +3344,10 @@ const Mx = {
             // abstract
         }
 
+        _resize() {
+            this.onResize();
+        }
+
         _create() {
             this.onCreate();
         }
@@ -3372,7 +3376,7 @@ const Mx = {
             this.view;
             this._createDefaultViewIfNeeded();
         }
-
+        a
         _createDefaultViewIfNeeded() {
             const {onCreate, onResize, onUpdate} = this.options;
             if(!!onCreate || !!onResize || !!onUpdate) {
@@ -3390,7 +3394,7 @@ const Mx = {
 
         _refit() {
             if(!!this.view) {
-                this.view.onResize();
+                this.view._resize();
             }
         }
 
