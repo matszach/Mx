@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.1.7
+ * @version 1.1.8
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -258,6 +258,13 @@ class _Entity {
     addAnimation(animation) {
         animation.onStart(this);
         this.animations.push(animation);
+        return this;
+    }
+
+    addAnimations(animations) {
+        for(let a of animations) {
+            this.addAnimation(a);
+        }
         return this;
     }
 
@@ -1167,6 +1174,13 @@ const Mx = {
                 }
             }
 
+        },
+
+        combine(...animationInfo) {
+            return animationInfo.map(a => {
+                const [type, ...args] = a;
+                return Mx.Animations[type].create(...args)
+            });
         },
 
         Wait: class extends _Animation { 

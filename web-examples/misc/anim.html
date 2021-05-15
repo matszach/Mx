@@ -4,19 +4,19 @@
 
     Mx.Game.create({
         onCreate() {
-            this.circle = Mx.Geo.Circle.create(100, 100, 50, 'red').setShadow('red', 40);
+            this.rect = Mx.Geo.Rectangle.create(100, 100, 200, 200, 'blue').setShadow('blue', 100);
+            this.circle = Mx.Geo.Circle.create(100, 100, 50, 'red').setShadow('red', 100);
         },
         onUpdate() {
             this.handler.clear();
             const {xInCanvas: x, yInCanvas: y, justUpLeft: up} = this.input.mouse();
             if(up) {
-                this.circle.clearAnimations();
-                const animation1 = new Mx.Animations.Sin(x - this.circle.x, y - this.circle.y);
-                const animation2 = new Mx.Animations.SmoothStart(x - this.circle.x, y - this.circle.y, 2);
-                this.circle.addAnimation(animation1);
-                this.circle.addAnimation(animation2);
+                this.circle.clearAnimations().addAnimations(Mx.Animations.combine(
+                    ['Sin', x - this.circle.x, y - this.circle.y],
+                    ['SmoothStart', x - this.circle.x, y - this.circle.y, 2]
+                ));
             }
-            this.handler.handles([this.circle]);
+            this.handler.handles([this.rect, this.circle]);
         }
     });
 
