@@ -4,7 +4,6 @@
 
     Mx.Game.create({
         onCreate() {
-            this.rect = Mx.Geo.Rectangle.create(100, 100, 200, 200, 'blue').setShadow('blue', 100);
             this.circle = Mx.Geo.Circle.create(100, 100, 50, 'red').setShadow('red', 100);
         },
         onUpdate() {
@@ -16,7 +15,7 @@
                     ['SmoothStart', x - this.circle.x, y - this.circle.y, 2]
                 ));
             }
-            this.handler.handles([this.rect, this.circle]);
+            this.handler.handles([this.circle]);
         }
     });
 
