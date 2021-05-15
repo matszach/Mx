@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.1.0
+ * @version 1.1.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -313,6 +313,13 @@ class _Entity {
             backgroundColor, borderColor, borderThickness
         );
     }
+
+    getMovementVector(scale = 10, color = 'red', thickness = 1) {
+        const x2 = this.x + this.vx * scale;
+        const y2 = this.y + this.vy * scale;
+        return new Mx.Geo.Line(this.x, this.y, x2, y2, color, thickness);
+    }
+
 
     getCenter() {
         return new Mx.Geo.Vertex(this.x, this.y);
