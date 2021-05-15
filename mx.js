@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.0.2
+ * @version 1.1.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -47,6 +47,12 @@ class _Entity {
         this.shadowBlur = 0;
         this.shadowOffsetX = 0;
         this.shadowOffsetY = 0;
+        this.hitboxPadding = 0;
+    }
+
+    setHitboxPadding(padding = 0) {
+        this.hitboxPadding = padding;
+        return this;
     }
 
     setShadow(color = '#000000', blur = 0, offsetX = 0, offsetY = 0) {
@@ -293,7 +299,7 @@ class _Entity {
         // abstract
     }
 
-    getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+    getBoundingRectangle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
         return Mx.Geo.Rectangle.create(
             this.x - padding, this.y - padding, 
             padding * 2, padding * 2,
@@ -301,7 +307,7 @@ class _Entity {
         );     
     }
 
-    getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+    getBoundingCircle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
         return Mx.Geo.Circle.create(
             this.x, this.y, padding, 
             backgroundColor, borderColor, borderThickness
@@ -402,11 +408,11 @@ class _GuiComponent extends _Entity {
         return this.container.isPointOver(x, y); // should be overriden
     }
 
-    getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+    getBoundingRectangle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
         return this.container.getBoundingRectangle(padding, backgroundColor, borderColor, borderThickness); // should be overriden
     }
 
-    getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+    getBoundingCircle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
         return this.container.getBoundingCircle(padding, backgroundColor, borderColor, borderThickness); // should be overriden
     }
 
@@ -878,7 +884,7 @@ const Mx = {
             return this.getBoundingRectangle().isPointOver(x, y);
         }
 
-        getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+        getBoundingRectangle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
             const initialChildRect = this.children[0].getBoundingRectangle();
             let minX = initialChildRect.x;
             let minY = initialChildRect.y;
@@ -898,7 +904,7 @@ const Mx = {
             );
         }
     
-        getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+        getBoundingCircle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
             // FIXME this requires more work
             return this.getBoundingRectangle().getBoundingCircle(padding, backgroundColor, borderColor, borderThickness);
         }
@@ -1091,7 +1097,7 @@ const Mx = {
             );
         }
 
-        getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+        getBoundingRectangle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
             return Mx.Geo.Rectangle.create(
                 this.x - this.drawnWidth/2 - padding, this.y - this.drawnHeight/2 - padding,
                 this.drawnWidth + padding * 2, this.drawnHeight + padding * 2,
@@ -1099,7 +1105,7 @@ const Mx = {
             );
         }
     
-        getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+        getBoundingCircle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
             // TODO
         }
 
@@ -1791,6 +1797,30 @@ const Mx = {
 
             lineVsLine(s1, s2) {
                 return Mx.Geo.Intersect(s1, s2).vertex !== null;
+            },
+
+            massCircles(entities = [], onCollide = (e1, e2) => {}) {
+                for(let i = 0; i < entities.length; i++) {
+                    for(let j = i + 1; j < entities.length; j++) {
+                        const e1 = entities[i];
+                        const e2 = entities[j];
+                        if(Mx.Geo.Collision.circleVsCircle(e1.getBoundingCircle(), e2.getBoundingCircle())) {
+                            onCollide(e1, e2);
+                        }
+                    }
+                }
+            },
+
+            massRectangles(entities = [], onCollide = (e1, e2) => {}) {
+                for(let i = 0; i < entities.length; i++) {
+                    for(let j = i + 1; j < entities.length; j++) {
+                        const e1 = entities[i];
+                        const e2 = entities[j];
+                        if(Mx.Geo.Collision.rectangleVsRectangle(e1.getBoundingRectangle(), e2.getBoundingRectangle())) {
+                            onCollide(e1, e2);
+                        }
+                    }
+                }
             }
 
         },
@@ -1891,11 +1921,11 @@ const Mx = {
                 );
             }
 
-            getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+            getBoundingRectangle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
                 // TODO
             }
         
-            getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+            getBoundingCircle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
                 // TODO
             }
 
@@ -2010,7 +2040,7 @@ const Mx = {
                 );
             }
 
-            getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+            getBoundingRectangle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
                 let minX = this.verticesInfo[0][0];
                 let minY = this.verticesInfo[0][1];
                 let maxX = this.verticesInfo[0][0];
@@ -2028,7 +2058,7 @@ const Mx = {
                 );
             }
         
-            getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+            getBoundingCircle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
                 // FIXME this requires more work
                 return this.getBoundingRectangle().getBoundingCircle(padding, backgroundColor, borderColor, borderThickness);
             }
@@ -2109,11 +2139,11 @@ const Mx = {
                 );
             }
 
-            getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+            getBoundingRectangle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
                 return this.body.getBoundingRectangle(padding, backgroundColor, borderColor, borderThickness);
             }
         
-            getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+            getBoundingCircle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
                 return this.body.getBoundingCircle(padding, backgroundColor, borderColor, borderThickness);
             }
 
@@ -2178,7 +2208,7 @@ const Mx = {
                 );
             }
 
-            getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+            getBoundingRectangle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
                 return Mx.Geo.Rectangle.create(
                     this.x - padding, this.y - padding, 
                     this.width + 2 * padding, this.height + 2 * padding, 
@@ -2186,7 +2216,7 @@ const Mx = {
                 );
             }
         
-            getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+            getBoundingCircle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
                 const {x, y} = this.getCenter();
                 const r = Math.sqrt((x - this.x) ** 2 + (y - this.y) ** 2);
                 return Mx.Geo.Circle.create(
@@ -2240,7 +2270,7 @@ const Mx = {
                 // todo
             }
 
-            getBoundingRectangle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+            getBoundingRectangle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
                 return Mx.Geo.Rectangle.create(
                     this.x - this.radius - padding, this.y - this.radius - padding,
                     2 * (this.radius + padding), 2 * (this.radius + padding),
@@ -2248,7 +2278,7 @@ const Mx = {
                 );
             }
         
-            getBoundingCircle(padding = 0, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+            getBoundingCircle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
                 return Mx.Geo.Circle.create(
                     this.x, this.y, this.radius + padding, 
                     backgroundColor, borderColor, borderThickness

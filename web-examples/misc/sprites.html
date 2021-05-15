@@ -11,7 +11,7 @@
     const ring1 = new Mx.Ds.Ring(path);
     const sprite2 = sheet.get(2, 0).setDrawnSize(80).setAlpha(0.6);
     const ring2 = new Mx.Ds.Ring(path);
-    const sprite3 = sheet.get(3, 0).setDrawnSize(90, 150).setAlpha(0.5).place(200, 200).setShadow('red', 20, 0, 0)
+    const sprite3 = sheet.get(3, 0).setDrawnSize(90, 150).setAlpha(0.5).place(200, 200).setShadow('red', 20, 0, 0).setHitboxPadding(10);
     sprite3.on('over', () => sprite3.setAlpha(0.8)).on('out', () => sprite3.setAlpha(0.5));    
 
     const loop = Mx.It.Loop.start(60, loop => {
