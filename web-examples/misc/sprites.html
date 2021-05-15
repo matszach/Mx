@@ -13,13 +13,18 @@
     const ring2 = new Mx.Ds.Ring(path);
     const sprite3 = sheet.get(3, 0).setDrawnSize(90, 150).setAlpha(0.5).place(200, 200).setShadow('red', 20, 0, 0).setHitboxPadding(10);
     sprite3.on('over', () => sprite3.setAlpha(0.8)).on('out', () => sprite3.setAlpha(0.5));    
+    sprite3.setHitboxPadding(-5);
 
     const loop = Mx.It.Loop.start(60, loop => {
         handler.fill('black');
         sprite1.place(...ring1.next()).rotate(Math.PI/50);
         sprite2.place(...ring2.prev()).rotate(-Math.PI/75);
         sprite3.listen();
-        handler.draws(sprite1, sprite2, sprite3, sprite1.getBoundingRectangle(), sprite2.getBoundingRectangle(), sprite3.getBoundingRectangle());
+        handler.draws(
+            sprite1, sprite2, sprite3, 
+            sprite1.getBoundingRectangle(), sprite2.getBoundingRectangle(), sprite3.getBoundingRectangle(),
+            sprite1.getBoundingCircle(), sprite2.getBoundingCircle(), sprite3.getBoundingCircle()
+        );
         if(loop.tickCount % 60 === 0) {
             sprite3.flip();
         }

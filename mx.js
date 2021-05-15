@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.1.2
+ * @version 1.1.3
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1020,6 +1020,10 @@ const Mx = {
 
     Sprite: class extends _Entity {
 
+        static from(sheet, x = 0, y = 0) {
+            return sheet.get(x, y);
+        }
+
         constructor(
             sheet, 
             x, y, image, spriteWidth = 32, spriteHeight = 32, borderThickness = 0, 
@@ -1113,7 +1117,10 @@ const Mx = {
         }
     
         getBoundingCircle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
-            // TODO
+            return Mx.Geo.Circle.create(
+                this.x, this.y, Math.max(this.drawnHeight, this.drawnWidth)/2 + padding,
+                backgroundColor, borderColor, borderThickness
+            );
         }
 
     },
