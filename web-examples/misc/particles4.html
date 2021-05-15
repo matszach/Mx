@@ -1,0 +1,45 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    Mx.Game.create({
+        onCreate() {
+            this.circles = [];
+            this.rng = Mx.Rng.create();
+            this.d = 3;
+        },
+        onResize() {
+            this.circles = [];
+            const {width, height} = this.handler.canvas;
+            for(let i = 0; i < 200; i++) {
+                const circle = new Mx.Geo.Circle(
+                    this.rng.float(width/2 - 10, width/2 + 10), 
+                    this.rng.float(height/2 - 10, height/2 + 10), 
+                    this.rng.float(10, 40), this.rng.rgb()
+                );
+                this.circles.push(circle);
+            }
+        },
+        onUpdate() {
+            this.handler.clear();
+            Mx.Geo.Collision.massCircles(this.circles, (c1, c2) => {
+                if(c1.x > c2.x) {
+                    c1.x += this.d;
+                    c2.x -= this.d;
+                } else {
+                    c1.x -= this.d;
+                    c2.x += this.d;
+                }   
+                if(c1.y > c2.y) {
+                    c1.y += this.d;
+                    c2.y -= this.d;
+                } else {
+                    c1.y -= this.d;
+                    c2.y += this.d;
+                }
+            });
+            this.handler.handles(this.circles);
+        }
+    });
+
+</script>
