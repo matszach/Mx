@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.2.0
+ * @version 1.2.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -2435,12 +2435,19 @@ const Mx = {
                 );
             }
 
-            toLines() {
-                // todo
+            toLines(borderColor = this.borderColor, borderThickness = this.borderThickness) {
+                return [
+                    new Mx.Geo.Line(this.x1, this.y1, this.x2, this.y2, borderColor, borderThickness),
+                    new Mx.Geo.Line(this.x2, this.y2, this.x3, this.y3, borderColor, borderThickness),
+                    new Mx.Geo.Line(this.x3, this.y3, this.x1, this.y1, borderColor, borderThickness)
+                ];
             }
 
-            toPolygon() {
-                // todo
+            toPolygon(backgroundColor = this.backgroundColor, borderColor = this.borderColor, borderThickness = this.borderThickness) {
+                return new Mx.Geo.Polygon(
+                    [[this.x1, this.y1], [this.x2, this.y2], [this.x3, this.y3]],
+                    backgroundColor, borderColor, borderThickness
+                );
             }
 
             isPointOver(x, y) {
