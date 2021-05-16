@@ -3455,7 +3455,7 @@ const Mx = {
 
         align(handler, xRatio = 0, yRatio = 0) {
             const {width, height} = handler.canvas;
-            layer.setViewportPosition(width * xRatio, height * yRatio);
+            this.setViewportPosition(width * xRatio, height * yRatio);
             return this;
         }
 
@@ -3600,7 +3600,7 @@ const Mx = {
             this.loop = game.loop;
             this.input = game.input;
         }
-
+        
         onCreate() {
             // abstract
         }
