@@ -2254,6 +2254,7 @@ const Mx = {
                 return this.getBoundingRectangle().isPointOver(x, y);
             }
             
+            // still needs some work @see triangulation.html
             triangulate(backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
                 let vertices = this.toVertices();
                 const triangles = [];
