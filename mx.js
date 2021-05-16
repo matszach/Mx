@@ -2255,6 +2255,7 @@ const Mx = {
             }
             
             // still needs some work @see triangulation.html
+            // add more triangulation algorithms
             triangulate(backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
                 let vertices = this.toVertices();
                 const triangles = [];
