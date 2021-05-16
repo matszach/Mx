@@ -2584,7 +2584,7 @@ const Mx = {
                 return `hsl(${h}, ${s}%, ${l}%)`;
             },
 
-            hsla(h, s, l = 50, a= 1) {
+            hsla(h, s, l = 50, a = 1) {
                 return `hsla(${h}, ${s}%, ${l}%, ${a})`;
             }
 
