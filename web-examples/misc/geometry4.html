@@ -1,0 +1,24 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    Mx.Game.create({
+        onCreate() {
+            this.triangle1 = Mx.Geo.Triangle.create(100, 100, 150, 300, 300, 200, 'red');
+            this.triangle1.on('over', () => this.triangle1.backgroundColor = 'blue').on('out', () => this.triangle1.backgroundColor = 'red');
+            this.triangle2 = Mx.Geo.Triangle.create(400, 200, 350, 300, 600, 200, 'red');
+            this.triangle2.on('over', () => this.triangle2.backgroundColor = 'blue').on('out', () => this.triangle2.backgroundColor = 'red');
+            this.triangle3 = Mx.Geo.Triangle.create(200, 600, 150, 400, 500, 400, 'red');
+            this.triangle3.on('over', () => this.triangle3.backgroundColor = 'blue').on('out', () => this.triangle3.backgroundColor = 'red');
+        },
+        onUpdate() {
+            this.handler.clear();
+            this.handler.handles([
+                this.triangle1,
+                this.triangle2,
+                this.triangle3
+            ]);
+        }
+    });
+
+</script>

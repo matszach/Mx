@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.1.8
+ * @version 1.2.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -248,8 +248,9 @@ class _Entity {
 
     enableDrag() {
         return this.on('down', (mouse, e) => {
-            e._xDragHook = mouse.xInCanvas - e.x;
-            e._yDragHook = mouse.yInCanvas - e.y;
+            const {x, y} = e.getCenter();
+            e._xDragHook = mouse.xInCanvas - x;
+            e._yDragHook = mouse.yInCanvas - y;
         }).on('drag', (mouse, e) => {
             e.place(mouse.xInCanvas - e._xDragHook, mouse.yInCanvas - e._yDragHook);
         });
@@ -1878,7 +1879,7 @@ const Mx = {
             },
 
             lineVsLine(s1, s2) {
-                return Mx.Geo.Intersect(s1, s2).vertex !== null;
+                return Mx.Geo.Intersect.lines(s1, s2).intersect;
             },
 
             massCircles(entities = [], onCollide = (e1, e2) => {}) {
@@ -1958,7 +1959,12 @@ const Mx = {
             }
         
             
-            scale(scaleX = 1, scaleY = scaleX, xOrigin = this.x1, yOrigin = this.y1) {
+            scale(scaleX = 1, scaleY = scaleX, xOrigin, yOrigin) {
+                if(xOrigin === undefined || yOrigin === undefined) {
+                    const {x, y} = this.getCenter();
+                    xOrigin = x;
+                    yOrigin = y;
+                }
                 this.x1 = scaleX * (this.x1 - xOrigin) + xOrigin;
                 this.y1 = scaleY * (this.y1 - yOrigin) + yOrigin;
                 this.x2 = scaleX * (this.x2 - xOrigin) + xOrigin;
@@ -2003,12 +2009,27 @@ const Mx = {
                 );
             }
 
+            length() {
+                return Mx.Geo.Distance.simple(this.x1, this.y1, this.x2, this.y2);
+            }
+
             getBoundingRectangle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
-                // TODO
+                return Mx.Geo.Rectangle.create(
+                    Math.min(this.x1, this.x2) - padding,
+                    Math.min(this.y1, this.y2) - padding,
+                    Math.abs(this.x1 - this.x2) + 2 * padding,
+                    Math.abs(this.y1 - this.y2) + 2 * padding,
+                    backgroundColor, borderColor, borderThickness
+                );
             }
         
             getBoundingCircle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
-                // TODO
+                return Mx.Geo.Circle.create(
+                    (this.x1 + this.x2)/2,
+                    (this.y1 + this.y2)/2,
+                    this.length()/2,
+                    backgroundColor, borderColor, borderThickness
+                );
             }
 
         },
@@ -2232,6 +2253,10 @@ const Mx = {
             isPointOver(x, y) {
                 return this.getBoundingRectangle().isPointOver(x, y);
             }
+            
+            toTriangles() {
+                // TODO
+            }
 
         },
 
@@ -2305,6 +2330,151 @@ const Mx = {
                     x, y, r + padding, 
                     backgroundColor, borderColor, borderThickness
                 );
+            }
+
+        },
+
+        Triangle: class extends _Entity {
+
+            constructor(x1, y1, x2, y2, x3, y3, backgroundColor, borderColor, borderThickness) {
+                super(-1. -1);
+                this.x1 = x1;
+                this.y1 = y1;
+                this.x2 = x2;
+                this.y2 = y2;
+                this.x3 = x3;
+                this.y3 = y3;
+                this.backgroundColor = backgroundColor;
+                this.borderColor = borderColor;
+                this.borderThickness = borderThickness;
+            }
+
+            place(x, y) {
+                const {x: cx, y: cy} = this.getCenter();
+                const dx = x - cx;
+                const dy = y - cy;
+                this.x1 += dx;
+                this.y1 += dy;
+                this.x2 += dx;
+                this.y2 += dy;
+                this.x3 += dx;
+                this.y3 += dy;
+                return this;       
+            }
+        
+            move(x, y) {
+                this.x1 += x;
+                this.y1 += y;
+                this.x2 += x;
+                this.y2 += y;
+                this.x3 += x;
+                this.y3 += y;
+                return this;
+            }
+
+            easeTo(x, y, ratio = 0.1) {
+                const c = this.getCenter();
+                const dx = x - c.x;
+                const dy = y - c.y;
+                this.move(dx * ratio, dy * ratio);
+                return this;
+            }
+        
+            scale(scaleX = 1, scaleY = scaleX, xOrigin = this.x1, yOrigin = this.y1) {
+                this.x1 = scaleX * (this.x1 - xOrigin) + xOrigin;
+                this.y1 = scaleY * (this.y1 - yOrigin) + yOrigin;
+                this.x2 = scaleX * (this.x2 - xOrigin) + xOrigin;
+                this.y2 = scaleY * (this.y2 - yOrigin) + yOrigin;
+                this.x3 = scaleX * (this.x3 - xOrigin) + xOrigin;
+                this.y3 = scaleY * (this.y3 - yOrigin) + yOrigin;
+                return this;
+            }
+        
+            rotate(phi, xOrigin, yOrigin) {
+                if(xOrigin === undefined || yOrigin === undefined) {
+                    const {x, y} = this.getCenter();
+                    xOrigin = x;
+                    yOrigin = y;
+                }
+                const r1 = Mx.Geo.Distance.simple(xOrigin, yOrigin, this.x1, this.y1);
+                const pCrd1 = Mx.Geo.toPolar(this.x1 - xOrigin, this.y1 - yOrigin);
+                const cCrd1 = Mx.Geo.toCartesian(phi + pCrd1.phi, r1);
+                this.x1 = cCrd1.x + xOrigin;
+                this.y1 = cCrd1.y + yOrigin;
+                const r2 = Mx.Geo.Distance.simple(xOrigin, yOrigin, this.x2, this.y2);
+                const pCrd2 = Mx.Geo.toPolar(this.x2 - xOrigin, this.y2 - yOrigin);
+                const cCrd2 = Mx.Geo.toCartesian(phi + pCrd2.phi, r2);
+                this.x2 = cCrd2.x + xOrigin;
+                this.y2 = cCrd2.y + yOrigin;
+                const r3 = Mx.Geo.Distance.simple(xOrigin, yOrigin, this.x3, this.y3);
+                const pCrd3 = Mx.Geo.toPolar(this.x3 - xOrigin, this.y3 - yOrigin);
+                const cCrd3 = Mx.Geo.toCartesian(phi + pCrd3.phi, r3);
+                this.x3 = cCrd3.x + xOrigin;
+                this.y3 = cCrd3.y + yOrigin;
+                return this;
+            }
+        
+            _getDrawn(canvasHandler) {
+                canvasHandler.drawPolygon(
+                    [[this.x1, this.y1], [this.x2, this.y2], [this.x3, this.y3]],
+                    this.backgroundColor, this.borderColor, this.borderThickness
+                );
+            }
+
+            getCenter() {
+                return Mx.Geo.Vertex.create(
+                    (this.x1 + this.x2 + this.x3)/3,
+                    (this.y1 + this.y2 + this.y3)/3
+                );
+            }
+
+            clone() {
+                return Mx.Geo.Triangle.create(
+                    this.x1, this.y1, this.x2, this.y2, this.x3, this.y3,
+                    this.backgroundColor, this.borderColor, this.borderThickness
+                );
+            }
+
+            toLines() {
+                // todo
+            }
+
+            toPolygon() {
+                // todo
+            }
+
+            isPointOver(x, y) {
+                const s1 = new Mx.Geo.Line(x, y, this.x1, this.y1);
+                const s2 = new Mx.Geo.Line(x, y, this.x2, this.y2);
+                const s3 = new Mx.Geo.Line(x, y, this.x3, this.y3);
+                const s1_len = s1.length();
+                const s2_len = s2.length();
+                const s3_len = s3.length();
+                const edge12 = new Mx.Geo.Line(this.x1, this.y1, this.x2, this.y2);
+                const edge23 = new Mx.Geo.Line(this.x2, this.y2, this.x3, this.y3);
+                const edge31 = new Mx.Geo.Line(this.x3, this.y3, this.x1, this.y1);
+                const edge12_len = edge12.length();
+                const edge23_len = edge23.length();
+                const edge31_len = edge31.length();
+                if (
+                    (s1_len > edge12_len && s3_len > edge23_len) ||
+                    (s2_len > edge12_len && s3_len > edge31_len) ||
+                    (s1_len > edge31_len && s2_len > edge23_len) ||
+                    Mx.Geo.Collision.lineVsLine(s1, edge23) ||
+                    Mx.Geo.Collision.lineVsLine(s2, edge31) ||
+                    Mx.Geo.Collision.lineVsLine(s3, edge12)
+                ) {
+                    return false;
+                }
+                return true;
+            }
+
+            getBoundingRectangle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+                // todo
+            }
+        
+            getBoundingCircle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+                // todo
             }
 
         },
