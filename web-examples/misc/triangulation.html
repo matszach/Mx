@@ -8,24 +8,24 @@
                 [100, 200], [200, 100], [300, 100], [400, 200],
                 [400, 400], [300, 200], [200, 200], [100, 400]
             ], 'blue');
-            this.tgs1 = this.pg1.triangulate();
+            this.tgs1 = this.pg1.triangulate('rgba(255, 0, 0, 0.5)');
             this.pg2 = Mx.Geo.Polygon.create([
                 [500, 300], [650, 250], [700, 100], [750, 250], 
                 [900, 300], [750, 350], [700, 500], [650, 350]
             ], 'green');
-            this.tgs2 = this.pg2.triangulate();
+            this.tgs2 = this.pg2.triangulate('rgba(255, 0, 0, 0.5)');
             this.pg3 = Mx.Geo.Polygon.create([
                 [100, 600], [200, 550], [300, 600], [400, 550], [500, 600], [600, 550],
                 [600, 650], [500, 700], [400, 650], [300, 700], [200, 650], [100, 700]
             ], 'yellow');
-            this.tgs3 = this.pg3.triangulate();
+            this.tgs3 = this.pg3.triangulate('rgba(255, 0, 0, 0.5)');
             this.pg4 = Mx.Geo.Polygon.create([
                 [800, 1050], [800, 800], [1000, 800],
                 [1000, 850], [900, 850], [900, 900],
-                [1000, 900], [1000, 950], [900, 950],
+                [1000, 900], [1000, 950], [900, 950], 
                 [900, 1000], [1000, 1000], [1000, 1050]
             ], 'orange').move(-100, -250);
-            this.tgs4 = this.pg4.triangulate();
+            this.tgs4 = this.pg4.triangulate('rgba(255, 0, 0, 0.5)');
         },
         onUpdate() {
             this.handler.clear();
