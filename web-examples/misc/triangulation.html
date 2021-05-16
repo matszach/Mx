@@ -1,0 +1,19 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    Mx.Game.create({
+        onCreate() {
+            this.pg = Mx.Geo.Polygon.create([
+                [100, 200], [200, 100], [300, 100], [400, 200],
+                [400, 400], [300, 200], [200, 200], [100, 400]
+            ], 'blue');
+            this.tgs = this.pg.triangulate();
+        },
+        onUpdate() {
+            this.handler.clear();
+            this.handler.handles([this.pg, ...this.tgs]);
+        }
+    });
+
+</script>

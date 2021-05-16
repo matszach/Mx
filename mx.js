@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.2.2
+ * @version 1.2.3
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -2254,8 +2254,31 @@ const Mx = {
                 return this.getBoundingRectangle().isPointOver(x, y);
             }
             
-            toTriangles() {
-                // TODO
+            triangulate(backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
+                let vertices = this.toVertices();
+                const triangles = [];
+                const targetTrianglesNumber = vertices.length - 2;
+                let forward = true;
+                let indexForwards = 0;
+                let indexBackwards = vertices.length - 1;
+                while(triangles.length < targetTrianglesNumber) {
+                    let v1 = vertices[indexForwards];
+                    let v2 = vertices[indexBackwards];
+                    let v3;
+                    if(forward) {
+                        indexForwards++;
+                        v3 = vertices[indexForwards];
+                    } else {
+                        indexBackwards--;
+                        v3 = vertices[indexBackwards];
+                    }
+                    forward = !forward;
+                    triangles.push(new Mx.Geo.Triangle(
+                        v1.x, v1.y, v2.x, v2.y, v3.x, v3.y,
+                        backgroundColor, borderColor, borderThickness
+                    ));
+                }
+                return triangles;
             }
 
         },
@@ -3002,7 +3025,7 @@ const Mx = {
             }
 
             // Polygon
-            drawPolygon(vertices, fillColor = 'black', strokeColor = undefined, thickness = 1) {
+            drawPolygon(vertices, fillColor, strokeColor, thickness = 1) {
                 this._fillStyle(fillColor);
                 this._strokeStyle(strokeColor, thickness);
                 this.context.beginPath();
