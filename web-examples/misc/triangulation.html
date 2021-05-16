@@ -4,15 +4,29 @@
 
     Mx.Game.create({
         onCreate() {
-            this.pg = Mx.Geo.Polygon.create([
+            this.pg1 = Mx.Geo.Polygon.create([
                 [100, 200], [200, 100], [300, 100], [400, 200],
                 [400, 400], [300, 200], [200, 200], [100, 400]
             ], 'blue');
-            this.tgs = this.pg.triangulate();
+            this.tgs1 = this.pg1.triangulate();
+            this.pg2 = Mx.Geo.Polygon.create([
+                [500, 300], [650, 250], [700, 100], [750, 250], 
+                [900, 300], [750, 350], [700, 500], [650, 350]
+            ], 'green');
+            this.tgs2 = this.pg2.triangulate();
+            this.pg3 = Mx.Geo.Polygon.create([
+                [100, 600], [200, 550], [300, 600], [400, 550], [500, 600], [600, 550],
+                [600, 650], [500, 700], [400, 650], [300, 700], [200, 650], [100, 700]
+            ], 'yellow');
+            this.tgs3 = this.pg3.triangulate();
         },
         onUpdate() {
             this.handler.clear();
-            this.handler.handles([this.pg, ...this.tgs]);
+            this.handler.handles([
+                this.pg1, ...this.tgs1,
+                this.pg2, ...this.tgs2,
+                this.pg3, ...this.tgs3
+            ]);
         }
     });
 
