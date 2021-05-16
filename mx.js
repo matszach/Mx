@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.2.1
+ * @version 1.2.2
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -2443,6 +2443,14 @@ const Mx = {
                 ];
             }
 
+            toVertices() {
+                return [
+                    new Mx.Geo.Vertex(this.x1, this.y1),
+                    new Mx.Geo.Vertex(this.x2, this.y2),
+                    new Mx.Geo.Vertex(this.x3, this.y3)
+                ];
+            }
+
             toPolygon(backgroundColor = this.backgroundColor, borderColor = this.borderColor, borderThickness = this.borderThickness) {
                 return new Mx.Geo.Polygon(
                     [[this.x1, this.y1], [this.x2, this.y2], [this.x3, this.y3]],
@@ -2450,32 +2458,16 @@ const Mx = {
                 );
             }
 
+            // @see https://stackoverflow.com/questions/2049582/how-to-determine-if-a-point-is-in-a-2d-triangle
             isPointOver(x, y) {
-                const s1 = new Mx.Geo.Line(x, y, this.x1, this.y1);
-                const s2 = new Mx.Geo.Line(x, y, this.x2, this.y2);
-                const s3 = new Mx.Geo.Line(x, y, this.x3, this.y3);
-                const s1_len = s1.length();
-                const s2_len = s2.length();
-                const s3_len = s3.length();
-                const edge12 = new Mx.Geo.Line(this.x1, this.y1, this.x2, this.y2);
-                const edge23 = new Mx.Geo.Line(this.x2, this.y2, this.x3, this.y3);
-                const edge31 = new Mx.Geo.Line(this.x3, this.y3, this.x1, this.y1);
-                const edge12_len = edge12.length();
-                const edge23_len = edge23.length();
-                const edge31_len = edge31.length();
-                if (
-                    (s1_len > edge12_len && s3_len > edge23_len) ||
-                    (s2_len > edge12_len && s3_len > edge31_len) ||
-                    (s1_len > edge31_len && s2_len > edge23_len) ||
-                    Mx.Geo.Collision.lineVsLine(s1, edge23) ||
-                    Mx.Geo.Collision.lineVsLine(s2, edge31) ||
-                    Mx.Geo.Collision.lineVsLine(s3, edge12)
-                ) {
-                    return false;
-                }
-                return true;
+                const d1 = (x - this.x2) * (this.y1 - this.y2) - (this.x1 - this.x2) * (y - this.y2);
+                const d2 = (x - this.x3) * (this.y2 - this.y3) - (this.x2 - this.x3) * (y - this.y3);
+                const d3 = (x - this.x1) * (this.y3 - this.y1) - (this.x3 - this.x1) * (y - this.y1);
+                const neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+                const pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+                return !(neg && pos);
             }
-
+ 
             getBoundingRectangle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
                 // todo
             }
