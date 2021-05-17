@@ -69,6 +69,11 @@ class _Entity {
         return phi;
     }
 
+    directionToCursor() {
+        const {xInCanvas, yInCanvas} = Mx.Input.mouse();
+        return this.directionTo(xInCanvas, yInCanvas);
+    }
+
     expire() {
         this.expired = true;
         return this;

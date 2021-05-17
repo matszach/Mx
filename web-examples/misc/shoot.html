@@ -18,7 +18,7 @@
             if(KeyS) this.move(0, 3);
             if(KeyD) this.move(3, 0);
             if(mleft) {
-                const phi = this.directionTo(mx, my);
+                const phi = this.directionTo(mx, my); // this.directionToCursor();
                 const projectile = new Projectile(this.x, this.y).acceleratePolar(rng.float(phi - 0.2, phi + 0.2), rng.float(10, 12));
                 gamelayer.add(projectile);
             }
