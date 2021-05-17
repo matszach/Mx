@@ -1,0 +1,96 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    class Player extends Mx.Geo.Circle {
+
+        constructor(x, y, view) {
+            super(x, y, 10, 'red');
+            this.viewRef = view;
+        }
+
+        update() {
+            const {input, gamelayer, rng} = this.viewRef;
+            const {KeyW, KeyA, KeyS, KeyD} = input.keys();
+            const {xInCanvas: mx, yInCanvas: my, left: mleft} = input.mouse();
+            if(KeyW) this.move(0, -3);
+            if(KeyA) this.move(-3, 0);
+            if(KeyS) this.move(0, 3);
+            if(KeyD) this.move(3, 0);
+            if(mleft) {
+                const phi = this.directionTo(mx, my);
+                const projectile = new Projectile(this.x, this.y).acceleratePolar(rng.float(phi - 0.2, phi + 0.2), rng.float(10, 12));
+                gamelayer.add(projectile);
+
+                // const dx = mx - this.x;
+                // const dy = my - this.y;
+                // const {phi, r} = Mx.Geo.toPolar(dx, dy);
+                // const {x: vx, y: vy} = Mx.Geo.toCartesian(rng.float(phi - 0.2, phi + 0.2), rng.float(10, 12));
+                // const projectile = new Projectile(this.x, this.y).accelerate(vx, vy);
+                // gamelayer.add(projectile);
+            }
+        }
+
+    }
+
+    class Projectile extends Mx.Geo.Circle {
+
+        constructor(x, y, view) {
+            super(x, y, 3, 'blue');
+            this.viewRef = view;
+            this.durationLeft = 100;
+        }
+
+        update() {
+            if(this.durationLeft > 0) {
+                this.durationLeft--;
+                if(this.durationLeft === 0) {
+                    this.hide().expire();
+                }
+            }
+        }
+
+    }   
+
+
+    class Enemy extends Mx.Geo.Circle {
+
+        constructor(x, y, view) {
+            super(x, y, 8, 'green');
+            this.viewRef = view;
+        }
+
+        update() {
+            if(this.durationLeft > 0) {
+                this.durationLeft--;
+                if(this.durationLeft === 0) {
+                    this.hide().expire();
+                }
+            }
+        }
+    }
+
+    Mx.Game.create({
+        onCreate() {
+            this.rng = new Mx.Rng();
+            this.gamelayer = new Mx.Layer();
+            // player
+            this.player = new Player(0, 0, this);
+            this.gamelayer.add(this.player);
+        },
+        onResize() {
+           this.gamelayer.center(this.handler).scaleToSize(this.handler, 800, 600);
+        },
+        onUpdate() {
+            this.handler.clear();
+            if(this.input.isDown('Space')) {
+                this.gamelayer.pause();
+            } else {
+                this.gamelayer.unpause();
+            }
+            this.gamelayer.cullIfNthFrame(this.loop, 120);
+            this.handler.handleLayers(this.gamelayer);
+        }
+    });
+
+</script>

@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.2.3
+ * @version 1.3.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -50,6 +50,30 @@ class _Entity {
         this.hitboxPadding = 0;
     }
 
+    distanceTo(x, y) {
+        return Mx.Geo.Distance.simple(this.x, this.y, x, y);
+    }
+
+    directionTo(x, y) {
+        const dx = x - this.x;
+        const dy = y - this.y;
+        let phi; 
+        if(dx === 0) {
+            phi = dy > 0 ? Math.PI/2 : Math.PI/2 * 3;
+        } else {
+            phi = Math.atan(dy/dx);
+            if (dx < 0) {
+                phi += Math.PI;
+            }
+        }
+        return phi;
+    }
+
+    expire() {
+        this.expired = true;
+        return this;
+    }
+
     setHitboxPadding(padding = 0) {
         this.hitboxPadding = padding;
         return this;
@@ -78,6 +102,12 @@ class _Entity {
     accelerate(ax, ay) {
         this.vx += ax;
         this.vy += ay;
+        return this;
+    }
+
+    acceleratePolar(aphi, ar) {
+        const {x, y} = Mx.Geo.toCartesian(aphi, ar);
+        this.accelerate(x, y);
         return this;
     }
 
@@ -1760,7 +1790,7 @@ const Mx = {
         toPolar(x, y) {
             let phi; 
             if(x === 0) {
-                phi = y > 0 ? Math.PI/2 : Math.PI/2 * 3
+                phi = y > 0 ? Math.PI/2 : Math.PI/2 * 3;
             } else {
                 phi = Math.atan(y/x);
                 if (x < 0) {
@@ -3426,6 +3456,7 @@ const Mx = {
             this.alpha = options.alpha || undefined;
             this.hidden = options.hidden || false;
             this.muted = options.muted || false;
+            this.paused = options.paused || false;
             this.entities = options.entities || [];
         }
 
@@ -3515,6 +3546,16 @@ const Mx = {
             return this;
         }
 
+        pause() {
+            this.paused = true;
+            return this;
+        }
+
+        unpause() {
+            this.paused = false;
+            return this;
+        }
+
         mute() {
             this.muted = true;
             return this;
@@ -3558,11 +3599,17 @@ const Mx = {
             this._beforeHandle(canvasHandler);
             for(let i = 0; i < this.entities.length; i++) {
                 const e = this.entities[i];
-                e.update();
                 canvasHandler.draw(e);
-                e.animate();
-                e.travel();
+                
             }  
+            if(!this.paused) {
+                for(let i = 0; i < this.entities.length; i++) {
+                    const e = this.entities[i];
+                    e.update();
+                    e.animate();
+                    e.travel();     
+                }  
+            }
             this._afterHandle(canvasHandler);
             return this;
         }
