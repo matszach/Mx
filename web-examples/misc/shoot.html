@@ -21,13 +21,6 @@
                 const phi = this.directionTo(mx, my);
                 const projectile = new Projectile(this.x, this.y).acceleratePolar(rng.float(phi - 0.2, phi + 0.2), rng.float(10, 12));
                 gamelayer.add(projectile);
-
-                // const dx = mx - this.x;
-                // const dy = my - this.y;
-                // const {phi, r} = Mx.Geo.toPolar(dx, dy);
-                // const {x: vx, y: vy} = Mx.Geo.toCartesian(rng.float(phi - 0.2, phi + 0.2), rng.float(10, 12));
-                // const projectile = new Projectile(this.x, this.y).accelerate(vx, vy);
-                // gamelayer.add(projectile);
             }
         }
 
@@ -42,6 +35,7 @@
         }
 
         update() {
+            this.traction(0.99);
             if(this.durationLeft > 0) {
                 this.durationLeft--;
                 if(this.durationLeft === 0) {

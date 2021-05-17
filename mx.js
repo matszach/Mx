@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.3.0
+ * @version 1.3.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -108,6 +108,12 @@ class _Entity {
     acceleratePolar(aphi, ar) {
         const {x, y} = Mx.Geo.toCartesian(aphi, ar);
         this.accelerate(x, y);
+        return this;
+    }
+
+    traction(fraction = 0.99) {
+        this.vx *= fraction;
+        this.vy *= fraction;
         return this;
     }
 
