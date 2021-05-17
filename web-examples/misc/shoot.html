@@ -7,20 +7,29 @@
         constructor(x, y, view) {
             super(x, y, 10, 'red');
             this.viewRef = view;
+            this.id = 0;
+            this.hp = 100;
         }
 
         update() {
+            this.traction(0.99);
             const {input, gamelayer, rng} = this.viewRef;
             const {KeyW, KeyA, KeyS, KeyD} = input.keys();
-            const {xInCanvas: mx, yInCanvas: my, left: mleft} = input.mouse();
+            const {xInCanvas: mx, yInCanvas: my, left: mleft, right: mright} = input.mouse();
             if(KeyW) this.move(0, -3);
             if(KeyA) this.move(-3, 0);
             if(KeyS) this.move(0, 3);
             if(KeyD) this.move(3, 0);
             if(mleft) {
                 const phi = this.directionTo(mx, my); // this.directionToCursor();
-                const projectile = new Projectile(this.x, this.y).acceleratePolar(rng.float(phi - 0.2, phi + 0.2), rng.float(10, 12));
+                const projectile = new Projectile(this.x, this.y, this.viewRef).acceleratePolar(rng.float(phi - 0.2, phi + 0.2), rng.float(10, 12));
                 gamelayer.add(projectile);
+            }
+            if(mright && this.viewRef.loop.tickCount % 50 === 0) {
+                for(let phi = 0; phi < Math.PI * 2; phi += Math.PI * 0.05) {
+                    const projectile = new Projectile(this.x, this.y, this.viewRef).acceleratePolar(phi, rng.float(5, 6));
+                    gamelayer.add(projectile);
+                }
             }
         }
 
@@ -29,16 +38,16 @@
     class Projectile extends Mx.Geo.Circle {
 
         constructor(x, y, view) {
-            super(x, y, 3, 'blue');
+            super(x, y, view.rng.float(2, 4), 'blue');
             this.viewRef = view;
             this.durationLeft = 100;
+            this.id = 1;
         }
 
-        update() {
-            this.traction(0.99);
-            if(this.durationLeft > 0) {
+        update() {  
+            if(!this.expired) {
                 this.durationLeft--;
-                if(this.durationLeft === 0) {
+                if(this.durationLeft === 0 || this.x < -400 || this.y < -300 || this.x > 400 || this.y > 300) {
                     this.hide().expire();
                 }
             }
@@ -50,41 +59,77 @@
     class Enemy extends Mx.Geo.Circle {
 
         constructor(x, y, view) {
-            super(x, y, 8, 'green');
+            super(x, y, view.rng.float(4, 20), 'green');
             this.viewRef = view;
+            this.hp = 30;
+            this.id = 2;
         }
 
         update() {
-            if(this.durationLeft > 0) {
-                this.durationLeft--;
-                if(this.durationLeft === 0) {
+            if(!this.expired) {
+                if(this.hp < 1 || this.x < -400 || this.y < -300 || this.x > 400 || this.y > 300) {
                     this.hide().expire();
-                }
+                }                       
+                this.traction(0.99);       
+                const {x: px, y: py} = this.viewRef.player;
+                const phi = this.directionTo(px, py); // this.directionToCursor();
+                this.movePolar(phi, this.viewRef.monsterSpeed);
             }
-        }
+        }       
     }
 
-    Mx.Game.create({
+    class GameView extends Mx.View {
         onCreate() {
             this.rng = new Mx.Rng();
+            this.borderlayer = new Mx.Layer();
             this.gamelayer = new Mx.Layer();
-            // player
             this.player = new Player(0, 0, this);
             this.gamelayer.add(this.player);
-        },
+            this.border = new Mx.Geo.Rectangle(-400, -300, 800, 600, undefined, 'white', 2);
+            this.borderlayer.add(this.border);
+            this.monsterSpawnChance = 0.1;
+            this.monsterSpeed = 0.3;
+        }
         onResize() {
            this.gamelayer.center(this.handler).scaleToSize(this.handler, 800, 600);
-        },
+           this.borderlayer.center(this.handler).scaleToSize(this.handler, 800, 600);
+        }
         onUpdate() {
-            this.handler.clear();
+            this.monsterSpawnChance += 0.0001;
+            this.monsterSpeed += 0.0002;
             if(this.input.isDown('Space')) {
                 this.gamelayer.pause();
             } else {
                 this.gamelayer.unpause();
             }
+            if(this.rng.chance(this.monsterSpawnChance)) {
+                const mx = this.rng.sign() * this.rng.float(350, 400);
+                const my = this.rng.sign() * this.rng.float(250, 300);
+                const enemy = new Enemy(mx, my, this);
+                this.gamelayer.add(enemy);
+            }
+            Mx.Geo.Collision.massCircles(this.gamelayer.entities, (e1, e2) => {
+                if(e1.id === 2 && e2.id === 2) {
+                    const phi = e1.directionTo(e2.x, e2.y);
+                    e2.movePolar(phi, 0.2);
+                } else if(e1.id === 1 && e2.id === 2) {
+                    e2.hp--;
+                    const phi = e2.directionTo(this.player.x, this.player.y);
+                    e2.acceleratePolar(phi + Math.PI, 0.5);
+                } else if(e1.id === 2 && e2.id === 0) {
+                    e2.hp--;
+                }
+            });
             this.gamelayer.cullIfNthFrame(this.loop, 120);
-            this.handler.handleLayers(this.gamelayer);
+            this.handler.clear();
+            this.handler.handleLayers(this.borderlayer, this.gamelayer);
+            this.handler.write(this.handler.canvas.width/2, 100, `${this.player.hp}/100`, 'red', 50, 'Arial', 0, 1, 'center')
+            if(this.player.hp < 0) {
+                this.game.toView(GameView);
+            }
         }
-    });
+    }
+
+    Mx.Game.create().toView(GameView);
 
 </script>

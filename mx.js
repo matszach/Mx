@@ -1466,6 +1466,10 @@ const Mx = {
             return this._random() > 0.5;
         }
 
+        sign() {
+            return this.bool() ? 1 : -1;
+        }
+
         /**
          * Returns a random entry from a given array while using the weights array 
          * @param {Array<K>} options - possible values to choose from
@@ -1930,6 +1934,7 @@ const Mx = {
                         const e2 = entities[j];
                         if(Mx.Geo.Collision.circleVsCircle(e1.getBoundingCircle(), e2.getBoundingCircle())) {
                             onCollide(e1, e2);
+                            onCollide(e2, e1);
                         }
                     }
                 }
@@ -1942,6 +1947,7 @@ const Mx = {
                         const e2 = entities[j];
                         if(Mx.Geo.Collision.rectangleVsRectangle(e1.getBoundingRectangle(), e2.getBoundingRectangle())) {
                             onCollide(e1, e2);
+                            onCollide(e2, e1);
                         }
                     }
                 }
