@@ -1,0 +1,47 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    class GameEntity extends Mx.Container {
+
+        constructor(x, y, pcol, scol) {
+            super(x, y);
+            // entity construction
+            this.hitboxPadding = 10;
+            this.main = new Mx.Geo.Circle(x, y, 20, pcol).setShadow(scol, 40);
+            this.o1 = new Mx.Geo.Circle(x, y - 50, 5, scol).setShadow(pcol, 20);
+            this.o2 = new Mx.Geo.Circle(x + 50, y, 5, scol).setShadow(pcol, 20);
+            this.o3 = new Mx.Geo.Circle(x, y + 50, 5, scol).setShadow(pcol, 20);
+            this.o4 = new Mx.Geo.Circle(x - 50, y, 5, scol).setShadow(pcol, 20);
+            this.adds(this.main, this.o1, this.o2, this.o3, this.o4);
+        }        
+
+        getBoundingCircle() {
+            return this.main.getBoundingCircle(this.hitboxPadding);
+        }
+
+        update() {
+            this.o1.rotate(0.02, this.main.x, this.main.y);
+            this.o2.rotate(0.02, this.main.x, this.main.y);
+            this.o3.rotate(0.02, this.main.x, this.main.y);
+            this.o4.rotate(0.02, this.main.x, this.main.y);
+            const {xInCanvas: mx, yInCanvas: my} = Mx.Input.mouse();
+            this.easeTo(mx, my);
+        }
+
+    }
+
+    Mx.Game.create({
+        onCreate() {
+            this.ge = new GameEntity(100, 100, 'red', 'blue');
+        },
+        onResize() {
+          
+        },
+        onUpdate() {
+            this.handler.clear();
+            this.handler.handles([this.ge, this.ge.getBoundingCircle()]);
+        }
+    });
+
+</script>

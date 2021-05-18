@@ -79,6 +79,7 @@
     }
 
     class GameView extends Mx.View {
+
         onCreate() {
             this.rng = new Mx.Rng();
             this.borderlayer = new Mx.Layer();
@@ -90,10 +91,12 @@
             this.monsterSpawnChance = 0.1;
             this.monsterSpeed = 0.3;
         }
+
         onResize() {
            this.gamelayer.center(this.handler).scaleToSize(this.handler, 800, 600);
            this.borderlayer.center(this.handler).scaleToSize(this.handler, 800, 600);
         }
+
         onUpdate() {
             this.monsterSpawnChance += 0.0001;
             this.monsterSpeed += 0.0002;
@@ -128,6 +131,7 @@
                 this.game.toView(GameView);
             }
         }
+        
     }
 
     Mx.Game.create().toView(GameView);
