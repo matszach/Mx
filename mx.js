@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.3.2
+ * @version 1.3.3
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -976,6 +976,18 @@ const Mx = {
             x /= this.children.length;
             y /= this.children.length;
             return Mx.Geo.Vertex.create(x, y);
+        }
+
+        animate() {
+            this.forChild(c => c.animate());
+        }
+        
+        travel() {
+            this.forChild(c => c.travel());
+        }
+
+        update() {
+            this.forChild(c => c.update());
         }
     
     },
