@@ -1,0 +1,54 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+
+    class PlayerEntity extends Mx.Container {
+
+        constructor(x, y, spriteSheet) {
+            super(x, y);
+            this.hitcircle = new Mx.Geo.Circle(x, y, 32, undefined, 'red', 1); // .hide();
+            this.bottom = spriteSheet.get(0, 0).place(x, y).setShadow('black', 20);
+            this.top = spriteSheet.get(0, 1).place(x, y).setShadow('black', 20);
+            this.adds(this.bottom, this.top, this.hitcircle);
+            this.walkcounter = 0;
+        }        
+
+        getBoundingCircle() {
+            return this.hitcircle;
+        }
+
+        update() {
+            this.walkcounter++;
+            const wc = this.walkcounter % 60;
+            if (wc < 15) {
+                this.bottom.setFrame(0, 0);
+            } else if (wc < 30) {
+                this.bottom.setFrame(1, 0);
+            } else if (wc < 45) {
+                this.bottom.setFrame(0, 0);
+            } else {
+                this.bottom.setFrame(2, 0);
+            }
+            const dir = this.directionToCursor();
+            this.top.rotation = dir + Math.PI/2;
+        }
+
+    }
+
+    Mx.Game.create({
+        onCreate() {
+            // this.handler.setImageSmoothing(false);
+            this.playerSpriteSheet = new Mx.SpriteSheet('./../../player.png', 24 * 4, 24 * 4, 4);
+            this.player = new PlayerEntity(500, 500, this.playerSpriteSheet);
+        },
+        onResize() {
+          
+        },
+        onUpdate() {
+            this.handler.fill('white');
+            this.handler.handles([this.player]);
+        }
+    });
+
+</script>
