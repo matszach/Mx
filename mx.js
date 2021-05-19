@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games  with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.3.4
+ * @version 1.3.5
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -851,6 +851,18 @@ const Mx = {
             this.children = [];
         }
 
+        cull() {
+            this.entities = this.entities.filter(e => !e.expired);
+            return this;
+        }
+
+        cullIfNthFrame(loop, n) {
+            if(loop.tickCount % n === 0) {
+                this.cull();
+            }
+            return this;
+        }
+
         add(entity) {
             this.children.push(entity);
             const {x, y} = this.getCenter();
@@ -941,7 +953,7 @@ const Mx = {
         }
 
         getBoundingRectangle(padding = this.hitboxPadding, backgroundColor = undefined, borderColor = 'red', borderThickness = 1) {
-            const initialChildRect = (this.children[0] || new Mx.Geo.Rectangle(this.x, this.y, 0, 0)).getBoundingRectangle(); // TODO might need a revision
+            const initialChildRect = (this.children[0] || new Mx.Geo.Rectangle(this.x, this.y, 0, 0)).getBoundingRectangle();
             let minX = initialChildRect.x;
             let minY = initialChildRect.y;
             let maxX = initialChildRect.x + initialChildRect.width;
