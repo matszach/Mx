@@ -852,7 +852,7 @@ const Mx = {
         }
 
         cull() {
-            this.entities = this.entities.filter(e => !e.expired);
+            this.children = this.children.filter(e => !e.expired);
             return this;
         }
 
