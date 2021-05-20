@@ -1,0 +1,71 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    
+
+
+    function nb(table, x, y) {
+        let nbs = 0;
+        nbs += table.safeGet(x - 1, y - 1, 1);
+        nbs += table.safeGet(x, y - 1, 1);
+        nbs += table.safeGet(x + 1, y - 1, 1);
+        nbs += table.safeGet(x - 1, y, 1);
+        nbs += table.safeGet(x + 1, y, 1);
+        nbs += table.safeGet(x - 1, y + 1, 1);
+        nbs += table.safeGet(x, y + 1, 1);
+        nbs += table.safeGet(x + 1, y + 1, 1);
+        return nbs;
+    }
+    
+    function draw(handler, table) {
+        handler.clear();
+        handler.pix.initImageData(900, 900);
+        table.forEach((v, x, y) => { 
+            if(v === 1) {
+                handler.pix.putRectangle(x * 3, y * 3, 3, 3, 255, 255, 255);
+            } else {
+                handler.pix.putRectangle(x * 3, y * 3, 3, 3, 30, 30, 30);
+            }
+        });
+        handler.pix.displayImageData(0, 0);
+    }
+
+    function progress(oldTable) {
+        const newTable = new Mx.Ds.Array2D(300, 300);
+        newTable.map((v, x, y) => {
+            const nbs = nb(oldTable, x, y);
+            if(nbs >= 5) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+        return newTable;
+    }
+
+    function newTable() {
+        const rng = Mx.Rng.fromMathRandom();
+        const table = new Mx.Ds.Array2D(300, 300);
+        table.map((v, x, y) => rng.chance(0.65) ? 1 : 0);
+        return table;
+    }
+
+    Mx.Game.create({
+        onCreate() {
+            this.handler.pix.disableAlphaBlend();
+            this.table = newTable();
+        },
+        onUpdate() {
+            if(this.input.isJustUp('Enter')) {
+                this.table = newTable();
+                draw(this.handler, this.table);
+            }
+            if(this.input.isDown('Space') && this.loop.tickCount % 5 === 0) {
+                draw(this.handler, this.table);
+                this.table = progress(this.table);
+            }
+        }
+    });
+
+</script>
