@@ -1,0 +1,35 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    const attr = new Mx.Misc.Attribute(20, 10);
+
+    console.log(attr, attr.base, attr.bonus, attr.value);
+
+    const groupA = Mx.Misc.Attribute.group(
+        ['str', 20, 5],
+        ['agi', 30, 10],
+        ['int', 10]
+    );
+
+    console.log(groupA);
+
+    const res = new Mx.Misc.Resource(100);
+
+    console.log(res, res.has(99), res.has(101));
+
+    const groupR = Mx.Misc.Resource.group(
+        ['hp', 100],
+        ['ep', 100],
+        ['mp', 100]
+    );
+
+    console.log(groupR);
+
+    groupR.hp.deplete();
+    groupR.ep.alter(133, false).take(20);
+    groupR.mp.alter(80).take(30).give(14);
+
+    console.log(groupR);
+
+</script>

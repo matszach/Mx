@@ -1,0 +1,35 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    class MyEntity extends Mx.Misc.GameEntity {
+        
+        onCreate() {
+            this.c1 = new Mx.Geo.Circle(this.x, this.y, 20, 'blue');
+            this.add(this.c1);
+            this.c2 = new Mx.Geo.Circle(this.x, this.y, 30, undefined, 'red', 4);
+            this.add(this.c2);
+            this.c3 = new Mx.Geo.Circle(this.x, this.y, 40, undefined, 'yellow', 4);
+            this.add(this.c3);
+        }
+
+    }
+
+    Mx.Game.create({
+        onCreate() {
+            this.ge = new MyEntity(100, 100, {});
+        },
+        onResize() {
+          
+        },
+        onUpdate() {
+            this.ge.move(0.4, 0.4);
+            if(this.input.isJustUp('Space')) {
+                this.ge.destroy();
+            }
+            this.handler.clear();
+            this.handler.handles([this.ge]);
+        }
+    });
+
+</script>

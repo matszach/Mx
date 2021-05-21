@@ -1,9 +1,9 @@
 "use strict";
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
- * Collection of tools that can be used to create games  with JS and HTML5 canvas
+ * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.3.5
+ * @version 1.4.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -937,7 +937,9 @@ const Mx = {
         listen() {
             if(!this.muted) {
                 this.forChildBackwards(c => c.listen());
-                super.listen();
+                if(this._listenerAttached) {
+                    super.listen();
+                }
             }
             return this;
         }
@@ -3779,6 +3781,135 @@ const Mx = {
 
     }
 
+}
+
+/** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
+ * Extension script to Mx library
+ */
+Mx.Misc = {
+
+    GameEntity: class extends Mx.Container {
+
+        constructor(x = 0, y = 0, args = {}) {
+            super(x, y);
+            this.args = args;
+            this.onCreate();
+        }
+
+        destroy() {
+            this.hide();
+            this.expire();
+            this.onDestroy();
+        }
+
+        update() {
+            if(!this.expired) {
+                this.onUpdate();
+            }
+        }
+
+        onCreate() {
+            // abstract
+        }
+
+        onDestroy() {
+            // abstract
+        }
+
+        onUpdate() {
+            // abstract
+        }
+
+    },
+
+    Attribute: class {
+
+        static group(...attributes) {
+            const group = {};
+            for(let a of attributes) {
+                group[a[0]] = new Mx.Misc.Attribute(a[1], a[2]);
+            }
+            return group;
+        }
+
+        constructor(base = 0, bonus = 0) {
+            this.base = base;
+            this.bonus = bonus;
+        }
+
+        get value() {
+            return this.base + this.bonus;
+        } 
+
+        modify(modifier) {
+            this.bonus += modifier;
+        }
+
+    },
+
+    Resource: class {
+
+        static group(...resources) {
+            const group = {};
+            for(let r of resources) {
+                group[r[0]] = new Mx.Misc.Resource(r[1]);
+            }
+            return group;
+        }
+
+        constructor(max = 100) {
+            this.max = max;
+            this.curr = max;
+        }
+
+        has(n) {
+            return n >= this.curr;
+        }
+
+        fill() {
+            this.curr = this.max;
+            return this;
+        }
+
+        deplete() {
+            this.curr = 0;
+            return this;
+        }
+
+        depleted() {
+            return 0 >= this.curr;
+        }
+
+        take(n) {
+            this.curr -= n;
+            if(this.curr < 0) {
+                this.curr = 0;
+            }
+            return this;
+        }
+
+        give(n) {
+            this.curr += n;
+            if(this.curr > this.max) {
+                this.curr = this.max;
+            }
+            return this;
+        }
+
+        alter(newMax, keepRatio = true) {
+            const ratio = this.curr/this.max;
+            this.max = newMax;
+            if(keepRatio) {
+                this.curr = this.max * ratio;
+            }
+            if(this.curr > this.max) {
+                this.curr = this.max;
+            }
+            return this;
+        }
+
+    },
+    
 }
 
 // enabling node.js imports
