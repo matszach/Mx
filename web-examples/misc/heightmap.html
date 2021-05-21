@@ -1,0 +1,101 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    Mx.Game.create().toView(class extends Mx.View {
+
+        generateMap(n, initial, rand, randRatio) {
+            const size = 2**n + 1;
+            this.map = new Mx.Ds.Array2D(size, size).map(v => 0);
+            this.map.put(0, 0, this.rng.float(0, initial));
+            this.map.put(0, size - 1, this.rng.float(0, initial));
+            this.map.put(size - 1, 0, this.rng.float(0, initial));
+            this.map.put(size - 1, size - 1, this.rng.float(0, initial));
+            let diamondStepNow = false;
+            let i = (size - 1)/2;
+            while(i >= 1) {
+                console.log('i: ', i);
+                if(diamondStepNow) {
+                    let withOffsetNow = true;
+                    for(let x = 0; x < this.map.xSize; x += i) {
+                        for(let y = withOffsetNow ? i : 0; y < this.map.ySize; y += (2 * i)) {
+                            let count = 0;
+                            let total = 0;
+                            if(this.map.inRange(x, y - i)) {
+                                count++;
+                                total += this.map.safeGet(x, y - i, 0);
+                            }
+                            if(this.map.inRange(x + i, y)) {
+                                count++;
+                                total += this.map.safeGet(x + i, y, 0);
+                            }
+                            if(this.map.inRange(x, y + i)) {
+                                count++;
+                                total += this.map.safeGet(x, y + i, 0);
+                            }
+                            if(this.map.inRange(x + i, y)) {
+                                count++;
+                                total += this.map.safeGet(x + i, y, 0);
+                            }
+                            const v = Math.round(total/count + this.rng.float(-rand, rand));
+                            this.map.put(x, y, v);
+                        }
+                        withOffsetNow = !withOffsetNow;
+                    }
+                    i /= 2;
+                } else {
+                    for(let x = i; x < this.map.xSize - 1; x += (2 * i)) {
+                        for(let y = i; y < this.map.ySize - 1; y += (2 * i)) {
+                            let count = 0;
+                            let total = 0;
+                            if(this.map.inRange(x - i, y - i)) {
+                                count++;
+                                total += this.map.safeGet(x - i, y - i, 0);
+                            }
+                            if(this.map.inRange(x + i, y - i)) {
+                                count++;
+                                total += this.map.safeGet(x + i, y - i, 0);
+                            }
+                            if(this.map.inRange(x - i, y + i)) {
+                                count++;
+                                total += this.map.safeGet(x - i, y + i, 0);
+                            }
+                            if(this.map.inRange(x + i, y + i)) {
+                                count++;
+                                total += this.map.safeGet(x + i, y + i, 0);
+                            }
+                            const v = Math.round(total/count + this.rng.float(-rand, rand));
+                            this.map.put(x, y, v);
+                        } 
+                    }
+                    rand /= randRatio;
+                }
+                diamondStepNow = !diamondStepNow;
+            }
+
+            // this.map.map(v => this.rng.float(0, 255));
+
+        }
+
+        drawMap(fieldSize = 2, stepSize) {
+            this.handler.pix.initImageData(this.map.xSize * fieldSize, this.map.ySize * fieldSize);
+            this.map.forEach((v, x, y) => { 
+                const norm = Math.round(v/stepSize) * stepSize;
+                this.handler.pix.putRectangle(x * fieldSize, y * fieldSize, fieldSize, fieldSize, norm, 0, 0);
+            });
+            this.handler.pix.displayImageData(10, 10);
+        }
+
+        onCreate() {
+            this.rng = Mx.Rng.fromMathRandom();
+            this.generateMap(9, 200, 50, 1.5);
+        }
+
+        onUpdate() {
+            this.handler.clear();
+            this.drawMap(2, 20);
+        }
+
+    });
+
+</script>

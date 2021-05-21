@@ -3796,6 +3796,22 @@ Mx.Misc = {
             this.onCreate();
         }
 
+        createHitCircle(radius = 10) {
+            this.hitcircle = new Mx.Geo.Circle(this.x, this.y, radius, undefined, 'red', 1);
+            this.hitcircle.hide();
+            this.add(this.hitcircle);
+            this.getBoundingCircle = () => this.hitcircle;
+            return this.hitcircle;
+        }
+
+        createHitBox(width = 10, height = width) {
+            this.hitbox = new Mx.Geo.Rectangle(this.x - width/2, this.y - height/2, width, height, undefined, 'red', 1);
+            this.hitbox.hide();
+            this.add(this.hitbox);
+            this.getBoundingRectangle = () => this.hitbox;
+            return this.hitbox;
+        }
+
         destroy() {
             this.hide();
             this.expire();
