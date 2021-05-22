@@ -92,6 +92,9 @@
         }
 
         onUpdate() {
+            if(this.input.isJustUp('Space')) {
+                this.generateMap(9, 200, 50, 1.5);
+            }
             this.handler.clear();
             this.drawMap(2, 20);
         }
