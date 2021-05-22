@@ -4,13 +4,13 @@
 
     Mx.Game.create({
         onCreate() {
-            this.smooth = 1;
+            this.smooth = 0.6;
             this.rng = Mx.Rng.create();
             this.map = this.rng.diamondSquareSurface(8, 0, 1, 0.25, this.smooth);
         },
         onUpdate() {    
             if(this.input.isJustUp('Space')) {
-                this.smooth = 1;
+                this.smooth = 0.6;
                 this.rng = Mx.Rng.create();
                 this.map = this.rng.diamondSquareSurface(8, 0, 1, 0.25, this.smooth);
             } else if(this.input.isDown('KeyQ')) {
