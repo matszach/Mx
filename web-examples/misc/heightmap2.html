@@ -1,0 +1,36 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    Mx.Game.create({
+        onCreate() {
+            this.smooth = 1;
+            this.rng = Mx.Rng.create();
+            this.map = this.rng.diamondSquareSurface(8, 0, 1, 0.25, this.smooth);
+        },
+        onUpdate() {    
+            if(this.input.isJustUp('Space')) {
+                this.smooth = 1;
+                this.rng = Mx.Rng.create();
+                this.map = this.rng.diamondSquareSurface(8, 0, 1, 0.25, this.smooth);
+            } else if(this.input.isJustUp('KeyQ')) {
+                this.smooth -= 0.1;
+                this.rng.reset();
+                this.map = this.rng.diamondSquareSurface(8, 0, 1, 0.25, this.smooth);
+            } else if(this.input.isJustUp('KeyW')) {
+                this.smooth += 0.1;
+                this.rng.reset();
+                this.map = this.rng.diamondSquareSurface(8, 0, 1, 0.25, this.smooth);
+            }
+
+            this.handler.clear();
+            this.handler.pix.initImageData(this.map.xSize * 3, this.map.ySize * 3);
+            this.map.forEach((v, x, y) => { 
+                const norm = Math.round(v * 12) * 20;
+                this.handler.pix.putRectangle(x * 3, y * 3, 3, 3, norm, 0, 0);
+            });
+            this.handler.pix.displayImageData(10, 10);
+        }
+    });
+
+</script>

@@ -1402,6 +1402,11 @@ const Mx = {
             this.state = Mx.Rng._transformSeed(this.seed);
         }
 
+        reset() {
+            this.state = Mx.Rng._transformSeed(this.seed);
+            return this;
+        }
+
         reseed(seed) {
             this.seed = seed || this._generateRandomSeed();
             this.state = Mx.Rng._transformSeed(this.seed);
@@ -1480,20 +1485,10 @@ const Mx = {
             return choices;
         }
 
-
-        /**
-         * TODO
-         * @param {*} chance 
-         * @returns 
-         */
         chance(chance) {
             return this._random() < chance;
         }
 
-        /**
-         * TODO
-         * @returns 
-         */
         bool() {
             return this._random() > 0.5;
         }
@@ -1570,6 +1565,76 @@ const Mx = {
                 this.float(xMin, xMax),
                 this.float(yMin, yMax)
             );
+        }
+
+        diamondSquareSurface(n, min = 0, max = 1, step = max/4, smoothen = 0.75) {
+            const size = 2**n + 1;
+            const surface = new Mx.Ds.Array2D(size, size);
+            surface.put(0, 0, this.float(min, max));
+            surface.put(0, size - 1, this.float(min, max));
+            surface.put(size - 1, 0, this.float(min, max));
+            surface.put(size - 1, size - 1, this.float(min, max));
+            let diamondStepNow = false;
+            let i = (size - 1)/2;
+            while(i >= 1) {
+                if(diamondStepNow) {
+                    let withOffsetNow = true;
+                    for(let x = 0; x < surface.xSize; x += i) {
+                        for(let y = withOffsetNow ? i : 0; y < surface.ySize; y += (2 * i)) {
+                            let count = 0;
+                            let total = 0;
+                            if(surface.inRange(x, y - i)) {
+                                count++;
+                                total += surface.get(x, y - i);
+                            }
+                            if(surface.inRange(x + i, y)) {
+                                count++;
+                                total += surface.get(x + i, y);
+                            }
+                            if(surface.inRange(x, y + i)) {
+                                count++;
+                                total += surface.get(x, y + i);
+                            }
+                            if(surface.inRange(x + i, y)) {
+                                count++;
+                                total += surface.get(x + i, y);
+                            }
+                            const v = total/count + this.float(-step, step);
+                            surface.put(x, y, Mx.Math.clamp(v, min, max));
+                        }
+                        withOffsetNow = !withOffsetNow;
+                    }
+                    i /= 2;
+                } else {
+                    for(let x = i; x < surface.xSize - 1; x += (2 * i)) {
+                        for(let y = i; y < surface.ySize - 1; y += (2 * i)) {
+                            let count = 0;
+                            let total = 0;
+                            if(surface.inRange(x - i, y - i)) {
+                                count++;
+                                total += surface.get(x - i, y - i);
+                            }
+                            if(surface.inRange(x + i, y - i)) {
+                                count++;
+                                total += surface.get(x + i, y - i);
+                            }
+                            if(surface.inRange(x - i, y + i)) {
+                                count++;
+                                total += surface.get(x - i, y + i);
+                            }
+                            if(surface.inRange(x + i, y + i)) {
+                                count++;
+                                total += surface.get(x + i, y + i);
+                            }
+                            const v = total/count + this.float(-step, step);
+                            surface.put(x, y, Mx.Math.clamp(v, min, max));
+                        } 
+                    }
+                    step *= smoothen;
+                }
+                diamondStepNow = !diamondStepNow;
+            }
+            return surface;
         }
 
     },

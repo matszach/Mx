@@ -6,7 +6,7 @@
 
         generateMap(n, initial, rand, randRatio) {
             const size = 2**n + 1;
-            this.map = new Mx.Ds.Array2D(size, size).map(v => 0);
+            this.map = new Mx.Ds.Array2D(size, size);
             this.map.put(0, 0, this.rng.float(0, initial));
             this.map.put(0, size - 1, this.rng.float(0, initial));
             this.map.put(size - 1, 0, this.rng.float(0, initial));
@@ -23,19 +23,19 @@
                             let total = 0;
                             if(this.map.inRange(x, y - i)) {
                                 count++;
-                                total += this.map.safeGet(x, y - i, 0);
+                                total += this.map.get(x, y - i);
                             }
                             if(this.map.inRange(x + i, y)) {
                                 count++;
-                                total += this.map.safeGet(x + i, y, 0);
+                                total += this.map.get(x + i, y);
                             }
                             if(this.map.inRange(x, y + i)) {
                                 count++;
-                                total += this.map.safeGet(x, y + i, 0);
+                                total += this.map.get(x, y + i);
                             }
                             if(this.map.inRange(x + i, y)) {
                                 count++;
-                                total += this.map.safeGet(x + i, y, 0);
+                                total += this.map.get(x + i, y);
                             }
                             const v = Math.round(total/count + this.rng.float(-rand, rand));
                             this.map.put(x, y, v);
@@ -50,19 +50,19 @@
                             let total = 0;
                             if(this.map.inRange(x - i, y - i)) {
                                 count++;
-                                total += this.map.safeGet(x - i, y - i, 0);
+                                total += this.map.get(x - i, y - i);
                             }
                             if(this.map.inRange(x + i, y - i)) {
                                 count++;
-                                total += this.map.safeGet(x + i, y - i, 0);
+                                total += this.map.get(x + i, y - i);
                             }
                             if(this.map.inRange(x - i, y + i)) {
                                 count++;
-                                total += this.map.safeGet(x - i, y + i, 0);
+                                total += this.map.get(x - i, y + i);
                             }
                             if(this.map.inRange(x + i, y + i)) {
                                 count++;
-                                total += this.map.safeGet(x + i, y + i, 0);
+                                total += this.map.get(x + i, y + i);
                             }
                             const v = Math.round(total/count + this.rng.float(-rand, rand));
                             this.map.put(x, y, v);
