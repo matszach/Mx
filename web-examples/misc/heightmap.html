@@ -85,12 +85,12 @@
 
         onCreate() {
             this.rng = Mx.Rng.fromMathRandom();
-            this.generateMap(9, 200, 50, 1.5);
+            this.generateMap(9, 200, 50, 1.6);
         }
 
         onUpdate() {
             if(this.input.isJustUp('Space')) {
-                this.generateMap(9, 200, 50, 1.5);
+                this.generateMap(9, 200, 50, 1.6);
             }
             this.handler.clear();
             this.drawMap(2, 20);
