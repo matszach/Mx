@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.4.1
+ * @version 1.4.2
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -3744,7 +3744,12 @@ const Mx = {
         handle(canvasHandler) {
             this.handleDraw(canvasHandler);
             this.handleListen(canvasHandler);
+            this.update(canvasHandler);
             return this;
+        }
+
+        update(canvasHandler) {
+            // abstract
         }
 
 
