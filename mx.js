@@ -3769,8 +3769,8 @@ const Mx = {
             this.registeredLayers = [];
         }
 
-        registerLayer(anchorX, anchorY, width, height) {
-            const layer = new Mx.Layer();
+        registerLayer(anchorX, anchorY, width, height, layer) {
+            layer = layer || new Mx.Layer();
             this.registeredLayers.push([layer, anchorX, anchorY, width, height]);
             return layer;
         }
