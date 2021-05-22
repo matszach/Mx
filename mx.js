@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.4.2
+ * @version 1.5.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -3765,6 +3765,33 @@ const Mx = {
             this.handler = game.handler;
             this.loop = game.loop;
             this.input = game.input;
+            this.cullInterval = 60;
+            this.registeredLayers = [];
+        }
+
+        registerLayer(anchorX, anchorY, width, height) {
+            const layer = new Mx.Layer();
+            this.registeredLayers.push([layer, anchorX, anchorY, width, height]);
+            return layer;
+        }
+        
+        refitRegisteredLaters() {   
+            for(let r of this.registeredLayers) {
+                r[0].align(this.handler, r[1], r[2]);
+                r[0].scaleToSize(this.handler, r[3], r[4]);
+            }
+        }
+
+        handleRegisteredLayers() {
+            this.handler.handleLayers(...this.registeredLayers.map(r => r[0]));
+        }
+
+        cullLayers() {
+            if(this.loop.tickCount % this.cullInterval === 0) {
+                for(let r of this.registeredLayers) {
+                    r[0].cull();
+                }
+            }
         }
         
         onCreate() {
@@ -3780,6 +3807,7 @@ const Mx = {
         }
 
         _resize() {
+            this.refitRegisteredLaters();
             this.onResize();
         }
 
@@ -3788,6 +3816,8 @@ const Mx = {
         }
 
         _update() {
+            this.handleRegisteredLayers();
+            this.cullLayers();
             this.onUpdate();
         }
 

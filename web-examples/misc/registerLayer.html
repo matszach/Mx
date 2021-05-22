@@ -1,0 +1,18 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    Mx.Game.create({
+        onCreate() {
+            const myLayer = this.registerLayer(0.5, 0.5, 400, 300);
+            myLayer.add(new Mx.Geo.Circle(0, 0, 100, 'red'));
+        },
+        onResize() {
+
+        },
+        onUpdate() {    
+            
+        }
+    });
+
+</script>
