@@ -4,35 +4,50 @@
 
     Mx.Game.create({
         onCreate() {
+            this.gradation = 20;
             this.smooth = 0.6;
             this.rng = Mx.Rng.create();
             this.map = this.rng.diamondSquareSurface(8, 0, 1, 0.25, this.smooth);
         },
         onUpdate() {    
             if(this.input.isJustDown('Space')) {
+                this.gradation = 20;
                 this.smooth = 0.6;
                 this.rng = Mx.Rng.create();
                 this.map = this.rng.diamondSquareSurface(8, 0, 1, 0.25, this.smooth);
-            } else if(this.input.isDown('KeyQ')) {
+            }
+            if(this.input.isDown('KeyQ')) {
                 this.smooth -= 0.01;
                 this.rng.reset();
                 this.map = this.rng.diamondSquareSurface(8, 0, 1, 0.25, this.smooth);
-            } else if(this.input.isDown('KeyW')) {
+            }
+            if(this.input.isDown('KeyW')) {
                 this.smooth += 0.01;
                 this.rng.reset();
                 this.map = this.rng.diamondSquareSurface(8, 0, 1, 0.25, this.smooth);
+            } aq
+            if(this.input.isDown('KeyA')) {
+                if(this.gradation < 255) {
+                    this.gradation += 1;
+                } 
+            } 
+            if(this.input.isDown('KeyS')) {
+                if(this.gradation > 1) {
+                    this.gradation -= 1;
+                } 
             }
 
             this.handler.clear();
             this.handler.pix.initImageData(this.map.xSize * 3, this.map.ySize * 3);
             this.map.forEach((v, x, y) => { 
-                const norm = Math.round(v * 12) * 20;
+                const norm = Math.round(v * 255/this.gradation) * this.gradation;
                 this.handler.pix.putRectangle(x * 3, y * 3, 3, 3, norm, 0, 0);
             });
             this.handler.pix.displayImageData(10, 10);
 
             this.handler.write(20, 30, 'Space to reset', 'white');
-            this.handler.write(20, 50, 'Q/W to change smoothness', 'white');
+            this.handler.write(20, 50, `Q/W to change smoothness (${this.smooth.toFixed(2)})`, 'white');
+            this.handler.write(20, 70, `A/S to change gradation (${this.gradation})`, 'white');
         }
     });
 
