@@ -3765,7 +3765,6 @@ const Mx = {
             this.handler = game.handler;
             this.loop = game.loop;
             this.input = game.input;
-            this.cullInterval = 60;
             this.backgroundColor = 'black';
             this.shouldClearView = true;
             this.registeredLayers = [];
@@ -3786,14 +3785,6 @@ const Mx = {
 
         handleRegisteredLayers() {
             this.handler.handleLayers(...this.registeredLayers.map(r => r[0]));
-        }
-
-        cullLayers() {
-            if(this.loop.tickCount % this.cullInterval === 0) {
-                for(let r of this.registeredLayers) {
-                    r[0].cull();
-                }
-            }
         }
         
         onCreate() {
@@ -3822,7 +3813,6 @@ const Mx = {
                 this.handler.fill(this.backgroundColor);
             }
             this.handleRegisteredLayers();
-            this.cullLayers();
             this.onUpdate();
         }
 
