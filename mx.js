@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.5.1
+ * @version 1.5.2
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1202,6 +1202,24 @@ const Mx = {
                 this.x, this.y, Math.max(this.drawnHeight, this.drawnWidth)/2 + padding,
                 backgroundColor, borderColor, borderThickness
             );
+        }
+
+    },
+
+    SpriteSheetLoader: class {
+
+        constructor(path, spritesInfo, fileExtension = '.png') {
+            this.path = path;
+            this.fileExtension = fileExtension;
+            this.spritesInfo = spritesInfo;
+            this._loaded = {};
+            for(let s of spritesInfo) {
+                this._loaded[s[0]] = new Mx.SpriteSheet(`${this.path}${s[0]}${this.fileExtension}`, s[1], s[2], s[3], s[4]);
+            }
+        }
+
+        get(key) {
+            return this._loaded[key];
         }
 
     },
