@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.5.4
+ * @version 1.5.5
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -3920,6 +3920,7 @@ Mx.Misc = {
         constructor(x = 0, y = 0, args = {}) {
             super(x, y);
             this.args = args;
+            this.listen = Mx.Entity.prototype.listen;
             this.onCreate();
         }
 
