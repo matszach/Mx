@@ -3638,6 +3638,11 @@ const Mx = {
             return this;
         }
 
+        add2(element) {
+            this.entities.push(element);
+            return element;
+        }
+
         adds(elements) {
             for(let element of elements) {
                 this.entities.push(element);
