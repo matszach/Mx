@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.5.5
+ * @version 1.6.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -523,6 +523,20 @@ class _Animation {
 
 }
 
+class _ManualAnimation {
+
+    constructor(entity, onTick = frame => {}) {
+        this.entity = entity;
+        this.frame = 0;
+        this.onTick = onTick;
+    }
+
+    tick() {
+        this.frame++;
+        this.onTick(this.entity, this.frame);
+    }
+
+}
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
  * ImageDataManager submodule for CanvasHandler
@@ -1229,6 +1243,28 @@ const Mx = {
 
     },
 
+    ManualAnimations: {
+        
+        ManualAnimation: _ManualAnimation,
+
+        SpriteAnimation: class extends _ManualAnimation {
+            constructor(entity, sequenceInfo) {
+                const maxf = sequenceInfo[sequenceInfo.length - 1][0];
+                super(entity, (e, f) => {
+                    f %= maxf;
+                    for(let s of sequenceInfo) {
+                        if(f < s[0]) {
+                            e.setFrame(s[1], s[2]);
+                            break;
+                        }
+                    }
+                });
+            }
+        }
+
+    },
+
+
     /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
      * Animations
      */
@@ -1369,7 +1405,7 @@ const Mx = {
                 entity.move(this.dx * fract, this.dy * fract);
             } 
 
-        }
+        },
 
 
     },
@@ -4055,6 +4091,63 @@ Mx.Misc = {
         }
 
     },
+
+    Timer: class {
+
+        static group(...names) {
+            const group = {};
+            for(let n of names) {
+                group[n] = new Timer();
+            }
+            return group;
+        }
+    
+        constructor() {
+            this.i = 0;
+        }
+    
+        tick() {
+            this.i++;
+            return this;
+        }
+    
+        every(n) {
+            this.tick();
+            if(this.i % n === 0) {
+                return true;
+            }
+            return false;
+        }
+    
+    },
+
+    Repository: class {
+
+        constructor(cols = [], ...entries) {
+            this.cols = cols;
+            this.entries = [];
+            for(let e of entries) {
+                this.add(e);
+            }
+        }
+    
+        add(entry) {
+            const obj = {};
+            for(let i = 0; i < this.cols.length; i++) {
+                obj[this.cols[i]] = entry[i];
+            }
+            this.entries.push(obj);
+        }
+    
+        find(key, value) {
+            for(let e of this.entries) {
+                if(e[key] === value) {
+                    return e;
+                }
+            }
+        }
+    
+    } 
     
 }
 
