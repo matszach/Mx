@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.6.3
+ * @version 1.6.4
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -2497,6 +2497,10 @@ const Mx = {
                 this.backgroundColor = backgroundColor;
                 this.borderColor = borderColor;
                 this.borderThickness = borderThickness;
+            }
+
+            static centered(x, y, width, height, backgroundColor, borderColor, borderThickness) {
+                return new Mx.Geo.Rectangle(x - width/2, y - height/2, width, height, backgroundColor, borderColor, borderThickness);
             }
 
             scale(scaleX = 1, scaleY = scaleX, xOrigin = this.x, yOrigin = this.y) {
