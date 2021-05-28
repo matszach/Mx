@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.6.2
+ * @version 1.6.3
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -3983,6 +3983,11 @@ Mx.Misc = {
             this.args = args;
             this.listen = Mx.Entity.prototype.listen;
             this.onCreate();
+        }
+
+        add(entity) {
+            this.children.push(entity);
+            return this;
         }
 
         createHitCircle(radius = 10, color = 'red') {
