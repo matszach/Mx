@@ -3635,8 +3635,8 @@ const Mx = {
 
         centerOn(handler, entity) {
             this.setViewportPosition(
-                handler.width/2 - entity.x * this.vpScale,
-                handler.height/2 - entity.y * this.vpScale,
+                handler.canvas.width/2 - entity.x * this.vpScale,
+                handler.canvas.height/2 - entity.y * this.vpScale,
             );
         }
 
