@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.6.1
+ * @version 1.6.2
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -3291,7 +3291,11 @@ const Mx = {
 
             handleLayers(...layers) {
                 for(let i = 0; i < layers.length; i++) {
-                    layers[i].handleDraw(this);
+                    const layer = layers[i];
+                    if(!!layer._followedEntity) {
+                        layer.centerOn(this, layer._followedEntity);
+                    }
+                    layer.handleDraw(this);
                 } 
                 for(let i = layers.length - 1; i >= 0; i--) {
                     layers[i].handleListen(this);
@@ -3631,6 +3635,17 @@ const Mx = {
             this.muted = options.muted || false;
             this.paused = options.paused || false;
             this.entities = options.entities || [];
+            this._followedEntity = null;
+        }
+
+        startFollow(entity) {
+            this._followedEntity = entity;
+            return this;
+        }
+
+        stopFollow() {
+            this._followedEntity = null;
+            return this;
         }
 
         centerOn(handler, entity) {
@@ -3855,6 +3870,9 @@ const Mx = {
             for(let r of this.registeredLayers) {
                 r[0].align(this.handler, r[1], r[2]);
                 r[0].scaleToSize(this.handler, r[3], r[4]);
+                if(!!r._followedEntity) {
+                    r.centerOn(this.handler, r._followedEntity);
+                }
             }
         }
 
