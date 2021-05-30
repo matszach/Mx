@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.6.4
+ * @version 1.7.0
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -102,6 +102,11 @@ class _Entity {
 
     travel() {
         return this.move(this.vx, this.vy);
+    }
+
+    disableVelocity() {
+        this.travel = () => {};
+        return this;
     }
 
     accelerate(ax, ay) {
@@ -1092,6 +1097,105 @@ const Mx = {
 
     },
 
+    TileMap: class extends _Entity {
+
+        constructor(x, y, mapWidth, mapHeight = mapWidth, tileWidth = 64, tileHeight = tileWidth) {
+            super(x, y);
+            this.mapWidth = mapWidth;
+            this.mapHeight = mapHeight;
+            this.map = new Mx.Ds.Array2D(mapWidth, mapHeight);
+            this.tileWidth = tileWidth;
+            this.tileHeight = tileHeight;
+            this.sliceX = 0;
+            this.sliceY = 0;
+            this.sliceWidth = 30;
+            this.slicHeight = 20;
+        }
+
+        slice(x, y, width, height) {
+            this.sliceX = x;
+            this.sliceY = y;
+            this.sliceWidth = width;
+            this.slicHeight = height;
+            return this;
+        }
+        
+        sliceAround(x, y, width, height) {
+            this.sliceX = Math.floor(x - width/2);
+            this.sliceY = Math.floor(y - height/2);
+            this.sliceWidth = width;
+            this.slicHeight = height;
+            return this;
+        }
+
+        getBoundingRectangle() {
+            return new Mx.Geo.Rectangle(
+                this.x - this.tileWidth/2, this.y - this.tileHeight/2,
+                this.mapWidth * this.tileWidth, this.mapHeight * this.tileHeight
+            );
+        }
+
+        isPointOver(x, y) {
+            return this.getBoundingRectangle().isPointOver(x, y);
+        }
+
+        put(x, y, entity) {
+            entity.place(this.x + x * this.tileWidth, this.y + y * this.tileHeight);
+            this.map.put(x, y, entity);
+            return this;
+        }
+
+        _getDrawn(canvasHandler) {
+            this.map.slice(
+                this.sliceX, this.sliceY, this.sliceWidth, this.slicHeight,
+                e => e?._getDrawn(canvasHandler)
+            );
+        }
+
+        listen() {
+            this.map.slice(
+                this.sliceX, this.sliceY, this.sliceWidth, this.slicHeight,
+                e => e?.listen()
+            );
+        }
+
+        animate() {
+            this.map.slice(
+                this.sliceX, this.sliceY, this.sliceWidth, this.slicHeight,
+                e => e?.animate()
+            );
+        }
+
+        travel() {
+            // not required
+        }
+
+        move(x, y) {
+            super.move(x, y);
+            this.map.forEach(e => e?.move(x, y));
+        }
+
+        place(x, y) {
+            super.place(x, y);
+            this.map.forEach((e, px, py) => {
+                e?.place(x + px * this.tileWidth, y + py * this.tileHeight);
+            });
+        }
+
+        moveByTiles(x, y) {
+            const mx = x * this.tileWidth;
+            const my = y * this.tileHeight;
+            this.move(mx, my);
+        }
+
+        placeByTiles(x, y) {
+            const mx = x * this.tileWidth;
+            const my = y * this.tileHeight;
+            this.place(mx, my);
+        }
+
+    },
+
     /** ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
      * Sprite sheet (~Sprite entity factory) / Spirte 
      */
@@ -1875,6 +1979,15 @@ const Mx = {
             forEach(callback = (v, x, y) => {}) {
                 for(let x = 0; x < this.xSize; x++) {
                     for(let y = 0; y < this.ySize; y++) {
+                        callback(this.get(x, y), x, y);
+                    }
+                }
+                return this;
+            }
+
+            slice(xs, ys, width, height, callback = (v, x, y) => {}) {
+                for(let x = xs; x < xs + width; x++) {
+                    for(let y = ys; y < ys + height; y++) {
                         callback(this.get(x, y), x, y);
                     }
                 }
@@ -3911,6 +4024,10 @@ const Mx = {
             }
             this.handleRegisteredLayers();
             this.onUpdate();
+        }
+
+        debug() {
+            this.handler.displayDebugInfo(this.input);
         }
 
     },
