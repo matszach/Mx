@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.7.0
+ * @version 1.7.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1120,11 +1120,11 @@ const Mx = {
             return this;
         }
         
-        sliceAround(x, y, width, height) {
-            this.sliceX = Math.floor(x - width/2);
-            this.sliceY = Math.floor(y - height/2);
-            this.sliceWidth = width;
-            this.slicHeight = height;
+        sliceAround(entity, width, height) {
+            this.sliceX = Math.floor(entity.x/this.tileWidth - width/2);
+            this.sliceY = Math.floor(entity.y/this.tileHeight - height/2);
+            this.sliceWidth = width + 1;
+            this.slicHeight = height + 1;
             return this;
         }
 
@@ -4028,6 +4028,21 @@ const Mx = {
 
         debug() {
             this.handler.displayDebugInfo(this.input);
+        }
+
+        wasd(entity, speed = 5) {
+            if(this.input.isDown('KeyW')) {
+                entity.move(0, -speed);
+            }
+            if(this.input.isDown('KeyA')) {
+                entity.move(-speed, 0);
+            }
+            if(this.input.isDown('KeyS')) {
+                entity.move(0, speed);
+            }
+            if(this.input.isDown('KeyD')) {
+                entity.move(speed, 0);
+            }
         }
 
     },

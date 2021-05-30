@@ -12,11 +12,13 @@
                     this.tilemap.put(x, y, this.sheet.get(x % 6, y % 5));        
                 }
             }
-            this.tilemap.moveByTiles(-15, -15);
-            this.tilemap.sliceAround(15, 15, 40, 30);
+            this.player = this.mainLayer.add2(new Mx.Geo.Circle(0, 0, 30, 'red'));
+            this.mainLayer.startFollow(this.player);
         },
         onUpdate() {    
             this.debug();
+            this.wasd(this.player);
+            this.tilemap.sliceAround(this.player, 30, 20);
         }
     });
 
