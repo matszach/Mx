@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.7.2
+ * @version 1.7.3
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1143,6 +1143,16 @@ const Mx = {
             entity.place(this.x + x * this.tileWidth, this.y + y * this.tileHeight);
             this.map.put(x, y, entity);
             return this;
+        }
+
+        get(x, y) {
+            return this.map.get(x, y);
+        }
+
+        tileAt(tx, ty) {
+            const x = Math.round(tx / this.tileWidth);
+            const y = Math.round(ty / this.tileHeight);
+            return this.get(x, y);
         }
 
         _getDrawn(canvasHandler) {
