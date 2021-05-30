@@ -12,8 +12,8 @@
                     this.tilemap.put(x, y, this.sheet.get(x % 6, y % 5));        
                 }
             }
-            this.tilemap.moveByTiles(-2, -2);
-            this.tilemap.slice(0, 0, 4, 4);
+            this.tilemap.moveByTiles(-15, -15);
+            this.tilemap.sliceAround(15, 15, 40, 30);
         },
         onUpdate() {    
             this.debug();
