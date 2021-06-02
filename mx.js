@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.8.1
+ * @version 1.8.2
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1232,6 +1232,7 @@ const Mx = {
         move(x, y) {
             super.move(x, y);
             this.map.forEach(e => e?.move(x, y));
+            return this;
         }
 
         place(x, y) {
@@ -1239,18 +1240,21 @@ const Mx = {
             this.map.forEach((e, px, py) => {
                 e?.place(x + px * this.tileWidth, y + py * this.tileHeight);
             });
+            return this;
         }
 
         moveByTiles(x, y) {
             const mx = x * this.tileWidth;
             const my = y * this.tileHeight;
             this.move(mx, my);
+            return this;
         }
 
         placeByTiles(x, y) {
             const mx = x * this.tileWidth;
             const my = y * this.tileHeight;
             this.place(mx, my);
+            return this;
         }
 
     },
