@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.8.0
+ * @version 1.8.1
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1119,18 +1119,21 @@ const Mx = {
             [true, true, true, false, 0, 1],
         ];
 
-        constructor(spritesheet, rules) {
-            this.spritesheet = spritesheet;
+        constructor(rules) {
             this.rules = rules;
         }
 
         get4(up, right, down, left, dx = 0, dy = 0) {
             for(let r of this.rules) {
                 if(r[0] === up && r[1] === right && r[2] === down && r[3] === left) {
-                    return this.spritesheet.get(r[4], r[5]);
+                    dx = r[4];
+                    dy = r[5];
                 }
             }
-            return this.spritesheet.get(dx, dy);
+            return{
+                x: dx,
+                y: dy
+            };
         }
 
         get8(upLeft, up, upRight, right, downRight, down, downLeft, left) {
