@@ -1097,6 +1097,48 @@ const Mx = {
 
     },
 
+    AutoTiler: class {
+
+        static DEFAULT_RULE_4 = [
+            // up, right, down, left, sx, sy
+            [false, false, false, false, 3, 3],
+            [true, true, true, true, 1, 1],
+            [true, false, false, false, 3, 2],
+            [false, true, false, false, 0, 3],
+            [false, false, true, false, 3, 0],
+            [false, false, false, true, 2, 3],
+            [false, true, false, true, 1, 3],
+            [true, false, true, false, 3, 1],
+            [true, true, false, false, 0, 2],
+            [false, true, true, false, 0, 0],
+            [false, false, true, true, 2, 0],
+            [true, false, false, true, 2, 2],
+            [false, true, true, true, 1, 0],
+            [true, false, true, true, 2, 1],
+            [true, true, false, true, 1, 2],
+            [true, true, true, false, 0, 1],
+        ];
+
+        constructor(spritesheet, rules) {
+            this.spritesheet = spritesheet;
+            this.rules = rules;
+        }
+
+        get4(up, right, down, left, dx = 0, dy = 0) {
+            for(let r of this.rules) {
+                if(r[0] === up && r[1] === right && r[2] === down && r[3] === left) {
+                    return this.spritesheet.get(r[4], r[5]);
+                }
+            }
+            return this.spritesheet.get(dx, dy);
+        }
+
+        get8(upLeft, up, upRight, right, downRight, down, downLeft, left) {
+            // TODO
+        }
+
+    },
+
     TileMap: class extends _Entity {
 
         constructor(x, y, mapWidth, mapHeight = mapWidth, tileWidth = 64, tileHeight = tileWidth) {

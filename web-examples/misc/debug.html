@@ -1,0 +1,28 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    Mx.Game.create({
+        onCreate() {
+            this.sheet = new Mx.SpriteSheet('./../../tileset-1.png', 16, 16, 0, 4);
+            this.mainLayer = this.registerLayer(0.5, 0.5, 1600, 900);
+            this.tilemap = this.mainLayer.add2(new Mx.TileMap(0, 0, 160, 160, 64, 64));
+            for(let x = 0; x < 160; x++) {
+                for(let y = 0; y < 160; y++) {
+                    const tile = this.sheet.get(x % 6, y % 5);
+                    tile.on('over', () => tile.setAlpha(0.5));
+                    tile.on('out', () => tile.setAlpha(1));
+                    this.tilemap.put(x, y, tile);        
+                }
+            }
+            this.player = this.mainLayer.add2(new Mx.Geo.Circle(0, 0, 30, 'red'));
+            this.mainLayer.startFollow(this.player);
+        },
+        onUpdate() {    
+            this.debug();
+            this.wasd(this.player);
+            this.tilemap.sliceAround(this.player, 10, 8);
+        }
+    });
+
+</script>
