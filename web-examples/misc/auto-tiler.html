@@ -8,7 +8,7 @@
             this.rng = new Mx.Rng();
             this.mainLayer = this.registerLayer(0.5, 0.5, 1600, 900);
             this.tilemap = this.mainLayer.add2(new Mx.TileMap(0, 0, 160, 160, 64, 64));
-            const statemap = new Mx.Ds.Array2D(160, 160).map(i => this.rng.chance(0.3));
+            const statemap = new Mx.Ds.Array2D(160, 160).map(i => this.rng.chance(0.5));
             this.autotiler = new Mx.AutoTiler(this.sheet, Mx.AutoTiler.DEFAULT_RULE_4);
             statemap.forEach((v, x, y) => {
                 if(v) {
