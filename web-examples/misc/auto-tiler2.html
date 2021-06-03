@@ -5,20 +5,12 @@
     Mx.Game.create({
         onCreate() {
             this.handler.setImageSmoothing(false);
-            this.sheet = new Mx.SpriteSheet('./../../ground-simple-1.png', 24, 24, 0, 2);
+            this.sheet = new Mx.SpriteSheet('./../../ground-1.png', 24, 24, 0, 2);
             this.rng = new Mx.Rng();
-            this.mainLayer = this.registerLayer(0.5, 0.5, 1200, 800);
-            this.tilemap = this.mainLayer.add2(new Mx.TileMap(0, 0, 20, 20, 48, 48));
-            const statemap = new Mx.Ds.Array2D(20, 20);
-            statemap.map(i => false);
-            statemap.forEach((v, x, y) => {
-                if(this.rng.chance(0.25)) {
-                    statemap.put(x, y, true);
-                    statemap.put(x, y + 1, true);
-                    statemap.put(x + 1, y, true);
-                    statemap.put(x + 1, y + 1, true);
-                }
-            });
+            this.mainLayer = this.registerLayer(0.5, 0.5, 800, 600);
+            this.tilemap = this.mainLayer.add2(new Mx.TileMap(0, 0, 80, 80, 48, 48));
+            const statemap = new Mx.Ds.Array2D(80, 80);
+            statemap.map(i => this.rng.chance(0.5));
             this.autotiler = new Mx.AutoTiler(Mx.AutoTiler.DEFAULT_RULE_8);
             statemap.forEach((v, x, y) => {
                 if(v) {
@@ -34,7 +26,7 @@
                     const tile = this.sheet.get(frame.x, frame.y);
                     this.tilemap.put(x, y, tile);  
                 } else {
-                    const tile = this.sheet.get(3, 2);
+                    const tile = this.sheet.get(0, 4);
                     this.tilemap.put(x, y, tile);  
                 }
             });

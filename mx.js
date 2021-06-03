@@ -1122,21 +1122,62 @@ const Mx = {
         
         static DEFAULT_RULE_8 = [
             // up, right, down, left, ur, rd, dl, lu, sx, sy
-            [true, true, true, true, true, false, true, true, 3, 0],
-            [true, true, true, true, true, true, false, true, 4, 0],
-            [true, true, true, true, false, true, true, true, 3, 1],
-            [true, true, true, true, true, true, true, false, 4, 1],
-            [false, true, true, false, undefined, undefined, undefined, undefined, 0, 0],
-            [false, true, true, true, undefined, undefined, undefined, undefined, 1, 0],
-            [false, false, true, true, undefined, undefined, undefined, undefined, 2, 0],
-            [true, true, true, false, undefined, undefined, undefined, undefined, 0, 1],
-            [true, true, true, true, undefined, undefined, undefined, undefined, 1, 1],
-            [true, false, true, true, undefined, undefined, undefined, undefined, 2, 1],
-            [true, true, false, false, undefined, undefined, undefined, undefined, 0, 2],
-            [true, true, false, true, undefined, undefined, undefined, undefined, 1, 2],
-            [true, false, false, true, undefined, undefined, undefined, undefined, 2, 2],
+            [true, true, true, true, true, false, true, true, 7, 0],
+            [true, true, true, true, true, false, false, true, 8, 0],
+            [true, true, true, true, true, true, false, true, 9, 0],
+            [true, true, true, true, false, false, true, true, 7, 1],
+            [true, true, true, true, false, false, false, false, 8, 1],
+            [true, true, true, true, true, true, false, false, 9, 1],
+            [true, true, true, true, false, true, true, true, 7, 2],
+            [true, true, true, true, false, true, true, false, 8, 2],
+            [true, true, true, true, true, true, true, false, 9, 2],
 
+            [false, true, true, false, undefined, false, undefined, undefined, 4, 0],
+            [false, true, true, true, undefined, false, false, undefined, 5, 0],
+            [false, false, true, true, undefined, undefined, false, undefined, 6, 0],
+            [true, true, true, false, false, false, undefined, undefined, 4, 1],
+            [true, true, true, true, false, false, false, false, 5, 1],
+            [true, false, true, true, undefined, undefined, false, false, 6, 1],
+            [true, true, false, false, false, undefined, undefined, undefined, 4, 2],
+            [true, true, false, true, false, undefined, undefined, false, 5, 2],
+            [true, false, false, true, undefined, undefined, undefined, false, 6, 2],
+
+            [true, true, true, true, false, true, false, true, 2, 4],
+            [true, true, true, true, true, false, true, false, 3, 4],
+
+            [true, true, true, false, true, false, undefined, undefined, 4, 3],
+            [true, true, true, false, false, true, undefined, undefined, 4, 4],
+            [true, false, true, true, undefined, undefined, false, true, 5, 3],
+            [true, false, true, true, undefined, undefined, true, false, 5, 4],
+
+            [false, true, true, true, undefined, false, true, undefined, 6, 3],
+            [false, true, true, true, undefined, true, false, undefined, 7, 3],
+            [true, true, false, true, false, undefined, undefined, true, 6, 4],
+            [true, true, false, true, true, undefined, undefined, false, 7, 4],
+
+            [true, true, true, true, false, false, true, false, 8, 3],
+            [true, true, true, true, false, true, false, false, 9, 3],
+            [true, true, true, true, false, false, false, true, 8, 4],
+            [true, true, true, true, true, false, false, false, 9, 4],
+
+            [false, false, false, false, undefined, undefined, undefined, undefined, 3, 3],
+            [true, true, true, true, undefined, undefined, undefined, undefined, 1, 1],
+            [true, false, false, false, undefined, undefined, undefined, undefined, 3, 2],
+            [false, true, false, false, undefined, undefined, undefined, undefined, 0, 3],
+            [false, false, true, false, undefined, undefined, undefined, undefined, 3, 0],
+            [false, false, false, true, undefined, undefined, undefined, undefined, 2, 3],
+            [false, true, false, true, undefined, undefined, undefined, undefined, 1, 3],
+            [true, false, true, false, undefined, undefined, undefined, undefined, 3, 1],
+            [true, true, false, false, undefined, undefined, undefined, undefined, 0, 2],
+            [false, true, true, false, undefined, undefined, undefined, undefined, 0, 0],
+            [false, false, true, true, undefined, undefined, undefined, undefined, 2, 0],
+            [true, false, false, true, undefined, undefined, undefined, undefined, 2, 2],
+            [false, true, true, true, undefined, undefined, undefined, undefined, 1, 0],
+            [true, false, true, true, undefined, undefined, undefined, undefined, 2, 1],
+            [true, true, false, true, undefined, undefined, undefined, undefined, 1, 2],
+            [true, true, true, false, undefined, undefined, undefined, undefined, 0, 1]
         ];
+
 
         constructor(rules) {
             this.rules = rules;
