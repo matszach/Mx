@@ -1,0 +1,51 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    Mx.Game.create({
+        onCreate() {
+            this.handler.setImageSmoothing(false);
+            this.sheet = new Mx.SpriteSheet('./../../ground-simple-1.png', 24, 24, 0, 2);
+            this.rng = new Mx.Rng();
+            this.mainLayer = this.registerLayer(0.5, 0.5, 1200, 800);
+            this.tilemap = this.mainLayer.add2(new Mx.TileMap(0, 0, 20, 20, 48, 48));
+            const statemap = new Mx.Ds.Array2D(20, 20);
+            statemap.map(i => false);
+            statemap.forEach((v, x, y) => {
+                if(this.rng.chance(0.25)) {
+                    statemap.put(x, y, true);
+                    statemap.put(x, y + 1, true);
+                    statemap.put(x + 1, y, true);
+                    statemap.put(x + 1, y + 1, true);
+                }
+            });
+            this.autotiler = new Mx.AutoTiler(Mx.AutoTiler.DEFAULT_RULE_8);
+            statemap.forEach((v, x, y) => {
+                if(v) {
+                    const up = statemap.safeGet(x, y - 1, true);
+                    const right = statemap.safeGet(x + 1, y, true);
+                    const down = statemap.safeGet(x, y + 1, true);
+                    const left = statemap.safeGet(x - 1, y, true);
+                    const upRight = statemap.safeGet(x + 1, y - 1, true);
+                    const rightDown = statemap.safeGet(x + 1, y + 1, true);
+                    const downLeft = statemap.safeGet(x - 1, y + 1, true);
+                    const leftUp = statemap.safeGet(x - 1, y - 1, true);
+                    const frame = this.autotiler.get8(up, right, down, left, upRight, rightDown, downLeft, leftUp, 1, 1);
+                    const tile = this.sheet.get(frame.x, frame.y);
+                    this.tilemap.put(x, y, tile);  
+                } else {
+                    const tile = this.sheet.get(3, 2);
+                    this.tilemap.put(x, y, tile);  
+                }
+            });
+            this.player = this.mainLayer.add2(new Mx.Geo.Circle(0, 0, 30, 'red'));
+            this.mainLayer.startFollow(this.player);
+        },
+        onUpdate() {    
+            this.debug();
+            this.wasd(this.player);
+            this.tilemap.sliceAround(this.player, 20, 15);
+        }
+    });
+
+</script>

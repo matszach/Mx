@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.8.2
+ * @version 1.8.3
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1119,6 +1119,25 @@ const Mx = {
             [true, true, true, false, 0, 1],
         ];
 
+        
+        static DEFAULT_RULE_8 = [
+            // up, right, down, left, ur, rd, dl, lu, sx, sy
+            [true, true, true, true, true, false, true, true, 3, 0],
+            [true, true, true, true, true, true, false, true, 4, 0],
+            [true, true, true, true, false, true, true, true, 3, 1],
+            [true, true, true, true, true, true, true, false, 4, 1],
+            [false, true, true, false, undefined, undefined, undefined, undefined, 0, 0],
+            [false, true, true, true, undefined, undefined, undefined, undefined, 1, 0],
+            [false, false, true, true, undefined, undefined, undefined, undefined, 2, 0],
+            [true, true, true, false, undefined, undefined, undefined, undefined, 0, 1],
+            [true, true, true, true, undefined, undefined, undefined, undefined, 1, 1],
+            [true, false, true, true, undefined, undefined, undefined, undefined, 2, 1],
+            [true, true, false, false, undefined, undefined, undefined, undefined, 0, 2],
+            [true, true, false, true, undefined, undefined, undefined, undefined, 1, 2],
+            [true, false, false, true, undefined, undefined, undefined, undefined, 2, 2],
+
+        ];
+
         constructor(rules) {
             this.rules = rules;
         }
@@ -1128,6 +1147,7 @@ const Mx = {
                 if(r[0] === up && r[1] === right && r[2] === down && r[3] === left) {
                     dx = r[4];
                     dy = r[5];
+                    break;
                 }
             }
             return{
@@ -1136,8 +1156,25 @@ const Mx = {
             };
         }
 
-        get8(upLeft, up, upRight, right, downRight, down, downLeft, left) {
-            // TODO
+        get8(up, right, down, left, upRight, rightDown, downLeft, leftUp, dx = 0, dy = 0) {
+            for(let r of this.rules) {
+                if(r[0] === up && r[1] === right && r[2] === down && r[3] === left) {
+                    if(
+                        (r[4] === undefined || r[4] === upRight) &&
+                        (r[5] === undefined || r[5] === rightDown) &&
+                        (r[6] === undefined || r[6] === downLeft) &&
+                        (r[7] === undefined || r[7] === leftUp)
+                    ) {
+                        dx = r[8];
+                        dy = r[9];
+                        break;
+                    }
+                }
+            }
+            return{
+                x: dx,
+                y: dy
+            };
         }
 
     },
