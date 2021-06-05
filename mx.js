@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.8.3
+ * @version 1.8.4
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1222,6 +1222,12 @@ const Mx = {
 
     TileMap: class extends _Entity {
 
+        static from(x, y, tileWidth, tileHeight, array2d, mapper) {
+            const tm = new Mx.TileMap(x, y, array2d.xSize, array2d.ySize, tileWidth, tileHeight);
+            array2d.forEach((v, x, y) => tm.put(x, y, mapper(v, x, y)));
+            return array2d;
+        }
+
         constructor(x, y, mapWidth, mapHeight = mapWidth, tileWidth = 64, tileHeight = tileWidth) {
             super(x, y);
             this.mapWidth = mapWidth;
@@ -2094,6 +2100,12 @@ const Mx = {
          * 2D simulating array wrapper
          */
         Array2D: class {
+
+            static from(arrayOfArrays) {
+                const arr = new Mx.Ds.Array2D(arrayOfArrays[0].length, arrayOfArrays.length);
+                arr.map((v, x, y) => arrayOfArrays[y][x]);
+                return arr;
+            }
 
             constructor(xSize, ySize) {
                 this.xSize = xSize;
