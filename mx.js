@@ -1237,8 +1237,8 @@ const Mx = {
             this.tileHeight = tileHeight;
             this.sliceX = 0;
             this.sliceY = 0;
-            this.sliceWidth = 30;
-            this.slicHeight = 20;
+            this.sliceWidth = mapWidth;
+            this.slicHeight = mapHeight;
         }
 
         slice(x, y, width, height) {
