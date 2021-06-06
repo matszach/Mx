@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.8.4
+ * @version 1.8.5
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -1197,6 +1197,14 @@ const Mx = {
             };
         }
 
+        pick4(x, y, picker, dx, dy) {
+            const up = picker(x, y - 1);
+            const right = picker(x + 1, y);
+            const down = picker(x, y + 1);
+            const left = picker(x - 1, y);
+            return this.get4(up, right, down, left, dx, dy);
+        }
+
         get8(up, right, down, left, upRight, rightDown, downLeft, leftUp, dx = 0, dy = 0) {
             for(let r of this.rules) {
                 if(r[0] === up && r[1] === right && r[2] === down && r[3] === left) {
@@ -1216,6 +1224,18 @@ const Mx = {
                 x: dx,
                 y: dy
             };
+        }
+
+        pick8(x, y, picker, dx, dy) {
+            const up = picker(x, y - 1);
+            const right = picker(x + 1, y);
+            const down = picker(x, y + 1);
+            const left = picker(x - 1, y);
+            const upRight = picker(x + 1, y - 1);
+            const downRight = picker(x + 1, y + 1);
+            const downLeft = picker(x - 1, y + 1);
+            const upLeft = picker(x - 1, y - 1);
+            return this.get8(up, right, down, left, upRight, downRight, downLeft, upLeft);
         }
 
     },
