@@ -3,7 +3,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski (matszach)
  * @see https://github.com/matszach
- * @version 1.8.5
+ * @version 1.8.6
  */
 
 /** ===== ===== ===== ===== ===== ===== ===== ===== ===== =====
@@ -3653,7 +3653,7 @@ const Mx = {
             draggedEntity: null,
         },
 
-        
+        _events: {},
 
         init(canvasHandler = null) {
             
@@ -3792,6 +3792,67 @@ const Mx = {
             this._mouse.justUpLeft = false;
             this._mouse.justUpMiddle = false;
             this._mouse.justUpRight = false;
+        },
+
+        registerEvent(name, condition) {
+            Mx.Input._events[name] = condition;
+            return this;
+        },
+
+        registerEventKeyDown(name, ...keys) {
+            Mx.Input.registerEvent(name, input => {
+                for(let key of keys) {
+                    if(input.isDown(key)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        },
+
+        registerEventKeyJustDown(name, ...keys) {
+            Mx.Input.registerEvent(name, input => {
+                for(let key of keys) {
+                    if(input.isJustDown(key)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        },
+
+        registerEventKeyJustUp(name, ...keys) {
+            Mx.Input.registerEvent(name, input => {
+                for(let key of keys) {
+                    if(input.isJustUp(key)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        },
+
+        isEvent(name) {
+            return Mx.Input._events[name](Mx.Input);
+        },
+
+        onEvent(name, callback) {
+            if(Mx.Input.isEvent(name)) {
+                callback();
+            }
+            return this;
+        },
+
+        clearEvent(name) {
+            Mx.Input._events[name] = () => false;
+        },
+
+        eventDebug() {
+            for(let event in Mx.Input._events) {
+                if(Mx.Input._events[event](Mx.Input)) {
+                    console.log(event);
+                }
+            }
         }
 
     },

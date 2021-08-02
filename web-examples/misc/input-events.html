@@ -1,0 +1,19 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    Mx.Game.create({
+        onCreate() {
+            this.input.registerEvent('Event1', input => {
+                return input.isDown('KeyQ') || input.isDown('KeyW');
+            });
+            this.input.registerEventKeyDown('Event2', 'KeyA', 'KeyS');
+            this.input.registerEventKeyJustDown('Event3', 'KeyE');
+            this.input.registerEventKeyJustUp('Event4', 'KeyD');
+        },
+        onUpdate() {    
+            this.input.eventDebug();
+        }
+    });
+
+</script>
