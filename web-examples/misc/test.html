@@ -1,0 +1,25 @@
+<body></body>
+<script src='./../../mx.js'></script>
+<script>
+
+    Mx.Game.create({
+        onCreate() {
+            this.layer = this.registerLayer(0.5, 0.5, 800, 600);
+            this.bg = this.layer.add2(new Mx.Geo.Rectangle(-400, -300, 800, 600, 'gray', 'white', 5));
+            for(let i = 0; i < 50; i++) {
+                const color = Mx.Draw.Color.hsl(100, 30, 20 + i * 0.5);
+                const circle = new Mx.Geo.Circle(0, 0, 10 + i * 0.2, color);
+                this.layer.add(circle);
+                circle.update = () => {
+                    const {xInCanvas: mx, yInCanvas: my} = this.input.mouse();
+                    circle.easeTo(mx, my, 0.01 + 0.01 * i);
+                }
+            }
+           
+        },
+        onUpdate() {    
+           
+        }
+    });
+
+</script>
